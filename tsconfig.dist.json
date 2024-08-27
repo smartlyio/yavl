@@ -5,6 +5,6 @@
     "noEmit": false,
     "declaration": true
   },
-  "files": ["./src/index.ts"],
+  "files": ["./src/index.ts", "./src/hooks/index.ts"],
   "include": []
 }

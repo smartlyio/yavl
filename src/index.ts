@@ -23,8 +23,6 @@ export { transaction } from './transaction';
 export { getAnnotationValue } from './getAnnotationValue';
 export { default as isModelContext } from './utils/isModelContext';
 
-export * from './hooks';
-
 export type WhenFn<If = never, Else = never, ErrorType = string> = (
   ifFn: [If] extends [never]
     ? ModelDefinitionFnWithNoArg<ErrorType>
