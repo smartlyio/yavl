@@ -15,8 +15,17 @@
     "noImplicitThis": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
-    "noEmit": true
+    "noEmit": true,
+    "paths": {
+      "@smartlyio/yavl": ["./packages/yavl/src"]
+    },
+    "outDir": "dist"
   },
-  "include": ["src", "tests", "examples"],
+  "include": [
+    "packages/*/index.ts",
+    "packages/*/tests",
+    "packages/*/examples",
+    "packages/*/src"
+  ],
   "exclude": ["node_modules", "dist"]
 }
