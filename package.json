@@ -24,7 +24,7 @@
     "ci:install": "yarn install --frozen-lockfile",
     "ci:build": "yarn run --silent build",
     "ci:lint": "yarn lint",
-    "ci:test": "yarn test",
+    "ci:test": "yarn test"
   },
   "peerDependencies": {
     "typescript": ">=4 <6"
