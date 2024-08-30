@@ -54,25 +54,12 @@ jobs:
         env:
           RELEASE_TYPE: ${{ github.event.inputs.release-type }}
 
-      # Update changelog unreleased section with new version
-      - name: Update changelog
-        uses: superfaceai/release-changelog-action@v2
-        with:
-          path-to-changelog: CHANGELOG.md
-          version: ${{ env.NEW_VERSION }}
-          operation: release
-
-      # Commit changes
-      - name: Commit CHANGELOG.md and package.json changes and create tag
-        run: |
-          git add "package.json"
-          git add "CHANGELOG.md"
-          git commit -m "chore: release ${{ env.NEW_VERSION }}"
-          git tag ${{ env.NEW_VERSION }}
+      - name: Bump up version with lerna
+        run: lerna version ${{ env.RELEASE_TAG }} --yes
 
       # Publish version to public repository
       - name: Publish
-        run: yarn publish --verbose --access public --tag ${{ env.RELEASE_TAG }}
+        run: lerna publish --loglevel verbose --yes
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPMJS_ACCESS_TOKEN }}
 
@@ -83,22 +70,4 @@ jobs:
         run: |
           git push origin && git push --tags
 
-      # Read version changelog
-      - id: get-changelog
-        name: Get version changelog
-        uses: superfaceai/release-changelog-action@v2
-        with:
-          path-to-changelog: CHANGELOG.md
-          version: ${{ env.NEW_VERSION }}
-          operation: read
-
-      # Update GitHub release with changelog
-      - name: Update GitHub release documentation
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ env.NEW_VERSION }}
-          body: ${{ steps.get-changelog.outputs.changelog }}
-          prerelease: ${{ startsWith(github.event.inputs.release-type, 'pre') }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
