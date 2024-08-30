@@ -34,12 +34,9 @@ jobs:
           git config --global user.email "andres.ledesma@smartly.io"
           git config --global user.name "Andres Ledesma"
 
-      - name: Bump up up version
-        run: lerna version ${{ env.github.event.inputs.release-type }} --yes
-
       # Publish version to public repository
       - name: Publish
-        run: lerna publish --loglevel verbose --yes
+        run: lerna publish ${{ env.github.event.inputs.release-type }} --no-private --loglevel verbose --yes
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPMJS_ACCESS_TOKEN }}
 
