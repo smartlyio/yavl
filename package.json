@@ -4,9 +4,6 @@
   "license": "MIT",
   "description": "Declarative and type-safe model & validation library",
   "author": "Smartly.io",
-  "workspaces": {
-    "packages": ["packages/*"]
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/smartlyio/yavl.git"
