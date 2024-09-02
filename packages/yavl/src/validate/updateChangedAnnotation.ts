@@ -1,9 +1,6 @@
 import * as R from 'ramda';
 import { Annotation, noValue } from '../types';
-import {
-  getResolvedAnnotation,
-  updateResolvedAnnotation
-} from '../utils/resolvedAnnotationsHelpers';
+import { getResolvedAnnotation, updateResolvedAnnotation } from '../utils/resolvedAnnotationsHelpers';
 import { getChangedAnnotationsCacheForPath } from './getChangedAnnotationsCacheForPath';
 import { getFieldResolvedAnnotation } from './getFieldResolvedAnnotation';
 import { ProcessingContext } from './types';
@@ -13,32 +10,23 @@ import { strPathToArray } from '../utils/strPathToArray';
 const markFieldAnnotationAsChanged = <Data, ExternalData, ErrorType>(
   processingContext: ProcessingContext<Data, ExternalData, ErrorType>,
   pathToFieldStr: string,
-  annotation: Annotation<any>
+  annotation: Annotation<any>,
 ) => {
-  const cache = getChangedAnnotationsCacheForPath(
-    processingContext.changedAnnotationsCache,
-    pathToFieldStr
-  );
+  const cache = getChangedAnnotationsCacheForPath(processingContext.changedAnnotationsCache, pathToFieldStr);
 
   cache.add(annotation);
 };
 
 const processComputedValueAnnotation = <Data, ExternalData, ErrorType>(
   processingContext: ProcessingContext<Data, ExternalData, ErrorType>,
-  pathToFieldStr: string
+  pathToFieldStr: string,
 ): void => {
-  const value = getFieldResolvedAnnotation(
-    processingContext,
-    pathToFieldStr,
-    valueAnnotation
-  );
+  const value = getFieldResolvedAnnotation(processingContext, pathToFieldStr, valueAnnotation);
 
   const path = strPathToArray(pathToFieldStr);
 
   // @ts-ignore - hasPath supports numbers in path, the typings are wrong
-  const previousValue = R.hasPath(path, processingContext.data)
-    ? R.path(path, processingContext.data)
-    : noValue;
+  const previousValue = R.hasPath(path, processingContext.data) ? R.path(path, processingContext.data) : noValue;
 
   // update processingContext data if the value has changed
   if (value !== noValue && value !== previousValue) {
@@ -49,7 +37,7 @@ const processComputedValueAnnotation = <Data, ExternalData, ErrorType>(
 export const updateChangedAnnotation = <Data, ExternalData, ErrorType>(
   processingContext: ProcessingContext<Data, ExternalData, ErrorType>,
   pathToFieldStr: string,
-  annotation: Annotation<any>
+  annotation: Annotation<any>,
 ): void => {
   /**
    * Process computed value annotations even if they have not changed, because
@@ -64,27 +52,15 @@ export const updateChangedAnnotation = <Data, ExternalData, ErrorType>(
   const previousResolvedAnnotation = getResolvedAnnotation(
     processingContext.resolvedAnnotations.current,
     pathToFieldStr,
-    annotation
+    annotation,
   );
 
-  const nextResolvedAnnotation = getFieldResolvedAnnotation(
-    processingContext,
-    pathToFieldStr,
-    annotation
-  );
+  const nextResolvedAnnotation = getFieldResolvedAnnotation(processingContext, pathToFieldStr, annotation);
 
-  const hasAnnotationChanged = !R.equals(
-    nextResolvedAnnotation,
-    previousResolvedAnnotation
-  );
+  const hasAnnotationChanged = !R.equals(nextResolvedAnnotation, previousResolvedAnnotation);
 
   if (hasAnnotationChanged) {
-    updateResolvedAnnotation(
-      processingContext,
-      pathToFieldStr,
-      annotation,
-      nextResolvedAnnotation
-    );
+    updateResolvedAnnotation(processingContext, pathToFieldStr, annotation, nextResolvedAnnotation);
 
     markFieldAnnotationAsChanged(processingContext, pathToFieldStr, annotation);
   }
@@ -93,7 +69,7 @@ export const updateChangedAnnotation = <Data, ExternalData, ErrorType>(
 export const removeAnnotationForField = <Data, ExternalData, ErrorType>(
   processingContext: ProcessingContext<Data, ExternalData, ErrorType>,
   pathToFieldStr: string,
-  annotation: Annotation<any>
+  annotation: Annotation<any>,
 ): void => {
   // no need to do anything for computed values
   if (annotation === valueAnnotation) {
@@ -103,16 +79,11 @@ export const removeAnnotationForField = <Data, ExternalData, ErrorType>(
   const previousResolvedAnnotation = getResolvedAnnotation(
     processingContext.resolvedAnnotations.current,
     pathToFieldStr,
-    annotation
+    annotation,
   );
 
   if (previousResolvedAnnotation !== noValue) {
-    updateResolvedAnnotation(
-      processingContext,
-      pathToFieldStr,
-      annotation,
-      noValue
-    );
+    updateResolvedAnnotation(processingContext, pathToFieldStr, annotation, noValue);
 
     markFieldAnnotationAsChanged(processingContext, pathToFieldStr, annotation);
   }

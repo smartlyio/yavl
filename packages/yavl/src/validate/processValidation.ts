@@ -14,21 +14,13 @@ const processValidation = <Data, ExternalData, ErrorType>(
   processingContext: ProcessingContext<Data, ExternalData, ErrorType>,
   validation: ValidateDefinition<ErrorType>,
   parentDefinitions: RecursiveDefinition<ErrorType>[],
-  currentIndices: Record<string, number>
+  currentIndices: Record<string, number>,
 ): void => {
-  const {
-    data,
-    externalData,
-    fieldProcessingCache,
-    validateDiffCache
-  } = processingContext;
+  const { data, externalData, fieldProcessingCache, validateDiffCache } = processingContext;
 
   const closestArray = findClosestArrayFromDefinitions(parentDefinitions);
   const pathToArrayStr = resolveModelPathStr(closestArray, currentIndices);
-  const runCacheForField = getProcessingCacheForField(
-    fieldProcessingCache,
-    pathToArrayStr
-  );
+  const runCacheForField = getProcessingCacheForField(fieldProcessingCache, pathToArrayStr);
 
   if (runCacheForField.ranValidations.has(validation)) {
     return;
@@ -39,21 +31,16 @@ const processValidation = <Data, ExternalData, ErrorType>(
     validation.context.type,
     validation.context.pathToField,
     currentIndices,
-    runCacheForField
+    runCacheForField,
   );
 
   const resolvedDependencies =
     validation.dependencies &&
-    resolveDependencies(
-      processingContext,
-      validation.dependencies,
-      currentIndices,
-      runCacheForField
-    );
+    resolveDependencies(processingContext, validation.dependencies, currentIndices, runCacheForField);
 
   const errors = R.unnest(
     rejectUndefinedValues(
-      validation.validators.map((validator) => {
+      validation.validators.map(validator => {
         const errorOrErrors = validation.dependencies
           ? validator(resolvedValue, resolvedDependencies, data, externalData)
           : validator(resolvedValue, data, externalData);
@@ -64,20 +51,13 @@ const processValidation = <Data, ExternalData, ErrorType>(
         } else {
           return undefined;
         }
-      })
-    )
+      }),
+    ),
   );
 
-  const cacheEntry = findErrorCacheEntry(
-    validateDiffCache,
-    parentDefinitions,
-    currentIndices
-  );
+  const cacheEntry = findErrorCacheEntry(validateDiffCache, parentDefinitions, currentIndices);
 
-  const field = resolveModelPathStr(
-    validation.context.pathToField,
-    currentIndices
-  );
+  const field = resolveModelPathStr(validation.context.pathToField, currentIndices);
 
   if (errors.length > 0) {
     cacheEntry.errors.set(validation, { field, errors });

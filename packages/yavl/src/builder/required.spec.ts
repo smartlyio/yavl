@@ -15,23 +15,23 @@ describe('required', () => {
   const validatorFn = jest.fn();
 
   const annoteDefinition: any = {
-    mock: 'annoteDefinition'
+    mock: 'annoteDefinition',
   };
 
   const validateDefinition: any = {
-    mock: 'validateDefinition'
+    mock: 'validateDefinition',
   };
 
   const whenDefinition: any = {
-    mock: 'whenDefinition'
+    mock: 'whenDefinition',
   };
 
   const parentContext: any = {
-    mock: 'parentContext'
+    mock: 'parentContext',
   };
 
   const whenContext: any = {
-    mock: 'whenContext'
+    mock: 'whenContext',
   };
 
   let required: ReturnType<MakeRequiredFn<any>>;
@@ -71,20 +71,12 @@ describe('required', () => {
 
       it('should call validate with the expected validator', () => {
         expect(validate).toHaveBeenCalledTimes(1);
-        expect(validate).toHaveBeenCalledWith(
-          parentContext,
-          parentContext,
-          validatorFn
-        );
+        expect(validate).toHaveBeenCalledWith(parentContext, parentContext, validatorFn);
       });
 
       it('should call when with the given testFn and modelDefinitionFn', () => {
         expect(when).toHaveBeenCalledTimes(1);
-        expect(when).toHaveBeenCalledWith(
-          parentContext,
-          testFn,
-          modelDefinitionFn
-        );
+        expect(when).toHaveBeenCalledWith(parentContext, testFn, modelDefinitionFn);
       });
 
       it('should call provided modelDefinitionFn', () => {
@@ -92,11 +84,7 @@ describe('required', () => {
       });
 
       it('should return annotation, validation and when definitions', () => {
-        expect(result).toEqual([
-          annoteDefinition,
-          validateDefinition,
-          whenDefinition
-        ]);
+        expect(result).toEqual([annoteDefinition, validateDefinition, whenDefinition]);
       });
     });
 
@@ -112,11 +100,7 @@ describe('required', () => {
 
       it('should call validate with the expected validator', () => {
         expect(validate).toHaveBeenCalledTimes(1);
-        expect(validate).toHaveBeenCalledWith(
-          parentContext,
-          parentContext,
-          validatorFn
-        );
+        expect(validate).toHaveBeenCalledWith(parentContext, parentContext, validatorFn);
       });
 
       it('should not call when', () => {

@@ -13,7 +13,7 @@ describe('subscribeToFieldAnnotation', () => {
     fieldTestAnnotationA: jest.fn(),
     fieldTestAnnotationB: jest.fn(),
     fieldAnotherAnnotation: jest.fn(),
-    anotherField: jest.fn()
+    anotherField: jest.fn(),
   };
 
   const testAnnotation = createAnnotation<string>('test');
@@ -23,20 +23,20 @@ describe('subscribeToFieldAnnotation', () => {
   const getExpectedSubscription = (
     path: string,
     annotation: Annotation<any>,
-    subscribeFn: SubscribeToFieldAnnotationFn<any, any>
+    subscribeFn: SubscribeToFieldAnnotationFn<any, any>,
   ) => ({
     path,
     annotation,
     previousValue: currentValue,
     defaultValue: noValue,
-    subscribeFn
+    subscribeFn,
   });
 
   beforeEach(() => {
     mockValidationContext = {
       subscriptions: {
-        fieldAnnotation: new Map()
-      }
+        fieldAnnotation: new Map(),
+      },
     } as ModelValidationContext<any, any, any>;
 
     jest.mocked(getFieldAnnotation).mockReturnValue(currentValue);
@@ -44,34 +44,14 @@ describe('subscribeToFieldAnnotation', () => {
 
   describe('when subscribing', () => {
     beforeEach(() => {
-      subscribeToFieldAnnotation(
-        mockValidationContext,
-        'field',
-        testAnnotation,
-        subscribers.fieldTestAnnotationA
-      );
+      subscribeToFieldAnnotation(mockValidationContext, 'field', testAnnotation, subscribers.fieldTestAnnotationA);
 
       // add one subscriber to same field & annotation to test cache building
-      subscribeToFieldAnnotation(
-        mockValidationContext,
-        'field',
-        testAnnotation,
-        subscribers.fieldTestAnnotationB
-      );
+      subscribeToFieldAnnotation(mockValidationContext, 'field', testAnnotation, subscribers.fieldTestAnnotationB);
 
-      subscribeToFieldAnnotation(
-        mockValidationContext,
-        'field',
-        anotherAnnotation,
-        subscribers.fieldAnotherAnnotation
-      );
+      subscribeToFieldAnnotation(mockValidationContext, 'field', anotherAnnotation, subscribers.fieldAnotherAnnotation);
 
-      subscribeToFieldAnnotation(
-        mockValidationContext,
-        'anotherField',
-        testAnnotation,
-        subscribers.anotherField
-      );
+      subscribeToFieldAnnotation(mockValidationContext, 'anotherField', testAnnotation, subscribers.anotherField);
     });
 
     it('should add a subscription to the validation context', () => {
@@ -82,54 +62,32 @@ describe('subscribeToFieldAnnotation', () => {
             [
               testAnnotation,
               new Set([
-                getExpectedSubscription(
-                  'field',
-                  testAnnotation,
-                  subscribers.fieldTestAnnotationA
-                ),
-                getExpectedSubscription(
-                  'field',
-                  testAnnotation,
-                  subscribers.fieldTestAnnotationB
-                )
-              ])
+                getExpectedSubscription('field', testAnnotation, subscribers.fieldTestAnnotationA),
+                getExpectedSubscription('field', testAnnotation, subscribers.fieldTestAnnotationB),
+              ]),
             ],
             [
               anotherAnnotation,
-              new Set([
-                getExpectedSubscription(
-                  'field',
-                  anotherAnnotation,
-                  subscribers.fieldAnotherAnnotation
-                )
-              ])
-            ]
-          ])
+              new Set([getExpectedSubscription('field', anotherAnnotation, subscribers.fieldAnotherAnnotation)]),
+            ],
+          ]),
         ],
         [
           'anotherField',
           new Map([
             [
               testAnnotation,
-              new Set([
-                getExpectedSubscription(
-                  'anotherField',
-                  testAnnotation,
-                  subscribers.anotherField
-                )
-              ])
-            ]
-          ])
-        ]
+              new Set([getExpectedSubscription('anotherField', testAnnotation, subscribers.anotherField)]),
+            ],
+          ]),
+        ],
       ]);
 
-      expect(mockValidationContext.subscriptions.fieldAnnotation).toEqual(
-        expectedSubscriptions
-      );
+      expect(mockValidationContext.subscriptions.fieldAnnotation).toEqual(expectedSubscriptions);
     });
 
     it('should immediately call the subscribers with the current value', () => {
-      Object.values(subscribers).forEach((subscriber) => {
+      Object.values(subscribers).forEach(subscriber => {
         expect(subscriber).toHaveBeenCalledTimes(1);
         expect(subscriber).toHaveBeenCalledWith(currentValue);
       });
@@ -143,15 +101,10 @@ describe('subscribeToFieldAnnotation', () => {
           mockValidationContext,
           'field',
           testAnnotation,
-          subscribers.fieldTestAnnotationA
+          subscribers.fieldTestAnnotationA,
         );
 
-        subscribeToFieldAnnotation(
-          mockValidationContext,
-          'field',
-          testAnnotation,
-          subscribers.fieldTestAnnotationB
-        );
+        subscribeToFieldAnnotation(mockValidationContext, 'field', testAnnotation, subscribers.fieldTestAnnotationB);
 
         unsubscribe();
       });
@@ -163,21 +116,13 @@ describe('subscribeToFieldAnnotation', () => {
             new Map([
               [
                 testAnnotation,
-                new Set([
-                  getExpectedSubscription(
-                    'field',
-                    testAnnotation,
-                    subscribers.fieldTestAnnotationB
-                  )
-                ])
-              ]
-            ])
-          ]
+                new Set([getExpectedSubscription('field', testAnnotation, subscribers.fieldTestAnnotationB)]),
+              ],
+            ]),
+          ],
         ]);
 
-        expect(mockValidationContext.subscriptions.fieldAnnotation).toEqual(
-          expectedSubscriptions
-        );
+        expect(mockValidationContext.subscriptions.fieldAnnotation).toEqual(expectedSubscriptions);
       });
     });
 
@@ -188,14 +133,14 @@ describe('subscribeToFieldAnnotation', () => {
             mockValidationContext,
             'field',
             testAnnotation,
-            subscribers.fieldTestAnnotationA
+            subscribers.fieldTestAnnotationA,
           );
 
           subscribeToFieldAnnotation(
             mockValidationContext,
             'field',
             anotherAnnotation,
-            subscribers.fieldAnotherAnnotation
+            subscribers.fieldAnotherAnnotation,
           );
 
           unsubscribe();
@@ -208,21 +153,13 @@ describe('subscribeToFieldAnnotation', () => {
               new Map([
                 [
                   anotherAnnotation,
-                  new Set([
-                    getExpectedSubscription(
-                      'field',
-                      anotherAnnotation,
-                      subscribers.fieldAnotherAnnotation
-                    )
-                  ])
-                ]
-              ])
-            ]
+                  new Set([getExpectedSubscription('field', anotherAnnotation, subscribers.fieldAnotherAnnotation)]),
+                ],
+              ]),
+            ],
           ]);
 
-          expect(mockValidationContext.subscriptions.fieldAnnotation).toEqual(
-            expectedSubscriptions
-          );
+          expect(mockValidationContext.subscriptions.fieldAnnotation).toEqual(expectedSubscriptions);
         });
       });
 
@@ -232,15 +169,10 @@ describe('subscribeToFieldAnnotation', () => {
             mockValidationContext,
             'field',
             testAnnotation,
-            subscribers.fieldTestAnnotationA
+            subscribers.fieldTestAnnotationA,
           );
 
-          subscribeToFieldAnnotation(
-            mockValidationContext,
-            'anotherField',
-            testAnnotation,
-            subscribers.anotherField
-          );
+          subscribeToFieldAnnotation(mockValidationContext, 'anotherField', testAnnotation, subscribers.anotherField);
 
           unsubscribe();
         });
@@ -252,21 +184,13 @@ describe('subscribeToFieldAnnotation', () => {
               new Map([
                 [
                   testAnnotation,
-                  new Set([
-                    getExpectedSubscription(
-                      'anotherField',
-                      testAnnotation,
-                      subscribers.anotherField
-                    )
-                  ])
-                ]
-              ])
-            ]
+                  new Set([getExpectedSubscription('anotherField', testAnnotation, subscribers.anotherField)]),
+                ],
+              ]),
+            ],
           ]);
 
-          expect(mockValidationContext.subscriptions.fieldAnnotation).toEqual(
-            expectedSubscriptions
-          );
+          expect(mockValidationContext.subscriptions.fieldAnnotation).toEqual(expectedSubscriptions);
         });
       });
     });

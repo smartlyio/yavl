@@ -29,9 +29,9 @@ describe('getValidationErrors', () => {
     const testModel = model<TestModel>((root, model) => [
       model.withFields(root, ['a', 'b'], ({ a, b }) => [
         // return the values themselves as error to test
-        model.validate(a, (value) => value),
-        model.validate(b, (value) => value)
-      ])
+        model.validate(a, value => value),
+        model.validate(b, value => value),
+      ]),
     ]);
 
     let oldErrors: ModelValidationErrors<string>;
@@ -49,7 +49,7 @@ describe('getValidationErrors', () => {
       expect(oldErrors).toEqual({ a: ['x'], b: ['y'] });
       expect(newErrors).toEqual({
         a: ['changed'],
-        b: ['y']
+        b: ['y'],
       });
     });
 

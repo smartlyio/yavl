@@ -1,8 +1,5 @@
 import getChangedData from './getChangedData';
-import {
-  createProcessingContext,
-  updateContextDataAndChangedAnnotations
-} from './processModelHelpers';
+import { createProcessingContext, updateContextDataAndChangedAnnotations } from './processModelHelpers';
 import processChangedFields from './processChangedFields';
 import { processModelRecursively } from './processModelRecursively';
 import {
@@ -11,7 +8,7 @@ import {
   ModelValidationContext,
   NewDefinition,
   ProcessingContext,
-  UnprocessedValidationsForCondition
+  UnprocessedValidationsForCondition,
 } from './types';
 import { updateModelCaches } from './updateModelCaches';
 import { Annotation, FieldDependencyEntry } from '../types';
@@ -31,14 +28,8 @@ type ChangedDataByPathLength = Map<number, Set<string>>;
 type UnprocessedChangedData = Record<Definitions, ChangedDataByPathLength>;
 type UnprocessedChangedExternalData = Record<Definitions, ChangedData>;
 type UnprocessedArraysWithChangedLength = Record<Definitions, ChangedData>;
-type UnprocessedChangedAnnotations = Record<
-  Definitions,
-  ChangedAnnotationsDependency[]
->;
-type UnprocessedNewDefinitions<ErrorType> = Record<
-  Definitions,
-  NewDefinition<ErrorType>[]
->;
+type UnprocessedChangedAnnotations = Record<Definitions, ChangedAnnotationsDependency[]>;
+type UnprocessedNewDefinitions<ErrorType> = Record<Definitions, NewDefinition<ErrorType>[]>;
 
 type UnprocessedContext<ErrorType> = {
   changedData: UnprocessedChangedData;
@@ -60,54 +51,44 @@ type ProcessPassResult<Data> =
 const getChangedFieldAnnotationDependencies = (
   processingContext: ProcessingContext<any, any, any>,
   field: string,
-  annotation: Annotation<any>
+  annotation: Annotation<any>,
 ): FieldDependencyEntry<any>[] => {
   const changedPath = strPathToArray(field);
   const dependentPathPermutations = getDependencyPathPermutations(
     'internal', // annotations are always internal
-    changedPath
+    changedPath,
   );
 
   const dependencies = rejectUndefinedValues(
-    dependentPathPermutations.map(
-      (path) => processingContext.fieldDependencyCache[`${path}/${annotation}`]
-    )
+    dependentPathPermutations.map(path => processingContext.fieldDependencyCache[`${path}/${annotation}`]),
   );
 
   return dependencies;
 };
 
-const getChangedAnnotations = (
-  processingContext: ProcessingContext<any, any, any>
-): ChangedAnnotationsDependency[] => {
+const getChangedAnnotations = (processingContext: ProcessingContext<any, any, any>): ChangedAnnotationsDependency[] => {
   const result: ChangedAnnotationsDependency[] = [];
 
-  processingContext.changedAnnotationsCache.forEach(
-    (changedAnnotations, field) => {
-      changedAnnotations.forEach((annotation) => {
-        result.push({
-          field,
-          annotation,
-          dependencies: getChangedFieldAnnotationDependencies(
-            processingContext,
-            field,
-            annotation
-          )
-        });
+  processingContext.changedAnnotationsCache.forEach((changedAnnotations, field) => {
+    changedAnnotations.forEach(annotation => {
+      result.push({
+        field,
+        annotation,
+        dependencies: getChangedFieldAnnotationDependencies(processingContext, field, annotation),
       });
-    }
-  );
+    });
+  });
 
   return result;
 };
 
 const needsAnotherPassDueToAnnotationChange = (
   pass: Definitions,
-  changedAnnotations: ChangedAnnotationsDependency[]
+  changedAnnotations: ChangedAnnotationsDependency[],
 ) => {
   const summary = changedAnnotations.reduce(
     (acc: Record<Definitions, number>, { dependencies }) => {
-      dependencies.forEach((dependency) => {
+      dependencies.forEach(dependency => {
         acc.annotations += dependency.annotations.length;
         acc.conditions += dependency.conditions.length;
         acc.validations += dependency.validations.length;
@@ -115,7 +96,7 @@ const needsAnotherPassDueToAnnotationChange = (
 
       return acc;
     },
-    { annotations: 0, conditions: 0, validations: 0 }
+    { annotations: 0, conditions: 0, validations: 0 },
   );
 
   if (pass === 'annotations') {
@@ -129,9 +110,7 @@ const needsAnotherPassDueToAnnotationChange = (
   return false;
 };
 
-const getChangedDataByMaxPathLength = (
-  data: ChangedDataByPathLength
-): Set<string> | undefined => {
+const getChangedDataByMaxPathLength = (data: ChangedDataByPathLength): Set<string> | undefined => {
   let maxLength = -1;
   for (const [length, changedData] of data) {
     if (length > maxLength && changedData.size > 0) {
@@ -146,9 +125,7 @@ const getChangedDataByMaxPathLength = (
   return changedData;
 };
 
-const needsAnotherPassDueToUnprocessedData = (
-  data: ChangedDataByPathLength
-) => {
+const needsAnotherPassDueToUnprocessedData = (data: ChangedDataByPathLength) => {
   for (const changedData of data.values()) {
     if (changedData.size > 0) {
       return true;
@@ -161,12 +138,10 @@ const needsAnotherPassDueToUnprocessedData = (
 const processChangedData = (
   processingContext: ProcessingContext<any, any, any>,
   unprocessedContext: UnprocessedContext<any>,
-  pass: Definitions
+  pass: Definitions,
 ) => {
   while (true) {
-    const changedData = getChangedDataByMaxPathLength(
-      unprocessedContext.changedData[pass]
-    );
+    const changedData = getChangedDataByMaxPathLength(unprocessedContext.changedData[pass]);
 
     if (!changedData) {
       break;
@@ -176,7 +151,7 @@ const processChangedData = (
       processingContext,
       pass,
       'internal',
-      Array.from(changedData).map((path) => strPathToArray(path))
+      Array.from(changedData).map(path => strPathToArray(path)),
     );
 
     changedData.clear();
@@ -188,32 +163,23 @@ const processChangedData = (
     }
   }
 
-  processChangedFields(
-    processingContext,
-    pass,
-    'external',
-    Array.from(unprocessedContext.changedExternalData[pass])
-  );
+  processChangedFields(processingContext, pass, 'external', Array.from(unprocessedContext.changedExternalData[pass]));
 
   processArraysWithChangedLength(
     processingContext,
     pass,
     'internal',
-    Array.from(unprocessedContext.arraysWithRemovedData[pass])
+    Array.from(unprocessedContext.arraysWithRemovedData[pass]),
   );
 
   processArraysWithChangedLength(
     processingContext,
     pass,
     'external',
-    Array.from(unprocessedContext.externalArraysWithRemovedData[pass])
+    Array.from(unprocessedContext.externalArraysWithRemovedData[pass]),
   );
 
-  processChangedAnnotations(
-    processingContext,
-    pass,
-    unprocessedContext.changedAnnotations[pass]
-  );
+  processChangedAnnotations(processingContext, pass, unprocessedContext.changedAnnotations[pass]);
 
   unprocessedContext.changedExternalData[pass].clear();
   unprocessedContext.arraysWithRemovedData[pass].clear();
@@ -227,18 +193,11 @@ const processModelChangesPass = <Data, ExternalData, ErrorType>(
   unprocessedContext: UnprocessedContext<ErrorType>,
   pass: 'annotations' | 'conditions' | 'validations',
   data: Data,
-  isEqualFn: CompareFn
+  isEqualFn: CompareFn,
 ): ProcessPassResult<Data> => {
-  unprocessedContext.newDefinitions[pass].forEach(
-    ({ pathToDefinition, indices }) => {
-      processModelRecursively(
-        processingContext,
-        pass,
-        pathToDefinition,
-        indices
-      );
-    }
-  );
+  unprocessedContext.newDefinitions[pass].forEach(({ pathToDefinition, indices }) => {
+    processModelRecursively(processingContext, pass, pathToDefinition, indices);
+  });
 
   unprocessedContext.newDefinitions[pass] = [];
 
@@ -247,7 +206,7 @@ const processModelChangesPass = <Data, ExternalData, ErrorType>(
   // validations can never cause cascading changes
   if (pass === 'validations') {
     return {
-      needsAnotherPass: false
+      needsAnotherPass: false,
     };
   }
 
@@ -264,18 +223,12 @@ const processModelChangesPass = <Data, ExternalData, ErrorType>(
   // as well as updated computed values, let's clear the changed annotations so we don't re-process them later
   processingContext.changedAnnotationsCache.clear();
 
-  const isAnotherPassNeededDueToAnnotationChange = needsAnotherPassDueToAnnotationChange(
-    pass,
-    changedAnnotations
-  );
+  const isAnotherPassNeededDueToAnnotationChange = needsAnotherPassDueToAnnotationChange(pass, changedAnnotations);
 
-  const isAnotherPassNeededDueToComputedDataChange = !isEqualFn(
-    processingContext.data,
-    data
-  );
+  const isAnotherPassNeededDueToComputedDataChange = !isEqualFn(processingContext.data, data);
 
   const isAnotherPassNeededDueToUnprocessedData = needsAnotherPassDueToUnprocessedData(
-    unprocessedContext.changedData[pass]
+    unprocessedContext.changedData[pass],
   );
 
   const needsAnotherPass =
@@ -286,13 +239,12 @@ const processModelChangesPass = <Data, ExternalData, ErrorType>(
   if (needsAnotherPass) {
     // we don't need a new processing context if we're only processing unprocessed changed paths
     const needsNewProcessingContext =
-      isAnotherPassNeededDueToAnnotationChange ||
-      isAnotherPassNeededDueToComputedDataChange;
+      isAnotherPassNeededDueToAnnotationChange || isAnotherPassNeededDueToComputedDataChange;
 
     return {
       needsAnotherPass: true,
       needsNewProcessingContext,
-      data: processingContext.data
+      data: processingContext.data,
     };
   } else {
     return { needsAnotherPass: false };
@@ -322,53 +274,47 @@ const createChangedDataByPathLengthMap = (): ChangedDataByPathLength => {
  */
 export const processModelChanges = <Data, ExternalData, ErrorType>(
   context: ModelValidationContext<Data, ExternalData, ErrorType>,
-  processingContext:
-    | ProcessingContext<Data, ExternalData, ErrorType>
-    | undefined,
+  processingContext: ProcessingContext<Data, ExternalData, ErrorType> | undefined,
   stopAfter: 'annotations' | 'conditions' | 'validations',
   isInitialValidation: boolean,
   data: Data,
   externalData: ExternalData,
-  isEqualFn: CompareFn
+  isEqualFn: CompareFn,
 ): ProcessingContext<Data, ExternalData, ErrorType> => {
-  const previousDataAtStartOfUpdate = isInitialValidation
-    ? undefined
-    : context.previousData;
-  const previousExternalDataAtStartOfUpdate = isInitialValidation
-    ? undefined
-    : context.previousExternalData;
+  const previousDataAtStartOfUpdate = isInitialValidation ? undefined : context.previousData;
+  const previousExternalDataAtStartOfUpdate = isInitialValidation ? undefined : context.previousExternalData;
 
   const unprocessedContext: UnprocessedContext<ErrorType> = {
     changedData: {
       annotations: createChangedDataByPathLengthMap(),
       conditions: createChangedDataByPathLengthMap(),
-      validations: createChangedDataByPathLengthMap()
+      validations: createChangedDataByPathLengthMap(),
     },
     changedExternalData: {
       annotations: new Set(),
       conditions: new Set(),
-      validations: new Set()
+      validations: new Set(),
     },
     arraysWithRemovedData: {
       annotations: new Set(),
       conditions: new Set(),
-      validations: new Set()
+      validations: new Set(),
     },
     externalArraysWithRemovedData: {
       annotations: new Set(),
       conditions: new Set(),
-      validations: new Set()
+      validations: new Set(),
     },
     changedAnnotations: {
       annotations: [],
       conditions: [],
-      validations: []
+      validations: [],
     },
     newDefinitions: {
       annotations: [],
       conditions: [],
-      validations: []
-    }
+      validations: [],
+    },
   };
 
   /**
@@ -376,7 +322,7 @@ export const processModelChanges = <Data, ExternalData, ErrorType>(
    */
   const {
     changedFields: changedExternalData,
-    arraysWithChangedLength: externalArraysWithChangedLength
+    arraysWithChangedLength: externalArraysWithChangedLength,
   } = getChangedData({
     newData: externalData,
     oldData: context.previousExternalData,
@@ -384,10 +330,10 @@ export const processModelChanges = <Data, ExternalData, ErrorType>(
     fieldsWithDependencies: context.model.fieldsWithDependencies,
     includeFieldsWithoutDependencies: true,
     changesFor: stopAfter,
-    isEqualFn
+    isEqualFn,
   });
 
-  changedExternalData.forEach((changedField) => {
+  changedExternalData.forEach(changedField => {
     unprocessedContext.changedExternalData.annotations.add(changedField);
     unprocessedContext.changedExternalData.conditions.add(changedField);
     unprocessedContext.changedExternalData.validations.add(changedField);
@@ -401,22 +347,16 @@ export const processModelChanges = <Data, ExternalData, ErrorType>(
       previousDataAtStartOfUpdate,
       previousExternalDataAtStartOfUpdate,
       externalData,
-      isEqualFn
+      isEqualFn,
     });
   };
 
   if (processingContext) {
     const changedAnnotations = getChangedAnnotations(processingContext);
 
-    unprocessedContext.changedAnnotations.annotations.push(
-      ...changedAnnotations
-    );
-    unprocessedContext.changedAnnotations.conditions.push(
-      ...changedAnnotations
-    );
-    unprocessedContext.changedAnnotations.validations.push(
-      ...changedAnnotations
-    );
+    unprocessedContext.changedAnnotations.annotations.push(...changedAnnotations);
+    unprocessedContext.changedAnnotations.conditions.push(...changedAnnotations);
+    unprocessedContext.changedAnnotations.validations.push(...changedAnnotations);
   }
 
   // after we have copied changed annotations from initial processing context, create a new one
@@ -434,32 +374,28 @@ export const processModelChanges = <Data, ExternalData, ErrorType>(
      * - When we're running the first pass (pass = 0)
      */
     const isFirstPass = pass === 0;
-    const includeFieldsWithoutDependencies =
-      isFirstPass && !isInitialValidation;
+    const includeFieldsWithoutDependencies = isFirstPass && !isInitialValidation;
 
     pass += 1;
 
     // If there are too many cascading changes bail out to avoid infinite loops
     if (pass === 200) {
       throw new Error(
-        'Too many cascading changes in model, this probably means you have cyclical computed data in your model'
+        'Too many cascading changes in model, this probably means you have cyclical computed data in your model',
       );
     }
 
-    const {
-      changedFields: changedData,
-      arraysWithChangedLength
-    } = getChangedData({
+    const { changedFields: changedData, arraysWithChangedLength } = getChangedData({
       newData: data,
       oldData: context.previousData,
       type: 'internal',
       fieldsWithDependencies: context.model.fieldsWithDependencies,
       includeFieldsWithoutDependencies,
       changesFor: stopAfter,
-      isEqualFn
+      isEqualFn,
     });
 
-    changedData.forEach((changedField) => {
+    changedData.forEach(changedField => {
       const fieldStr = dataPathToStr(changedField);
       const pathLength = changedField.length;
       if (pathLength > MAX_PATH_LENGTH) {
@@ -470,22 +406,16 @@ export const processModelChanges = <Data, ExternalData, ErrorType>(
       unprocessedContext.changedData.validations.get(pathLength)?.add(fieldStr);
     });
 
-    arraysWithChangedLength.forEach((arrayPath) => {
+    arraysWithChangedLength.forEach(arrayPath => {
       unprocessedContext.arraysWithRemovedData.annotations.add(arrayPath);
       unprocessedContext.arraysWithRemovedData.conditions.add(arrayPath);
       unprocessedContext.arraysWithRemovedData.validations.add(arrayPath);
     });
 
-    externalArraysWithChangedLength.forEach((arrayPath) => {
-      unprocessedContext.externalArraysWithRemovedData.annotations.add(
-        arrayPath
-      );
-      unprocessedContext.externalArraysWithRemovedData.conditions.add(
-        arrayPath
-      );
-      unprocessedContext.externalArraysWithRemovedData.validations.add(
-        arrayPath
-      );
+    externalArraysWithChangedLength.forEach(arrayPath => {
+      unprocessedContext.externalArraysWithRemovedData.annotations.add(arrayPath);
+      unprocessedContext.externalArraysWithRemovedData.conditions.add(arrayPath);
+      unprocessedContext.externalArraysWithRemovedData.validations.add(arrayPath);
     });
 
     // We always want to update model caches at start of a pass, because it is possible that earlier computed values change
@@ -501,7 +431,7 @@ export const processModelChanges = <Data, ExternalData, ErrorType>(
       context.previousData,
       {},
       true,
-      newDefinitions
+      newDefinitions,
     );
 
     unprocessedContext.newDefinitions.annotations.push(...newDefinitions);
@@ -514,7 +444,7 @@ export const processModelChanges = <Data, ExternalData, ErrorType>(
       unprocessedContext,
       'annotations',
       data,
-      isEqualFn
+      isEqualFn,
     );
 
     if (annotationPassResult.needsAnotherPass) {
@@ -535,7 +465,7 @@ export const processModelChanges = <Data, ExternalData, ErrorType>(
       unprocessedContext,
       'conditions',
       data,
-      isEqualFn
+      isEqualFn,
     );
 
     /**
@@ -543,9 +473,7 @@ export const processModelChanges = <Data, ExternalData, ErrorType>(
      * In case some computed values have updated, we'll jump to the start of the loop
      * and create a new processing context, so we want to save these for later on.
      */
-    unprocessedValidationsForConditons.push(
-      ...processingContext.unprocessedValidationsForConditons
-    );
+    unprocessedValidationsForConditons.push(...processingContext.unprocessedValidationsForConditons);
 
     if (conditionPassResult.needsAnotherPass) {
       data = conditionPassResult.data;
@@ -559,26 +487,11 @@ export const processModelChanges = <Data, ExternalData, ErrorType>(
       return processingContext;
     }
 
-    processModelChangesPass(
-      context,
-      processingContext,
-      unprocessedContext,
-      'validations',
-      data,
-      isEqualFn
-    );
+    processModelChangesPass(context, processingContext, unprocessedContext, 'validations', data, isEqualFn);
 
     // as the very last thing we want to process any validations for conditions that changed from inactive to active.
-    for (const {
-      pathToCondition,
-      indices
-    } of unprocessedValidationsForConditons) {
-      processModelRecursively(
-        processingContext,
-        'validations',
-        pathToCondition,
-        indices
-      );
+    for (const { pathToCondition, indices } of unprocessedValidationsForConditons) {
+      processModelRecursively(processingContext, 'validations', pathToCondition, indices);
     }
 
     return processingContext;

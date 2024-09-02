@@ -5,15 +5,12 @@ import {
   AnnotationsSubscription,
   AnnotationsSubscriptionValue,
   FieldAnnotationSubscription,
-  noValue
+  noValue,
 } from '../types';
 import { ModelValidationContext } from './types';
 import { isClosestArrayDeleted } from './isClosestArrayDeleted';
 
-const getValueForSubscription = (
-  value: any,
-  subscription: FieldAnnotationSubscription<any, any>
-) => {
+const getValueForSubscription = (value: any, subscription: FieldAnnotationSubscription<any, any>) => {
   if (value !== noValue) {
     return value;
   }
@@ -23,7 +20,7 @@ const getValueForSubscription = (
   }
 
   throw new Error(
-    `Annotation "${subscription.annotation.toString()}" was removed due to a change in parent condition, and no default value was provided for subscriber`
+    `Annotation "${subscription.annotation.toString()}" was removed due to a change in parent condition, and no default value was provided for subscriber`,
   );
 };
 
@@ -31,7 +28,7 @@ const notifyFieldAnnotationSubscribers = (
   context: ModelValidationContext<any, any, any>,
   path: string,
   annotation: Annotation<any>,
-  value: any
+  value: any,
 ) => {
   /**
    * Don't notify the single field subscribers when annotation is removed due to fields being removed.
@@ -45,11 +42,9 @@ const notifyFieldAnnotationSubscribers = (
     return;
   }
 
-  const subscriptions = context.subscriptions.fieldAnnotation
-    .get(path)
-    ?.get(annotation);
+  const subscriptions = context.subscriptions.fieldAnnotation.get(path)?.get(annotation);
 
-  subscriptions?.forEach((subscription) => {
+  subscriptions?.forEach(subscription => {
     const valueForSubscription = getValueForSubscription(value, subscription);
 
     if (!R.equals(valueForSubscription, subscription.previousValue)) {
@@ -63,13 +58,10 @@ const getNextValueForAnnotationsSubscription = (
   subscription: AnnotationsSubscription,
   path: string,
   annotation: Annotation<unknown>,
-  value: unknown
+  value: unknown,
 ): AnnotationsSubscriptionValue => {
   if (value === noValue) {
-    const nextValue = R.dissocPath<AnnotationsSubscriptionValue>(
-      [path, annotation],
-      subscription.previousValue
-    );
+    const nextValue = R.dissocPath<AnnotationsSubscriptionValue>([path, annotation], subscription.previousValue);
 
     if (R.isEmpty(R.path([path], nextValue))) {
       return R.dissocPath([path], subscription.previousValue);
@@ -85,26 +77,19 @@ const updateAndNotifyAnnotationSubscribers = (
   context: ModelValidationContext<any, any, any>,
   path: string,
   annotation: Annotation<any>,
-  value: unknown
+  value: unknown,
 ) => {
   const subscriptions = context.subscriptions.annotations;
 
-  subscriptions?.forEach((subscription) => {
+  subscriptions?.forEach(subscription => {
     const pathPrefixMatches =
-      subscription.filters.pathPrefix === undefined ||
-      path.startsWith(subscription.filters.pathPrefix);
+      subscription.filters.pathPrefix === undefined || path.startsWith(subscription.filters.pathPrefix);
 
     const annotationMatches =
-      subscription.filters.annotations === undefined ||
-      subscription.filters.annotations.includes(annotation);
+      subscription.filters.annotations === undefined || subscription.filters.annotations.includes(annotation);
 
     if (pathPrefixMatches && annotationMatches) {
-      const nextValue = getNextValueForAnnotationsSubscription(
-        subscription,
-        path,
-        annotation,
-        value
-      );
+      const nextValue = getNextValueForAnnotationsSubscription(subscription, path, annotation, value);
 
       subscription.subscribeFn(nextValue);
       subscription.previousValue = nextValue;
@@ -112,9 +97,7 @@ const updateAndNotifyAnnotationSubscribers = (
   });
 };
 
-const notifySubscribers = (
-  context: ModelValidationContext<any, any, any>
-): void => {
+const notifySubscribers = (context: ModelValidationContext<any, any, any>): void => {
   // only notify subscribers when not in transaction
   const inTransaction = context.transactionCounter > 0;
   if (inTransaction) {
@@ -124,19 +107,11 @@ const notifySubscribers = (
   context.pendingChangedAnnotations.forEach((changedAnnotations, path) => {
     const annotationsForField = getFieldAnnotations(context, path);
 
-    changedAnnotations.forEach((changedAnnotation) => {
-      const value =
-        changedAnnotation in annotationsForField
-          ? annotationsForField[changedAnnotation]
-          : noValue;
+    changedAnnotations.forEach(changedAnnotation => {
+      const value = changedAnnotation in annotationsForField ? annotationsForField[changedAnnotation] : noValue;
 
       notifyFieldAnnotationSubscribers(context, path, changedAnnotation, value);
-      updateAndNotifyAnnotationSubscribers(
-        context,
-        path,
-        changedAnnotation,
-        value
-      );
+      updateAndNotifyAnnotationSubscribers(context, path, changedAnnotation, value);
     });
   });
 

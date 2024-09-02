@@ -5,32 +5,26 @@ import {
   KeysOfUnion,
   ContextType,
   SupportedDefinition,
-  SameContextOfType
+  SameContextOfType,
 } from '../types';
 
 export type FieldFn<ErrorType = string> = <
   Context extends ModelContext<Record<string, unknown> | undefined>,
-  Key extends KeysOfUnion<
-    Extract<ContextType<Context>, Record<string, unknown>>
-  > &
-    string
+  Key extends KeysOfUnion<Extract<ContextType<Context>, Record<string, unknown>>> & string
 >(
   parentContext: Context,
   name: Key,
-  modelDefinitionFn?: ModelDefinitionFn<
-    SameContextOfType<Context, MaybeField<ContextType<Context>, Key>>,
-    ErrorType
-  >
+  modelDefinitionFn?: ModelDefinitionFn<SameContextOfType<Context, MaybeField<ContextType<Context>, Key>>, ErrorType>,
 ) => SupportedDefinition<ErrorType>;
 
 const field: FieldFn<any> = (
   parentContext: ModelContext<any>,
   name: string,
-  modelDefinitionFn?: any
+  modelDefinitionFn?: any,
 ): SupportedDefinition<any> => {
   const context: ModelContext<any> = {
     type: parentContext.type,
-    pathToField: parentContext.pathToField.concat({ type: 'field', name })
+    pathToField: parentContext.pathToField.concat({ type: 'field', name }),
   };
 
   const definitions = modelDefinitionFn?.(context) ?? [];

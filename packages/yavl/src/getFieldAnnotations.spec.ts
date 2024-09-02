@@ -28,13 +28,13 @@ const testData: TestModel = {
   list: [
     {
       value: 'a',
-      nestedList: []
+      nestedList: [],
     },
     {
       value: 'b',
-      nestedList: []
-    }
-  ]
+      nestedList: [],
+    },
+  ],
 };
 
 const conditionInsideArray = jest.fn();
@@ -47,53 +47,51 @@ const annotations = {
   conflict: createAnnotation<string>('conflict'),
   insideArray: createAnnotation<boolean>('insideArray'),
   insideArrayWhen: createAnnotation<boolean>('insideArrayWhen'),
-  insideNestedArray: createAnnotation<boolean>('insideNestedArray')
+  insideNestedArray: createAnnotation<boolean>('insideNestedArray'),
 };
 
 describe('getFieldAnnotations', () => {
   const testModel = model<TestModel>((root, model) => [
-    model.field(root, 'valueA', (valueA) => [
+    model.field(root, 'valueA', valueA => [
       model.annotate(valueA, annotations.meta, 'A'),
-      model.annotate(valueA, annotations.anotherMeta, 'B')
+      model.annotate(valueA, annotations.anotherMeta, 'B'),
     ]),
-    model.field(root, 'valueB', (valueB) => [
+    model.field(root, 'valueB', valueB => [
       model.annotate(valueB, annotations.meta, 'A'),
       model.when(
         valueB,
         () => false,
-        () => [model.annotate(valueB, annotations.falsyMeta, 'B')]
+        () => [model.annotate(valueB, annotations.falsyMeta, 'B')],
       ),
       model.when(
         valueB,
         () => true,
-        () => [model.annotate(valueB, annotations.truthyMeta, 'C')]
-      )
+        () => [model.annotate(valueB, annotations.truthyMeta, 'C')],
+      ),
     ]),
-    model.field(root, 'valueC', (valueC) => [
+    model.field(root, 'valueC', valueC => [
       model.annotate(valueC, annotations.conflict, 'A'),
       model.when(
         valueC,
         () => false,
-        () => [model.annotate(valueC, annotations.conflict, 'B')]
-      )
+        () => [model.annotate(valueC, annotations.conflict, 'B')],
+      ),
     ]),
-    model.field(root, 'list', (list) => [
-      model.array(list, (elem) => [
+    model.field(root, 'list', list => [
+      model.array(list, elem => [
         model.annotate(elem, annotations.insideArray, true),
         model.when(
           elem,
-          (elem) => elem.value === 'a',
+          elem => elem.value === 'a',
           () => [
             model.annotate(elem, annotations.insideArrayWhen, true),
-            model.field(elem, 'nestedList', (nestedList) => [
-              model.array(nestedList, (elem) => [
-                model.annotate(elem, annotations.insideNestedArray, true)
-              ])
-            ])
-          ]
-        )
-      ])
-    ])
+            model.field(elem, 'nestedList', nestedList => [
+              model.array(nestedList, elem => [model.annotate(elem, annotations.insideNestedArray, true)]),
+            ]),
+          ],
+        ),
+      ]),
+    ]),
   ]);
 
   beforeEach(() => {
@@ -113,20 +111,20 @@ describe('getFieldAnnotations', () => {
     it('should only return annotations for active branches', () => {
       expect(getFieldAnnotations(validationContext, 'valueB')).toEqual({
         [annotations.meta]: 'A',
-        [annotations.truthyMeta]: 'C'
+        [annotations.truthyMeta]: 'C',
       });
     });
 
     it('should return conditional annotations for array items for active branches', () => {
       expect(getFieldAnnotations(validationContext, 'list[0]')).toEqual({
         [annotations.insideArray]: true,
-        [annotations.insideArrayWhen]: true
+        [annotations.insideArrayWhen]: true,
       });
     });
 
     it('should not return conditional annotations for array items for inactive branches', () => {
       expect(getFieldAnnotations(validationContext, 'list[1]')).toEqual({
-        [annotations.insideArray]: true
+        [annotations.insideArray]: true,
       });
     });
   });

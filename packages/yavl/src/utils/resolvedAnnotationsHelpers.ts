@@ -5,7 +5,7 @@ import { ProcessingContext, ResolvedAnnotations } from '../validate/types';
 export const getResolvedAnnotation = (
   resolvedAnnotations: ResolvedAnnotations['current'],
   field: string,
-  annotation: Annotation<any>
+  annotation: Annotation<any>,
 ): any => {
   if (!(field in resolvedAnnotations)) {
     return noValue;
@@ -22,7 +22,7 @@ export const updateResolvedAnnotation = (
   processingContext: ProcessingContext<any, any, any>,
   field: string,
   annotation: Annotation<any>,
-  resolvedValue: any // this can be noValue in case there is no active annotation
+  resolvedValue: any, // this can be noValue in case there is no active annotation
 ): void => {
   if (!processingContext.resolvedAnnotations.current[field]) {
     if (resolvedValue === noValue) {
@@ -32,24 +32,18 @@ export const updateResolvedAnnotation = (
     if (processingContext.isInitialValidation) {
       processingContext.resolvedAnnotations.current[field] = {};
     } else {
-      processingContext.resolvedAnnotations.current = R.assoc(
-        field,
-        {},
-        processingContext.resolvedAnnotations.current
-      );
+      processingContext.resolvedAnnotations.current = R.assoc(field, {}, processingContext.resolvedAnnotations.current);
     }
   }
 
   if (resolvedValue !== noValue) {
     if (processingContext.isInitialValidation) {
-      processingContext.resolvedAnnotations.current[field][
-        annotation
-      ] = resolvedValue;
+      processingContext.resolvedAnnotations.current[field][annotation] = resolvedValue;
     } else {
       processingContext.resolvedAnnotations.current = R.assocPath(
         [field, annotation],
         resolvedValue,
-        processingContext.resolvedAnnotations.current
+        processingContext.resolvedAnnotations.current,
       );
     }
   } else {
@@ -63,22 +57,16 @@ export const updateResolvedAnnotation = (
     } else {
       processingContext.resolvedAnnotations.current = R.dissocPath(
         [field, annotation],
-        processingContext.resolvedAnnotations.current
+        processingContext.resolvedAnnotations.current,
       );
     }
 
     // delete the whole field if this was last annotation
-    if (
-      Object.keys(processingContext.resolvedAnnotations.current[field])
-        .length === 0
-    ) {
+    if (Object.keys(processingContext.resolvedAnnotations.current[field]).length === 0) {
       if (processingContext.isInitialValidation) {
         delete processingContext.resolvedAnnotations.current[field];
       } else {
-        processingContext.resolvedAnnotations.current = R.dissoc(
-          field,
-          processingContext.resolvedAnnotations.current
-        );
+        processingContext.resolvedAnnotations.current = R.dissoc(field, processingContext.resolvedAnnotations.current);
       }
     }
   }

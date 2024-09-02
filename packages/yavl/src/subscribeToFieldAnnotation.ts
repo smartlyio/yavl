@@ -1,11 +1,5 @@
 import getFieldAnnotation from './getFieldAnnotation';
-import {
-  Annotation,
-  FieldAnnotationSubscription,
-  noValue,
-  SubscribeToFieldAnnotationFn,
-  UnsubscribeFn
-} from './types';
+import { Annotation, FieldAnnotationSubscription, noValue, SubscribeToFieldAnnotationFn, UnsubscribeFn } from './types';
 import { ModelValidationContext } from './validate/types';
 
 interface SubscribeToFieldAnnotation {
@@ -13,7 +7,7 @@ interface SubscribeToFieldAnnotation {
     context: ModelValidationContext<any, any, any>,
     path: string,
     annotation: Annotation<Value>,
-    subscribeFn: SubscribeToFieldAnnotationFn<Value, never>
+    subscribeFn: SubscribeToFieldAnnotationFn<Value, never>,
   ): UnsubscribeFn;
 
   <Value, DefaultValue>(
@@ -21,13 +15,13 @@ interface SubscribeToFieldAnnotation {
     path: string,
     annotation: Annotation<Value>,
     subscribeFn: SubscribeToFieldAnnotationFn<Value, DefaultValue>,
-    defaultValue: DefaultValue
+    defaultValue: DefaultValue,
   ): UnsubscribeFn;
 }
 
 const addSubscription = (
   context: ModelValidationContext<any, any, any>,
-  subscription: FieldAnnotationSubscription<any, any>
+  subscription: FieldAnnotationSubscription<any, any>,
 ) => {
   const { path, annotation } = subscription;
 
@@ -46,10 +40,7 @@ const addSubscription = (
   annotationSubscriptions.add(subscription);
 };
 
-const subscribeToFieldAnnotation: SubscribeToFieldAnnotation = <
-  Value,
-  DefaultValue
->(
+const subscribeToFieldAnnotation: SubscribeToFieldAnnotation = <Value, DefaultValue>(
   context: ModelValidationContext<any, any, any>,
   path: string,
   annotation: Annotation<Value>,
@@ -57,19 +48,14 @@ const subscribeToFieldAnnotation: SubscribeToFieldAnnotation = <
   ...rest: [DefaultValue?]
 ): UnsubscribeFn => {
   const defaultValue = rest.length > 0 ? (rest[0] as DefaultValue) : noValue;
-  const value = getFieldAnnotation(
-    context,
-    path,
-    annotation,
-    defaultValue as DefaultValue
-  );
+  const value = getFieldAnnotation(context, path, annotation, defaultValue as DefaultValue);
 
   const subscription: FieldAnnotationSubscription<Value, DefaultValue> = {
     path,
     annotation,
     previousValue: value,
     defaultValue,
-    subscribeFn
+    subscribeFn,
   };
 
   addSubscription(context, subscription);

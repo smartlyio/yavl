@@ -7,35 +7,25 @@ const getDependentIndexPermutationsRecursively = (
   remainingPathToField: PathToField,
   data: any,
   currentIndices: CurrentIndices,
-  currentPath: (string | number)[]
+  currentPath: (string | number)[],
 ): CurrentIndices[] => {
-  const arrayIndex = remainingPathToField.findIndex(
-    (part) => part.type === 'array'
-  );
+  const arrayIndex = remainingPathToField.findIndex(part => part.type === 'array');
 
   // as soon as there is no more arrays in the path, return our current permutations
   if (arrayIndex === -1) {
     return [currentIndices];
   }
 
-  const [fieldParts, restOfThePathIncludingArray] = R.splitAt(
-    arrayIndex,
-    remainingPathToField
-  );
+  const [fieldParts, restOfThePathIncludingArray] = R.splitAt(arrayIndex, remainingPathToField);
 
-  const [[arrayPart], restOfThePath] = R.splitAt(
-    1,
-    restOfThePathIncludingArray
-  );
+  const [[arrayPart], restOfThePath] = R.splitAt(1, restOfThePathIncludingArray);
 
   if (arrayPart.type !== 'array') {
     throw new Error('never happens, done to type-narrow arrayPart');
   }
 
   // fieldParts are always FieldFocus since we split at first array index
-  const pathToArray = currentPath.concat(
-    (fieldParts as FieldFocus[]).map((it) => it.name)
-  );
+  const pathToArray = currentPath.concat((fieldParts as FieldFocus[]).map(it => it.name));
 
   const pathToArrayStr = dataPathToStr(pathToArray);
 
@@ -46,10 +36,7 @@ const getDependentIndexPermutationsRecursively = (
    * - For array deps with explicit index, we just use the index in the dependency.
    */
   if (arrayPart.focus !== 'all') {
-    const currentIndex =
-      arrayPart.focus === 'current'
-        ? currentIndices[pathToArrayStr]
-        : arrayPart.index;
+    const currentIndex = arrayPart.focus === 'current' ? currentIndices[pathToArrayStr] : arrayPart.index;
 
     if (currentIndex !== undefined) {
       // still at focused path, continue from rest of the path
@@ -57,7 +44,7 @@ const getDependentIndexPermutationsRecursively = (
         restOfThePath,
         data,
         { ...currentIndices, [pathToArrayStr]: currentIndex },
-        pathToArray.concat(currentIndex)
+        pathToArray.concat(currentIndex),
       );
     }
   }
@@ -77,8 +64,8 @@ const getDependentIndexPermutationsRecursively = (
       restOfThePath,
       data,
       { ...currentIndices, [pathToArrayStr]: idx },
-      pathToArray.concat(idx)
-    )
+      pathToArray.concat(idx),
+    ),
   );
 };
 
@@ -106,14 +93,9 @@ const getDependentIndexPermutationsRecursively = (
 const getDependentIndexPermutations = (
   pathToField: PathToField,
   data: any,
-  currentIndices: CurrentIndices
+  currentIndices: CurrentIndices,
 ): CurrentIndices[] => {
-  return getDependentIndexPermutationsRecursively(
-    pathToField,
-    data,
-    currentIndices,
-    []
-  );
+  return getDependentIndexPermutationsRecursively(pathToField, data, currentIndices, []);
 };
 
 export default getDependentIndexPermutations;

@@ -6,8 +6,8 @@ describe('isAnyModelContext', () => {
     expect(
       isAnyModelContext({
         type: 'internal',
-        pathToField: []
-      })
+        pathToField: [],
+      }),
     ).toBe(true);
   });
 
@@ -15,8 +15,8 @@ describe('isAnyModelContext', () => {
     expect(
       isAnyModelContext({
         type: 'external',
-        pathToField: []
-      })
+        pathToField: [],
+      }),
     ).toBe(true);
   });
 
@@ -24,7 +24,7 @@ describe('isAnyModelContext', () => {
     const computedContext: ComputedContext<any> = {
       type: 'computed',
       dependencies: {},
-      computeFn: () => {}
+      computeFn: () => {},
     };
 
     expect(isAnyModelContext(computedContext)).toBe(false);
@@ -33,8 +33,8 @@ describe('isAnyModelContext', () => {
   it('should return false for non-context object', () => {
     expect(
       isAnyModelContext({
-        type: 'external'
-      })
+        type: 'external',
+      }),
     ).toBe(false);
   });
 });

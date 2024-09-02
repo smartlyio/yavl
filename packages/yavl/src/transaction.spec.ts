@@ -15,37 +15,31 @@ describe('transaction', () => {
   const extDataAtStartOfTransaction = { mock: 'ext data' };
   const testAnnotation = createAnnotation<string>('test');
 
-  const makeTestValidationContext = (
-    overwrites?: Partial<ModelValidationContext<any, any, any>>
-  ) =>
+  const makeTestValidationContext = (overwrites?: Partial<ModelValidationContext<any, any, any>>) =>
     ({
       previousData: dataAtStartOfTransaction,
       previousExternalData: extDataAtStartOfTransaction,
       transactionCounter: 0,
       pendingChangedAnnotations: new Map(),
-      ...overwrites
+      ...overwrites,
     } as ModelValidationContext<any, any, any>);
 
   describe('when already in transaction', () => {
     it('should throw an error', () => {
       context = makeTestValidationContext({ transactionCounter: 1 });
 
-      expect(() => transaction(context, () => {})).toThrow(
-        'Nested model transactions not supported'
-      );
+      expect(() => transaction(context, () => {})).toThrow('Nested model transactions not supported');
     });
   });
 
   describe('when not in transaction', () => {
     describe('and when transaction is committed', () => {
       beforeEach(() => {
-        const pendingChangedAnnotations = new Map([
-          ['field', new Set([testAnnotation])]
-        ]);
+        const pendingChangedAnnotations = new Map([['field', new Set([testAnnotation])]]);
 
         context = makeTestValidationContext({
           transactionCounter: 0,
-          pendingChangedAnnotations
+          pendingChangedAnnotations,
         });
 
         result = transaction(context, () => {
@@ -79,27 +73,25 @@ describe('transaction', () => {
         it('should throw an error', () => {
           context = makeTestValidationContext({
             transactionCounter: 0,
-            previousData: undefined
+            previousData: undefined,
           });
 
           expect(() =>
             transaction(context, ({ rollback }) => {
               rollback();
               return 'rolled back';
-            })
+            }),
           ).toThrow('Rolling back initial update is not supported');
         });
       });
 
       describe('and when rolling back other updates', () => {
         beforeEach(() => {
-          const pendingChangedAnnotations = new Map([
-            ['field', new Set([testAnnotation])]
-          ]);
+          const pendingChangedAnnotations = new Map([['field', new Set([testAnnotation])]]);
 
           context = makeTestValidationContext({
             transactionCounter: 0,
-            pendingChangedAnnotations
+            pendingChangedAnnotations,
           });
 
           result = transaction(context, ({ rollback }) => {
@@ -110,11 +102,7 @@ describe('transaction', () => {
 
         it('should update model back to the original state', () => {
           expect(updateModel).toHaveBeenCalledTimes(1);
-          expect(updateModel).toHaveBeenCalledWith(
-            context,
-            dataAtStartOfTransaction,
-            extDataAtStartOfTransaction
-          );
+          expect(updateModel).toHaveBeenCalledWith(context, dataAtStartOfTransaction, extDataAtStartOfTransaction);
         });
 
         it('should not notify subscribers', () => {
@@ -138,13 +126,11 @@ describe('transaction', () => {
     describe('and callback throws an error', () => {
       let didThrow: boolean;
       beforeEach(() => {
-        const pendingChangedAnnotations = new Map([
-          ['field', new Set([testAnnotation])]
-        ]);
+        const pendingChangedAnnotations = new Map([['field', new Set([testAnnotation])]]);
 
         context = makeTestValidationContext({
           transactionCounter: 0,
-          pendingChangedAnnotations
+          pendingChangedAnnotations,
         });
 
         try {
@@ -159,11 +145,7 @@ describe('transaction', () => {
 
       it('should update model back to the original state', () => {
         expect(updateModel).toHaveBeenCalledTimes(1);
-        expect(updateModel).toHaveBeenCalledWith(
-          context,
-          dataAtStartOfTransaction,
-          extDataAtStartOfTransaction
-        );
+        expect(updateModel).toHaveBeenCalledWith(context, dataAtStartOfTransaction, extDataAtStartOfTransaction);
       });
 
       it('should not notify subscribers', () => {

@@ -15,19 +15,19 @@ export const passive = <T>(dependencies: T): T => {
   if (isComputedContext(dependencies)) {
     return {
       ...dependencies,
-      dependencies: passive(dependencies.dependencies)
+      dependencies: passive(dependencies.dependencies),
     };
   }
   if (Array.isArray(dependencies)) {
-    return dependencies.map((dependency) => passive(dependency)) as T;
+    return dependencies.map(dependency => passive(dependency)) as T;
   }
   if (typeof dependencies === 'object' && dependencies !== null) {
     return Object.entries(dependencies).reduce(
       (acc, [key, value]) => ({
         ...acc,
-        [key]: passive(value)
+        [key]: passive(value),
       }),
-      {} as T
+      {} as T,
     );
   }
   return dependencies;

@@ -6,19 +6,19 @@ describe('dependency', () => {
   describe('with internal dependencies', () => {
     const parent: FieldFocus = {
       type: 'field',
-      name: 'parent'
+      name: 'parent',
     };
 
     const parentField: AnyModelContext<any> = {
       type: 'internal',
-      pathToField: [parent]
+      pathToField: [parent],
     };
 
     describe('with field dependencies', () => {
       it('should return correct path for single field', () => {
         expect(dependency(parentField, 'child')).toEqual({
           type: 'internal',
-          pathToField: [parent, { type: 'field', name: 'child' }]
+          pathToField: [parent, { type: 'field', name: 'child' }],
         });
       });
     });
@@ -27,7 +27,7 @@ describe('dependency', () => {
       it('should return correct path for current focus', () => {
         expect(dependency(parentField, array.current)).toEqual({
           type: 'internal',
-          pathToField: [parent, { type: 'array', focus: 'current' }]
+          pathToField: [parent, { type: 'array', focus: 'current' }],
         });
       });
 
@@ -35,7 +35,7 @@ describe('dependency', () => {
         expect(dependency(parentField, array.all)).toEqual({
           type: 'internal',
           pathToField: [parent, { type: 'array', focus: 'all' }],
-          multiFocus: true
+          multiFocus: true,
         });
       });
     });
@@ -50,8 +50,8 @@ describe('dependency', () => {
             array.current,
             'nested',
             array.all,
-            'id'
-          )
+            'id',
+          ),
         ).toEqual({
           type: 'internal',
           pathToField: [
@@ -60,9 +60,9 @@ describe('dependency', () => {
             { type: 'array', focus: 'current' },
             { type: 'field', name: 'nested' },
             { type: 'array', focus: 'all' },
-            { type: 'field', name: 'id' }
+            { type: 'field', name: 'id' },
           ],
-          multiFocus: true
+          multiFocus: true,
         });
       });
     });
@@ -71,7 +71,7 @@ describe('dependency', () => {
   describe('with external dependencies', () => {
     const externalData: AnyModelContext<any> = {
       type: 'external',
-      pathToField: []
+      pathToField: [],
     };
 
     it('should return correct path', () => {
@@ -82,7 +82,7 @@ describe('dependency', () => {
         array.current,
         'nested',
         array.all,
-        'id'
+        'id',
       );
 
       expect(result).toEqual({
@@ -92,9 +92,9 @@ describe('dependency', () => {
           { type: 'array', focus: 'current' },
           { type: 'field', name: 'nested' },
           { type: 'array', focus: 'all' },
-          { type: 'field', name: 'id' }
+          { type: 'field', name: 'id' },
         ],
-        multiFocus: true
+        multiFocus: true,
       });
     });
   });

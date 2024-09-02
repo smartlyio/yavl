@@ -33,19 +33,15 @@ export type PickFocus = {
   keys: readonly string[];
 };
 
-export type FilterFnWithoutDependencies<
-  Type,
-  Keys extends keyof Type & string
-> = (data: Pick<Type, Keys>, index: number) => boolean;
+export type FilterFnWithoutDependencies<Type, Keys extends keyof Type & string> = (
+  data: Pick<Type, Keys>,
+  index: number,
+) => boolean;
 
-export type FilterFnWithDependencies<
-  Type,
-  Keys extends keyof Type & string,
-  Dependencies
-> = (
+export type FilterFnWithDependencies<Type, Keys extends keyof Type & string, Dependencies> = (
   data: Pick<Type, Keys>,
   dependencies: Dependencies,
-  index: number
+  index: number,
 ) => boolean;
 
 export type FilterFocus = {
@@ -87,13 +83,7 @@ export type IndexFocus = {
 };
 
 export type PathToField = ReadonlyArray<
-  | FieldFocus
-  | ArrayFocus
-  | PickFocus
-  | FilterFocus
-  | AnnotationFocus
-  | PathFocus
-  | IndexFocus
+  FieldFocus | ArrayFocus | PickFocus | FilterFocus | AnnotationFocus | PathFocus | IndexFocus
 >;
 export type DataPathToField = Array<string | number>;
 
@@ -116,11 +106,7 @@ export type KeysOfUnion<T> = T extends Record<string, unknown>
  * If K exists in all types of union, the return type is just "T[K]", if it does not exist in some
  * of the types, the return type will be "T[K] | undefined" instead.
  */
-export type MaybeField<T, K> = T extends any
-  ? K extends keyof T
-    ? T[K]
-    : undefined
-  : never;
+export type MaybeField<T, K> = T extends any ? (K extends keyof T ? T[K] : undefined) : never;
 
 export type MaybeArrayItem<T> = Exclude<T, readonly unknown[]> extends never
   ? Extract<T, readonly unknown[]>[number]
@@ -140,8 +126,7 @@ type BaseModelContext<FieldType> = ContextWithPath & {
 
 export type OptionallyArray<T> = T | readonly T[];
 
-export type ChangeFieldType<T, K extends keyof T, U> = Omit<T, K> &
-  { [P in K]: U };
+export type ChangeFieldType<T, K extends keyof T, U> = Omit<T, K> & { [P in K]: U };
 
 export type ModelContext<FieldType> = BaseModelContext<FieldType> & {
   type: 'internal';
@@ -161,17 +146,13 @@ export type ArrayModelContext<FieldType> = BaseModelContext<FieldType> & {
   nonExtensible?: false;
 };
 
-export type NonExtensibleModelContext<
-  FieldType
-> = BaseModelContext<FieldType> & {
+export type NonExtensibleModelContext<FieldType> = BaseModelContext<FieldType> & {
   type: 'internal';
   multiFocus?: false;
   nonExtensible: true;
 };
 
-export type NonExtensibleArrayModelContext<
-  FieldType
-> = BaseModelContext<FieldType> & {
+export type NonExtensibleArrayModelContext<FieldType> = BaseModelContext<FieldType> & {
   type: 'internal';
   multiFocus: true;
   nonExtensible: true;
@@ -182,16 +163,12 @@ export type ExternalModelContext<FieldType> = BaseModelContext<FieldType> & {
   multiFocus?: false;
 };
 
-export type ExternalArrayModelContext<
-  FieldType
-> = BaseModelContext<FieldType> & {
+export type ExternalArrayModelContext<FieldType> = BaseModelContext<FieldType> & {
   type: 'external';
   multiFocus: true;
 };
 
-export type AnyExtensibleSingleModelContext<FieldType> =
-  | ModelContext<FieldType>
-  | ExternalModelContext<FieldType>;
+export type AnyExtensibleSingleModelContext<FieldType> = ModelContext<FieldType> | ExternalModelContext<FieldType>;
 
 export type AnyExtensibleArrayModelContext<FieldType> =
   | ArrayModelContext<FieldType>
@@ -211,9 +188,7 @@ export type AnyExtensibleModelContext<FieldType> =
 
 export type AnyExtensibleContext<Type> = AnyExtensibleModelContext<Type>;
 
-export type AnyModelContext<FieldType> =
-  | AnySingleModelContext<FieldType>
-  | AnyArrayModelContext<FieldType>;
+export type AnyModelContext<FieldType> = AnySingleModelContext<FieldType> | AnyArrayModelContext<FieldType>;
 
 export type ComputeFn<Data, ReturnType> = (data: Data) => ReturnType;
 
@@ -242,19 +217,11 @@ export type PreviousContext<Type> = {
   __tag?: { type: Type };
 };
 
-export type AnySingleContext<Type> =
-  | AnySingleModelContext<Type>
-  | ComputedContext<Type>
-  | PreviousContext<Type>;
+export type AnySingleContext<Type> = AnySingleModelContext<Type> | ComputedContext<Type> | PreviousContext<Type>;
 
-export type AnyContext<Type> =
-  | AnyModelContext<Type>
-  | ComputedContext<Type>
-  | PreviousContext<Type>;
+export type AnyContext<Type> = AnyModelContext<Type> | ComputedContext<Type> | PreviousContext<Type>;
 
-export type ContextType<Context> = Context extends AnyContext<infer Type>
-  ? Type
-  : never;
+export type ContextType<Context> = Context extends AnyContext<infer Type> ? Type : never;
 
 export type ValueOrContextOfType<T> = NoInfer<
   | T
@@ -265,10 +232,7 @@ export type ValueOrContextOfType<T> = NoInfer<
       : AnySingleModelContext<T>)
 >;
 
-export type SameContextOfType<
-  Context,
-  Type
-> = Context extends ArrayModelContext<any>
+export type SameContextOfType<Context, Type> = Context extends ArrayModelContext<any>
   ? ArrayModelContext<Type>
   : Context extends ExternalArrayModelContext<any>
   ? ExternalArrayModelContext<Type>
@@ -280,25 +244,19 @@ export type SameContextOfType<
   ? ComputedContext<Type>
   : never;
 
-export type SameNonExtensibleModelContextOfType<
-  Context,
-  Type
-> = Context extends ArrayModelContext<any>
+export type SameNonExtensibleModelContextOfType<Context, Type> = Context extends ArrayModelContext<any>
   ? NonExtensibleArrayModelContext<Type>
   : Context extends ModelContext<any>
   ? NonExtensibleModelContext<Type>
   : never;
 
-type ArrayItemContextType<Context> = (ContextType<Context> &
-  readonly unknown[])[number];
+type ArrayItemContextType<Context> = (ContextType<Context> & readonly unknown[])[number];
 
 // Converts ModelContext<T[]> => ArrayModelContext<T>
 // Converts ExternalModelContext<T[]> => ExternalArrayModelContext<T>
 // Retain ComputedContext<T[]> => ComputedContext<T[]>
 // TODO: come up with a better name?
-export type ArrayOfSameContextType<Context> = Context extends ModelContext<
-  readonly any[]
->
+export type ArrayOfSameContextType<Context> = Context extends ModelContext<readonly any[]>
   ? ArrayModelContext<ArrayItemContextType<Context>>
   : Context extends ExternalModelContext<readonly any[]>
   ? ExternalArrayModelContext<ArrayItemContextType<Context>>
@@ -311,9 +269,7 @@ export type ArrayOfSameContextType<Context> = Context extends ModelContext<
 // Retains ArrayModelContext<T>
 // Retains ExternalArrayModelContext<T>
 // Retains ComputedContext<T[]>
-export type ModelContextToArrayModelContext<
-  Context
-> = Context extends AnyArrayModelContext<any>
+export type ModelContextToArrayModelContext<Context> = Context extends AnyArrayModelContext<any>
   ? Context
   : Context extends ModelContext<infer T>
   ? ArrayModelContext<T>
@@ -325,9 +281,7 @@ export type ModelContextToArrayModelContext<
 
 // Converts ArrayModelContext<string> => ModelContext<string>
 // Converts ComputedContext<T[]> => ComputedContext<T>
-export type ArrayModelContextToSingleModelContext<
-  Context
-> = Context extends ArrayModelContext<any>
+export type ArrayModelContextToSingleModelContext<Context> = Context extends ArrayModelContext<any>
   ? ModelContext<ContextType<Context>>
   : Context extends ExternalArrayModelContext<any>
   ? ExternalModelContext<ContextType<Context>>
@@ -350,17 +304,8 @@ export type ArrayDefinition<ErrorType> = ChangeFieldType<
   DefinitionList<ErrorType>
 >;
 
-export type WhenTestFn<
-  Data,
-  FormData,
-  ExternalData,
-  NarrowedType extends Data
-> =
-  | ((
-      data: Data,
-      formData: FormData,
-      extData: ExternalData
-    ) => data is NarrowedType)
+export type WhenTestFn<Data, FormData, ExternalData, NarrowedType extends Data> =
+  | ((data: Data, formData: FormData, extData: ExternalData) => data is NarrowedType)
   | ((data: Data, formData: FormData, extData: ExternalData) => boolean);
 
 export type WhenDefinitionInput<ErrorType> = {
@@ -376,28 +321,17 @@ export type WhenDefinition<ErrorType> = ChangeFieldType<
   DefinitionList<ErrorType>
 >;
 
-export type ValidatorFnWithoutDependencies<
-  FieldType,
-  FormData,
-  ExternalData,
-  ReturnType
-> = (
+export type ValidatorFnWithoutDependencies<FieldType, FormData, ExternalData, ReturnType> = (
   value: FieldType,
   formData: FormData,
-  externalData: ExternalData
+  externalData: ExternalData,
 ) => ReturnType;
 
-export type ValidatorFnWithDependencies<
-  FieldType,
-  Dependencies,
-  FormData,
-  ExternalData,
-  ReturnType
-> = (
+export type ValidatorFnWithDependencies<FieldType, Dependencies, FormData, ExternalData, ReturnType> = (
   value: FieldType,
   dependencies: Dependencies,
   formData: FormData,
-  externalData: ExternalData
+  externalData: ExternalData,
 ) => ReturnType;
 
 export type Dependency = {
@@ -409,9 +343,7 @@ export type ValidateDefinitionInput<ErrorType> = {
   type: 'validate';
   context: ModelContext<any>;
   dependencies?: any;
-  validators: ReadonlyArray<
-    (...args: any[]) => ErrorType | ErrorType[] | undefined
-  >;
+  validators: ReadonlyArray<(...args: any[]) => ErrorType | ErrorType[] | undefined>;
 };
 
 export type ValidateDefinition<ErrorType> = ValidateDefinitionInput<ErrorType>;
@@ -468,16 +400,9 @@ export type FieldDependencyEntry<ErrorType> = {
   conditions: FieldDependencyCondition<ErrorType>[];
 };
 
-export type FieldDependencyCache<ErrorType> = Record<
-  string,
-  FieldDependencyEntry<ErrorType> | undefined
->;
+export type FieldDependencyCache<ErrorType> = Record<string, FieldDependencyEntry<ErrorType> | undefined>;
 
-export type ModelDefinition<
-  ModelType,
-  ExternalData = undefined,
-  ErrorType = string
-> = {
+export type ModelDefinition<ModelType, ExternalData = undefined, ErrorType = string> = {
   type: 'model';
   context: ModelContext<any>;
   children: DefinitionList<ErrorType>;
@@ -534,22 +459,16 @@ export type ProcessedDefinition<ErrorType> =
 
 export type DefinitionList<ErrorType> = ProcessedDefinition<ErrorType>[];
 
-export type ModelDefinitionFn<Context, ErrorType = string> = (
-  field: Context
-) => SupportedDefinition<ErrorType>;
+export type ModelDefinitionFn<Context, ErrorType = string> = (field: Context) => SupportedDefinition<ErrorType>;
 
-export type ModelDefinitionFnWithNoArg<
-  ErrorType
-> = () => SupportedDefinition<ErrorType>;
+export type ModelDefinitionFnWithNoArg<ErrorType> = () => SupportedDefinition<ErrorType>;
 
 export type RecursiveDefinition<ErrorType> =
   | ModelDefinition<any, any, ErrorType>
   | ArrayDefinition<ErrorType>
   | WhenDefinition<ErrorType>;
 
-export type DefinitionWithContext<ErrorType> =
-  | ModelDefinition<ErrorType>
-  | ArrayDefinition<ErrorType>;
+export type DefinitionWithContext<ErrorType> = ModelDefinition<ErrorType> | ArrayDefinition<ErrorType>;
 
 export type NoInfer<T> = [T][T extends any ? 0 : never];
 
@@ -557,21 +476,15 @@ export type NoInfer<T> = [T][T extends any ? 0 : never];
 export const noValue = Symbol();
 export type NoValue = typeof noValue;
 
-export type SubscribeToFieldAnnotationFn<Value, DefaultValue> = (
-  value: Value | DefaultValue
-) => void;
+export type SubscribeToFieldAnnotationFn<Value, DefaultValue> = (value: Value | DefaultValue) => void;
 
 export type AnnotationsSubscriptionValue = Record<string, AnnotationData>;
 
 export type DeduceAnnotationData<Annotations extends Annotation<unknown>[]> = {
-  [K in keyof Annotations]: Annotations[K] extends Annotation<infer T>
-    ? T
-    : never;
+  [K in keyof Annotations]: Annotations[K] extends Annotation<infer T> ? T : never;
 };
 
-export type SubscribeToAnnotationsFn = (
-  annotations: AnnotationsSubscriptionValue
-) => void;
+export type SubscribeToAnnotationsFn = (annotations: AnnotationsSubscriptionValue) => void;
 
 export type UnsubscribeFn = () => void;
 

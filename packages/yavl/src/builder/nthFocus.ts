@@ -1,18 +1,10 @@
-import {
-  AnyArrayModelContext,
-  ArrayModelContextToSingleModelContext,
-  ContextType,
-  SameContextOfType
-} from '../types';
+import { AnyArrayModelContext, ArrayModelContextToSingleModelContext, ContextType, SameContextOfType } from '../types';
 
 /**
  * When taking nth focus, there's no way to know whether the specified focus exists,
  * hence let's always add undefined to the returned context type.
  */
-type AddUndefinedToContextType<Context> = SameContextOfType<
-  Context,
-  ContextType<Context> | undefined
->;
+type AddUndefinedToContextType<Context> = SameContextOfType<Context, ContextType<Context> | undefined>;
 
 /**
  * TODO:
@@ -22,24 +14,20 @@ type AddUndefinedToContextType<Context> = SameContextOfType<
  * of defining dependencies.
  */
 export interface NthFocusFn {
-  <Context extends AnyArrayModelContext<unknown>>(
-    arrayContext: Context,
-    index: number
-  ): AddUndefinedToContextType<ArrayModelContextToSingleModelContext<Context>>;
+  <Context extends AnyArrayModelContext<unknown>>(arrayContext: Context, index: number): AddUndefinedToContextType<
+    ArrayModelContextToSingleModelContext<Context>
+  >;
 }
 
-const nthFocus: NthFocusFn = (
-  arrayContext: AnyArrayModelContext<unknown>,
-  index: number
-): any => {
+const nthFocus: NthFocusFn = (arrayContext: AnyArrayModelContext<unknown>, index: number): any => {
   return {
     ...arrayContext,
     pathToField: arrayContext.pathToField.concat({
       type: 'array',
       focus: 'index',
       index,
-      multiToSingleFocus: true
-    })
+      multiToSingleFocus: true,
+    }),
   };
 };
 

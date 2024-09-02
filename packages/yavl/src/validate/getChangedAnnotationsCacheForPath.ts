@@ -3,7 +3,7 @@ import { ChangedAnnotationsCache } from './types';
 
 export const getChangedAnnotationsCacheForPath = (
   changedAnnotationsCache: ChangedAnnotationsCache,
-  path: string
+  path: string,
 ): Set<Annotation<any>> => {
   const existingCache = changedAnnotationsCache.get(path);
   if (existingCache) {

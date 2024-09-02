@@ -10,33 +10,19 @@ describe('checkParentConditions', () => {
   const mockProcessingContext = getMockProcessingContext();
 
   const mockCurrentIndices: any = {
-    mock: 'mockCurrentIndices'
+    mock: 'mockCurrentIndices',
   };
 
   const parentDefinitionA: any = { type: 'when', mock: 'parentDefinitionA' };
   const parentDefinitionB: any = { type: 'array', mock: 'parentDefinitionB' };
   const parentDefinitionC: any = { type: 'when', mock: 'parentDefinitionC' };
 
-  const parentDefinitions = [
-    parentDefinitionA,
-    parentDefinitionB,
-    parentDefinitionC
-  ];
+  const parentDefinitions = [parentDefinitionA, parentDefinitionB, parentDefinitionC];
 
-  const testCheckParentConditions = (
-    firstCondition: boolean,
-    secondCondition: boolean
-  ) => {
-    jest
-      .mocked(getConditionResult)
-      .mockReturnValueOnce(firstCondition)
-      .mockReturnValueOnce(secondCondition);
+  const testCheckParentConditions = (firstCondition: boolean, secondCondition: boolean) => {
+    jest.mocked(getConditionResult).mockReturnValueOnce(firstCondition).mockReturnValueOnce(secondCondition);
 
-    result = checkParentConditions(
-      mockProcessingContext,
-      parentDefinitions,
-      mockCurrentIndices
-    );
+    result = checkParentConditions(mockProcessingContext, parentDefinitions, mockCurrentIndices);
   };
 
   describe('when all conditions are truthy', () => {
@@ -51,14 +37,14 @@ describe('checkParentConditions', () => {
         mockProcessingContext,
         parentDefinitionA,
         [],
-        mockCurrentIndices
+        mockCurrentIndices,
       );
       expect(getConditionResult).toHaveBeenNthCalledWith(
         2,
         mockProcessingContext,
         parentDefinitionC,
         parentDefinitions.slice(0, 2),
-        mockCurrentIndices
+        mockCurrentIndices,
       );
     });
 

@@ -6,7 +6,7 @@ import { isClosestArrayDeleted } from './isClosestArrayDeleted';
 export const processChangedAnnotations = <Data, ExternalData, ErrorType>(
   processingContext: ProcessingContext<Data, ExternalData, ErrorType>,
   pass: 'annotations' | 'conditions' | 'validations',
-  changedAnnotations: ChangedAnnotationsDependency[]
+  changedAnnotations: ChangedAnnotationsDependency[],
 ): void => {
   changedAnnotations.forEach(({ field, dependencies }) => {
     // don't process changed annotations of deleted array items
@@ -16,14 +16,8 @@ export const processChangedAnnotations = <Data, ExternalData, ErrorType>(
     }
     const indices = getIndicesFromStrPath(field);
 
-    dependencies.forEach((dependency) => {
-      processChangedDependency(
-        processingContext,
-        pass,
-        'internal',
-        dependency,
-        indices
-      );
+    dependencies.forEach(dependency => {
+      processChangedDependency(processingContext, pass, 'internal', dependency, indices);
     });
   });
 };

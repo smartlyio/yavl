@@ -9,17 +9,17 @@ describe('passiveDependency', () => {
 
   const parent: FieldFocus = {
     type: 'field',
-    name: 'parent'
+    name: 'parent',
   };
 
   const parentContext: ModelContext<any> = {
     type: 'internal',
-    pathToField: [parent]
+    pathToField: [parent],
   };
 
   const childContext: ModelContext<any> = {
     type: 'internal',
-    pathToField: [parent, { type: 'field', name: 'child' }]
+    pathToField: [parent, { type: 'field', name: 'child' }],
   };
 
   beforeEach(() => {

@@ -9,10 +9,7 @@ import { assertUnreachable } from '../utils/typeUtils';
  * Trying to pass a model path with [all] indices will
  * cause an error to be thrown.
  */
-const resolveModelPath = (
-  path: PathToField,
-  currentIndices: Record<string, number>
-): (string | number)[] => {
+const resolveModelPath = (path: PathToField, currentIndices: Record<string, number>): (string | number)[] => {
   return path.reduce<(string | number)[]>((path, arrayOrField) => {
     if (arrayOrField.type === 'field') {
       path.push(arrayOrField.name);
@@ -26,16 +23,12 @@ const resolveModelPath = (
       // these don't affect the model path at all
       return path;
     } else if (arrayOrField.type === 'annotation') {
-      throw new Error(
-        'resolveModelPath should never be called for paths that have annotation in them'
-      );
+      throw new Error('resolveModelPath should never be called for paths that have annotation in them');
     } else if (arrayOrField.type === 'array') {
       if (arrayOrField.focus === 'index') {
         if (arrayOrField.multiToSingleFocus) {
           // TODO: this can be removed once we improve the model context types
-          throw new Error(
-            'Using a model context that was derived from array.all is not supported'
-          );
+          throw new Error('Using a model context that was derived from array.all is not supported');
         }
         path.push(arrayOrField.index);
         return path;
@@ -44,9 +37,7 @@ const resolveModelPath = (
         const currentIndex = currentIndices[pathStr];
 
         if (currentIndex === undefined) {
-          throw new Error(
-            `Trying to access current index of ${pathStr}, but current index missing for the path`
-          );
+          throw new Error(`Trying to access current index of ${pathStr}, but current index missing for the path`);
         }
 
         path.push(currentIndex);

@@ -3,14 +3,12 @@ import isAnyModelContext from '../utils/isAnyModelContext';
 
 export type DependsOnFn = <Context extends AnyExtensibleModelContext<any>>(
   context: Context,
-  dependencies: ReadonlyArray<
-    (keyof ContextType<Context> & string) | AnyExtensibleModelContext<any>
-  >
+  dependencies: ReadonlyArray<(keyof ContextType<Context> & string) | AnyExtensibleModelContext<any>>,
 ) => Context;
 
 const dependsOn: DependsOnFn = <Context extends AnyExtensibleModelContext<any>>(
   context: Context,
-  dependencies: ReadonlyArray<string | AnyExtensibleModelContext<any>>
+  dependencies: ReadonlyArray<string | AnyExtensibleModelContext<any>>,
 ): Context => {
   const dependsOn = dependencies.map(
     (dependency): AnyExtensibleModelContext<any> => {
@@ -21,16 +19,16 @@ const dependsOn: DependsOnFn = <Context extends AnyExtensibleModelContext<any>>(
           ...context,
           pathToField: context.pathToField.concat({
             type: 'field',
-            name: dependency
-          })
+            name: dependency,
+          }),
         };
       }
-    }
+    },
   );
 
   return {
     ...context,
-    dependsOn
+    dependsOn,
   };
 };
 

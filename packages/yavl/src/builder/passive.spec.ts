@@ -21,10 +21,10 @@ describe('passive', () => {
         pathToField: [
           {
             name: 'value',
-            type: 'field'
-          }
+            type: 'field',
+          },
         ],
-        type: 'internal'
+        type: 'internal',
       });
       expect(passive(list)).toEqual({
         isPassive: true,
@@ -32,24 +32,24 @@ describe('passive', () => {
         pathToField: [
           {
             name: 'list',
-            type: 'field'
+            type: 'field',
           },
           {
             focus: 'all',
-            type: 'array'
-          }
+            type: 'array',
+          },
         ],
-        type: 'internal'
+        type: 'internal',
       });
       expect(passive(ext)).toEqual({
         isPassive: true,
         pathToField: [
           {
             name: 'ext',
-            type: 'field'
-          }
+            type: 'field',
+          },
         ],
-        type: 'external'
+        type: 'external',
       });
       return [];
     });
@@ -71,10 +71,10 @@ describe('passive', () => {
             pathToField: [
               {
                 name: 'ext',
-                type: 'field'
-              }
+                type: 'field',
+              },
             ],
-            type: 'external'
+            type: 'external',
           },
           list: {
             isPassive: true,
@@ -82,27 +82,27 @@ describe('passive', () => {
             pathToField: [
               {
                 name: 'list',
-                type: 'field'
+                type: 'field',
               },
               {
                 focus: 'all',
-                type: 'array'
-              }
+                type: 'array',
+              },
             ],
-            type: 'internal'
+            type: 'internal',
           },
           value: {
             isPassive: true,
             pathToField: [
               {
                 name: 'value',
-                type: 'field'
-              }
+                type: 'field',
+              },
             ],
-            type: 'internal'
-          }
+            type: 'internal',
+          },
         },
-        type: 'computed'
+        type: 'computed',
       });
       return [];
     });
@@ -118,21 +118,21 @@ describe('passive', () => {
           pathToField: [
             {
               name: 'value',
-              type: 'field'
-            }
+              type: 'field',
+            },
           ],
-          type: 'internal'
+          type: 'internal',
         },
         {
           isPassive: true,
           pathToField: [
             {
               name: 'ext',
-              type: 'field'
-            }
+              type: 'field',
+            },
           ],
-          type: 'external'
-        }
+          type: 'external',
+        },
       ]);
       return [];
     });
@@ -148,21 +148,21 @@ describe('passive', () => {
           pathToField: [
             {
               name: 'value',
-              type: 'field'
-            }
+              type: 'field',
+            },
           ],
-          type: 'internal'
+          type: 'internal',
         },
         ext: {
           isPassive: true,
           pathToField: [
             {
               name: 'ext',
-              type: 'field'
-            }
+              type: 'field',
+            },
           ],
-          type: 'external'
-        }
+          type: 'external',
+        },
       });
       return [];
     });
@@ -185,26 +185,26 @@ describe('passive', () => {
                 pathToField: [
                   {
                     name: 'value',
-                    type: 'field'
-                  }
+                    type: 'field',
+                  },
                 ],
-                type: 'internal'
-              }
+                type: 'internal',
+              },
             },
-            type: 'computed'
+            type: 'computed',
           },
           ext: {
             isPassive: true,
             pathToField: [
               {
                 name: 'ext',
-                type: 'field'
-              }
+                type: 'field',
+              },
             ],
-            type: 'external'
-          }
+            type: 'external',
+          },
         },
-        type: 'computed'
+        type: 'computed',
       });
       return [];
     });

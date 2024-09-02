@@ -6,18 +6,15 @@ describe('processModelDefinitionList', () => {
 
   const rootContext: ModelContext<any> = {
     type: 'internal',
-    pathToField: []
+    pathToField: [],
   };
 
   const testDefinition: any = {
-    mock: 'testDefinition'
+    mock: 'testDefinition',
   };
 
   it('should flatten output definitions', () => {
-    result = processDefinitionList(
-      [rootContext],
-      [[testDefinition], [testDefinition, testDefinition]]
-    );
+    result = processDefinitionList([rootContext], [[testDefinition], [testDefinition, testDefinition]]);
 
     expect(result).toHaveLength(3);
   });

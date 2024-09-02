@@ -13,7 +13,7 @@ interface HasFieldAnnotationsFn {
     context: ModelValidationContext<any, any, any>,
     field: string,
     annotation: Annotation<unknown>,
-    options?: HasFieldAnnotationsOptions
+    options?: HasFieldAnnotationsOptions,
   ): boolean;
 }
 
@@ -21,14 +21,13 @@ const hasFieldAnnotation: HasFieldAnnotationsFn = (
   context,
   field,
   annotation,
-  opts = { includeInactive: false }
+  opts = { includeInactive: false },
 ): boolean => {
   // TODO: we should consider all [current] and [\d] permutations if we want to support
   // adding annotations to specific index with "annotate(dep(array, 0), ...)", we already have
   // a function that does this: getDependencyPathPermutations
   const modelField = field.replace(/\[\d+\]/g, '[current]');
-  const fieldCache =
-    context.model.fieldDependencyCache[`internal:${modelField}`];
+  const fieldCache = context.model.fieldDependencyCache[`internal:${modelField}`];
 
   if (!fieldCache || fieldCache.annotations.length === 0) {
     return false;
@@ -36,16 +35,12 @@ const hasFieldAnnotation: HasFieldAnnotationsFn = (
 
   const indices = getIndicesFromStrPath(field);
 
-  return fieldCache.annotations.some((fieldAnnotation) => {
+  return fieldCache.annotations.some(fieldAnnotation => {
     if (fieldAnnotation.definition.annotation !== annotation) {
       return false;
     }
 
-    const isPathActive = getIsPathActive(
-      context.cache,
-      fieldAnnotation.parentDefinitions,
-      indices
-    );
+    const isPathActive = getIsPathActive(context.cache, fieldAnnotation.parentDefinitions, indices);
 
     // if the path is not active, do early return unless includeInactive is set
     if (!isPathActive && !opts.includeInactive) {

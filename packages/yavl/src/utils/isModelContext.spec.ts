@@ -5,16 +5,16 @@ describe('isModelContext', () => {
     expect(
       isModelContext({
         type: 'internal',
-        pathToField: []
-      })
+        pathToField: [],
+      }),
     ).toBe(true);
 
     expect(
       isModelContext({
         type: 'internal',
         pathToField: [],
-        nonExtensible: false
-      })
+        nonExtensible: false,
+      }),
     ).toBe(true);
   });
 
@@ -23,8 +23,8 @@ describe('isModelContext', () => {
       isModelContext({
         type: 'internal',
         pathToField: [],
-        nonExtensible: true
-      })
+        nonExtensible: true,
+      }),
     ).toBe(false);
   });
 
@@ -32,8 +32,8 @@ describe('isModelContext', () => {
     expect(
       isModelContext({
         type: 'external',
-        pathToField: []
-      })
+        pathToField: [],
+      }),
     ).toBe(false);
   });
 });

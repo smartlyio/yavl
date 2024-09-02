@@ -1,10 +1,4 @@
-import {
-  AnyContext,
-  ContextType,
-  ModelDefinitionFn,
-  SameContextOfType,
-  SupportedDefinition
-} from '../types';
+import { AnyContext, ContextType, ModelDefinitionFn, SameContextOfType, SupportedDefinition } from '../types';
 import when from './when';
 
 export interface OptionalFn<ErrorType = string> {
@@ -13,13 +7,11 @@ export interface OptionalFn<ErrorType = string> {
     modelDefinitionFn: ModelDefinitionFn<
       SameContextOfType<Context, Exclude<ContextType<Context>, undefined>>,
       ErrorType
-    >
+    >,
   ): SupportedDefinition<ErrorType>;
 }
 
-export type MakeOptionalFn<ErrorType> = (
-  testFn: (value: any) => boolean
-) => OptionalFn<ErrorType>;
+export type MakeOptionalFn<ErrorType> = (testFn: (value: any) => boolean) => OptionalFn<ErrorType>;
 
 const makeOptional: MakeOptionalFn<any> = (testFn: (value: any) => boolean) => (
   ...args: any[]

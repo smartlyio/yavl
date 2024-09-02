@@ -12,7 +12,7 @@ export const isClosestArrayDeleted = (data: any, field: string) => {
   const pathExists = R.hasPath(
     // @ts-expect-error - hasPath works with (string|number)[] but ramda typings are wrong
     pathToArray,
-    data
+    data,
   );
 
   return !pathExists;

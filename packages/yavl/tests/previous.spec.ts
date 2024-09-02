@@ -1,19 +1,9 @@
-import {
-  createValidationContext,
-  Model,
-  model,
-  ModelValidationContext,
-  updateModel
-} from '../src';
+import { createValidationContext, Model, model, ModelValidationContext, updateModel } from '../src';
 
 describe('previous', () => {
   let validationContext: ModelValidationContext<any, any> | undefined;
 
-  const testIncrementalValidate = <T, E>(
-    testModel: Model<T, E>,
-    data: T,
-    externalData?: E
-  ) => {
+  const testIncrementalValidate = <T, E>(testModel: Model<T, E>, data: T, externalData?: E) => {
     if (!validationContext) {
       validationContext = createValidationContext(testModel, externalData);
     }
@@ -35,21 +25,14 @@ describe('previous', () => {
   it('should give previous data to validate', () => {
     const validator = jest.fn();
     const testModel = model<TestModel>((root, builder) => [
-      builder.withFields(root, ['a'], ({ a }) => [
-        builder.validate(a, builder.previous(a), validator)
-      ])
+      builder.withFields(root, ['a'], ({ a }) => [builder.validate(a, builder.previous(a), validator)]),
     ]);
 
     const initialData: TestModel = { a: 'initial' };
 
     testIncrementalValidate(testModel, initialData);
     expect(validator).toHaveBeenCalledTimes(1);
-    expect(validator).toHaveBeenCalledWith(
-      'initial',
-      undefined,
-      initialData,
-      undefined
-    );
+    expect(validator).toHaveBeenCalledWith('initial', undefined, initialData, undefined);
 
     jest.clearAllMocks();
 
@@ -57,12 +40,7 @@ describe('previous', () => {
     testIncrementalValidate(testModel, updatedData);
 
     expect(validator).toHaveBeenCalledTimes(1);
-    expect(validator).toHaveBeenCalledWith(
-      'changed',
-      'initial',
-      updatedData,
-      undefined
-    );
+    expect(validator).toHaveBeenCalledWith('changed', 'initial', updatedData, undefined);
   });
 
   it('should not give intermediate previous data on cascading changes', () => {
@@ -72,12 +50,12 @@ describe('previous', () => {
         builder.value(b, a),
         builder.value(
           c,
-          builder.compute(builder.previous(root), (data) => {
+          builder.compute(builder.previous(root), data => {
             captureDependencies(data);
             return undefined;
-          })
-        )
-      ])
+          }),
+        ),
+      ]),
     ]);
 
     const initialData: TestModel = { a: 'initial' };
@@ -95,11 +73,11 @@ describe('previous', () => {
     expect(captureDependencies).toHaveBeenCalledTimes(2);
     expect(captureDependencies).toHaveBeenNthCalledWith(1, {
       a: 'initial',
-      b: 'initial'
+      b: 'initial',
     });
     expect(captureDependencies).toHaveBeenNthCalledWith(2, {
       a: 'initial',
-      b: 'initial'
+      b: 'initial',
     });
   });
 
@@ -107,24 +85,15 @@ describe('previous', () => {
     const validator = jest.fn();
     const testModel = model<TestModel>((root, builder) => [
       builder.withFields(root, ['a', 'list'], ({ a, list }) => [
-        builder.validate(
-          a,
-          builder.previous(builder.dep(list, builder.array.all)),
-          validator
-        )
-      ])
+        builder.validate(a, builder.previous(builder.dep(list, builder.array.all)), validator),
+      ]),
     ]);
 
     const initialData: TestModel = { list: ['a', 'b'] };
 
     testIncrementalValidate(testModel, initialData);
     expect(validator).toHaveBeenCalledTimes(1);
-    expect(validator).toHaveBeenCalledWith(
-      undefined,
-      undefined,
-      initialData,
-      undefined
-    );
+    expect(validator).toHaveBeenCalledWith(undefined, undefined, initialData, undefined);
   });
 
   it('should give previous external data to validate', () => {
@@ -133,12 +102,8 @@ describe('previous', () => {
     const validator = jest.fn();
     const testModel = model<TestModel, ExternalData>((root, builder) => [
       builder.withFields(root, ['a'], ({ a }) => [
-        builder.validate(
-          a,
-          builder.previous(builder.dep(builder.externalData, 'value')),
-          validator
-        )
-      ])
+        builder.validate(a, builder.previous(builder.dep(builder.externalData, 'value')), validator),
+      ]),
     ]);
 
     const initialData: TestModel = { a: 'a' };
@@ -146,12 +111,7 @@ describe('previous', () => {
 
     testIncrementalValidate(testModel, initialData, initialExternalData);
     expect(validator).toHaveBeenCalledTimes(1);
-    expect(validator).toHaveBeenCalledWith(
-      'a',
-      undefined,
-      initialData,
-      initialExternalData
-    );
+    expect(validator).toHaveBeenCalledWith('a', undefined, initialData, initialExternalData);
 
     jest.clearAllMocks();
 
@@ -159,11 +119,6 @@ describe('previous', () => {
     testIncrementalValidate(testModel, initialData, updatedExternalData);
 
     expect(validator).toHaveBeenCalledTimes(1);
-    expect(validator).toHaveBeenCalledWith(
-      'a',
-      'initial',
-      initialData,
-      updatedExternalData
-    );
+    expect(validator).toHaveBeenCalledWith('a', 'initial', initialData, updatedExternalData);
   });
 });

@@ -17,13 +17,7 @@ import { sideEffect, SideEffectFn } from './builder/sideEffect';
 import decorate, { DecorateFn } from './builder/decorate';
 import withFields, { WithFieldsFn } from './builder/withFields';
 import dependsOn, { DependsOnFn } from './builder/dependsOn';
-import {
-  ModelContext,
-  ExternalModelContext,
-  Model,
-  ModelDefinition,
-  SupportedDefinition
-} from './types';
+import { ModelContext, ExternalModelContext, Model, ModelDefinition, SupportedDefinition } from './types';
 import processDefinitionList from './processDefinitionList';
 import buildFieldDependencyCache from './buildFieldDependencyCache';
 import compute, { ComputeBuilderFn } from './builder/compute';
@@ -37,11 +31,7 @@ import { getFieldsWithDependencies } from './getFieldsWithDependencies';
 import { PassiveFn, passive } from './builder/passive';
 import { PreviousBuilderFn, previous } from './builder/previous';
 
-export type ModelBuilder<
-  FormData,
-  ExternalData = undefined,
-  ErrorType = string
-> = {
+export type ModelBuilder<FormData, ExternalData = undefined, ErrorType = string> = {
   as: AsFn;
   nthFocus: NthFocusFn;
   field: FieldFn<ErrorType>;
@@ -76,45 +66,43 @@ export type ModelBuilder<
 
 export type MakeModelFn<FormData, ExternalData, ErrorType> = (
   root: ModelContext<FormData>,
-  model: ModelBuilder<FormData, ExternalData, ErrorType>
+  model: ModelBuilder<FormData, ExternalData, ErrorType>,
 ) => SupportedDefinition<ErrorType>;
 
 export type ModelOptions = {
   testRequiredFn: (value: any) => boolean;
 };
 
-export const defaultTestRequiredFn = (value: any) =>
-  !R.isNil(value) && !R.isEmpty(value);
+export const defaultTestRequiredFn = (value: any) => !R.isNil(value) && !R.isEmpty(value);
 
 export interface ModelFn {
   <FormData, ExternalData = undefined, ErrorType = string>(
-    makeModel: MakeModelFn<FormData, ExternalData, ErrorType>
+    makeModel: MakeModelFn<FormData, ExternalData, ErrorType>,
   ): Model<FormData, ExternalData, ErrorType>;
 
   <FormData, ExternalData = undefined, ErrorType = string>(
     opts: ModelOptions,
-    makeModel: MakeModelFn<FormData, ExternalData, ErrorType>
+    makeModel: MakeModelFn<FormData, ExternalData, ErrorType>,
   ): Model<FormData, ExternalData, ErrorType>;
 }
 
 const model: ModelFn = (
   optsOrMakeModel: ModelOptions | MakeModelFn<any, any, any>,
-  maybeMakeModel?: MakeModelFn<any, any, any>
+  maybeMakeModel?: MakeModelFn<any, any, any>,
 ): Model<any, any> => {
   const opts =
     typeof optsOrMakeModel === 'object'
       ? optsOrMakeModel
       : {
-          testRequiredFn: defaultTestRequiredFn
+          testRequiredFn: defaultTestRequiredFn,
         };
 
-  const makeModel =
-    typeof optsOrMakeModel === 'function' ? optsOrMakeModel : maybeMakeModel!;
+  const makeModel = typeof optsOrMakeModel === 'function' ? optsOrMakeModel : maybeMakeModel!;
 
   const root: ModelContext<any> = { type: 'internal', pathToField: [] };
   const externalData: ExternalModelContext<any> = {
     type: 'external',
-    pathToField: []
+    pathToField: [],
   };
 
   const required = makeRequired(opts.testRequiredFn);
@@ -151,7 +139,7 @@ const model: ModelFn = (
     previous,
     externalData,
     root,
-    log
+    log,
   });
 
   const processedDefinitions = processDefinitionList([root], [definitions]);
@@ -159,18 +147,16 @@ const model: ModelFn = (
   const modelDefinition: ModelDefinition<any, any> = {
     type: 'model',
     context: root,
-    children: processedDefinitions
+    children: processedDefinitions,
   };
 
   const fieldDependencyCache = buildFieldDependencyCache(modelDefinition);
-  const fieldsWithDependencies = getFieldsWithDependencies(
-    fieldDependencyCache
-  );
+  const fieldsWithDependencies = getFieldsWithDependencies(fieldDependencyCache);
 
   return {
     modelDefinition,
     fieldDependencyCache,
-    fieldsWithDependencies
+    fieldsWithDependencies,
   };
 };
 

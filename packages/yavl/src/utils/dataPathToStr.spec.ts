@@ -18,8 +18,6 @@ describe('dataPathToStr', () => {
   });
 
   it('fields and indices mixed', () => {
-    expect(dataPathToStr(['test', 0, 1, 'nested', 'field'])).toBe(
-      'test[0][1].nested.field'
-    );
+    expect(dataPathToStr(['test', 0, 1, 'nested', 'field'])).toBe('test[0][1].nested.field');
   });
 });

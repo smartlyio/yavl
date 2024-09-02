@@ -12,17 +12,13 @@ type TRef<T> =
     };
 
 interface UseFieldAnnotation {
-  <Value>(
-    context: ModelValidationContext<any, any, any>,
-    path: string,
-    annotation: Annotation<Value>
-  ): Value;
+  <Value>(context: ModelValidationContext<any, any, any>, path: string, annotation: Annotation<Value>): Value;
 
   <Value, DefaultValue>(
     context: ModelValidationContext<any, any, any>,
     path: string,
     annotation: Annotation<Value>,
-    defaultValue: DefaultValue
+    defaultValue: DefaultValue,
   ): Value | DefaultValue;
 }
 
@@ -34,7 +30,7 @@ export const useFieldAnnotation: UseFieldAnnotation = <Value, DefaultValue>(
 ): Value | DefaultValue => {
   const defaultValue = rest.length > 0 ? (rest[0] as DefaultValue) : noValue;
   const annotationValueRef = useRef<TRef<Value | DefaultValue>>({
-    hasValue: false
+    hasValue: false,
   });
 
   const forceUpdate = useForceUpdate();
@@ -42,34 +38,26 @@ export const useFieldAnnotation: UseFieldAnnotation = <Value, DefaultValue>(
     // because this useMemo can run when eg. path or annotation changes,
     // let's make sure to reset the current value in that case to avoid bugs
     annotationValueRef.current = {
-      hasValue: false
+      hasValue: false,
     };
 
     const subscribe = (value: Value | DefaultValue) => {
       annotationValueRef.current = {
         hasValue: true,
-        value
+        value,
       };
 
       forceUpdate();
     };
 
-    return subscribeToFieldAnnotation(
-      context,
-      path,
-      annotation,
-      subscribe,
-      defaultValue as DefaultValue
-    );
+    return subscribeToFieldAnnotation(context, path, annotation, subscribe, defaultValue as DefaultValue);
   }, [context, path, annotation, defaultValue, forceUpdate]);
 
   // unsubscribes from changes if the field or annotation changes, or when unmount happens
   useEffect(() => unsubscribe, [unsubscribe]);
 
   if (!annotationValueRef.current.hasValue) {
-    throw new Error(
-      `subscriber did not instantly notify the current value, this should never happen`
-    );
+    throw new Error(`subscriber did not instantly notify the current value, this should never happen`);
   }
 
   return annotationValueRef.current.value;

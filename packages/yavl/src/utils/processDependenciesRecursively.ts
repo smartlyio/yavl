@@ -6,20 +6,20 @@ import isComputedContext from './isComputedContext';
 const processDependenciesRecursively = (
   dependencies: any,
   processFn: (dependency: AnyModelContext<any>) => void,
-  options: { processPassiveDependencies?: boolean } = {}
+  options: { processPassiveDependencies?: boolean } = {},
 ) => {
   const processPickedKeys = (
     context: AnyModelContext<any>,
     keys: readonly string[],
-    basePathToField: PathToField
+    basePathToField: PathToField,
   ): void => {
-    keys.forEach((key) => {
+    keys.forEach(key => {
       const pickedKeyContext = {
         ...context,
         pathToField: basePathToField.concat({
           type: 'field',
-          name: key
-        })
+          name: key,
+        }),
       };
 
       processFn(pickedKeyContext);
@@ -51,16 +51,12 @@ const processDependenciesRecursively = (
         processPickedKeys(
           context,
           pathPart.keys,
-          context.pathToField.slice(0, index) // the path up to this part, excluding the filter part
+          context.pathToField.slice(0, index), // the path up to this part, excluding the filter part
         );
 
         // and other dependencies
         if ('dependencies' in pathPart) {
-          processDependenciesRecursively(
-            pathPart.dependencies,
-            processFn,
-            options
-          );
+          processDependenciesRecursively(pathPart.dependencies, processFn, options);
         }
       }
     });
@@ -70,7 +66,7 @@ const processDependenciesRecursively = (
     const modelContext = dependencies;
 
     if (modelContext.dependsOn) {
-      modelContext.dependsOn.forEach((dependency) => processFn(dependency));
+      modelContext.dependsOn.forEach(dependency => processFn(dependency));
     } else if (!modelContext.isPassive || options.processPassiveDependencies) {
       // model context is treated as an active dependency when
       // isPassive is false and dependsOn is not defined
@@ -80,18 +76,14 @@ const processDependenciesRecursively = (
     // in case of computed context, we just want to add a cache entry for every dependency in it
     const computedContext = dependencies;
 
-    processDependenciesRecursively(
-      computedContext.dependencies,
-      processFn,
-      options
-    );
+    processDependenciesRecursively(computedContext.dependencies, processFn, options);
   } else if (Array.isArray(dependencies)) {
-    dependencies.forEach((dependency) => {
+    dependencies.forEach(dependency => {
       // create a cache entry for each dependency
       processDependenciesRecursively(dependency, processFn, options);
     });
   } else if (R.is(Object, dependencies)) {
-    Object.values(dependencies).forEach((dependency) => {
+    Object.values(dependencies).forEach(dependency => {
       // create a cache entry for each dependency
       processDependenciesRecursively(dependency, processFn, options);
     });

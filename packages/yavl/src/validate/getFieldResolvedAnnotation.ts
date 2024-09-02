@@ -20,14 +20,13 @@ import { ProcessingContext } from './types';
 export const getFieldResolvedAnnotation = (
   processingContext: ProcessingContext<any, any, any>,
   field: string,
-  annotation: Annotation<any>
+  annotation: Annotation<any>,
 ): any => {
   // TODO: we should consider all [current] and [\d] permutations if we want to support
   // adding annotations to specific index with "annotate(dep(array, 0), ...)", we already have
   // a function that does this: getDependencyPathPermutations
   const modelField = field.replace(/\[\d+\]/g, '[current]');
-  const fieldCache =
-    processingContext.fieldDependencyCache[`internal:${modelField}`];
+  const fieldCache = processingContext.fieldDependencyCache[`internal:${modelField}`];
 
   if (!fieldCache) {
     return noValue;
@@ -37,11 +36,7 @@ export const getFieldResolvedAnnotation = (
 
   // check the annotations in reverse order, this allows us to do early return for first active annotation
   for (let i = fieldCache.annotations.length - 1; i >= 0; --i) {
-    const {
-      definition: annotateDefinition,
-      parentDefinitions,
-      isDependencyOfValue
-    } = fieldCache.annotations[i];
+    const { definition: annotateDefinition, parentDefinitions, isDependencyOfValue } = fieldCache.annotations[i];
 
     if (isDependencyOfValue || annotateDefinition.annotation !== annotation) {
       // we're only interested in the specific annotation
@@ -63,19 +58,15 @@ export const getFieldResolvedAnnotation = (
       getDependentIndexPermutations(
         findClosestArrayFromDefinitions(parentDefinitions),
         processingContext.data,
-        indices
-      )
+        indices,
+      ),
     );
 
     if (!indexPermutation) {
       throw new Error('Missing indexPermutation, should never happen');
     }
 
-    const isPathActive = checkParentConditions(
-      processingContext,
-      parentDefinitions,
-      indexPermutation
-    );
+    const isPathActive = checkParentConditions(processingContext, parentDefinitions, indexPermutation);
 
     if (!isPathActive) {
       // if the path is not active, check next one
@@ -96,7 +87,7 @@ export const getFieldResolvedAnnotation = (
       parentDefinitions,
       indexPermutation,
       true,
-      true
+      true,
     );
 
     const fieldRuntimeAnnotationData = annotations.get(field);

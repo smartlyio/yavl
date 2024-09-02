@@ -1,12 +1,10 @@
-import {
-  AnyExtensibleSingleModelContext,
-  SameNonExtensibleModelContextOfType
-} from '../types';
+import { AnyExtensibleSingleModelContext, SameNonExtensibleModelContextOfType } from '../types';
 
 export interface IndexFn {
-  <Context extends AnyExtensibleSingleModelContext<any>>(
-    context: Context
-  ): SameNonExtensibleModelContextOfType<Context, number>;
+  <Context extends AnyExtensibleSingleModelContext<any>>(context: Context): SameNonExtensibleModelContextOfType<
+    Context,
+    number
+  >;
 }
 
 // TODO: update signature to support dealing with array contexts,
@@ -16,7 +14,7 @@ const index: IndexFn = (context: AnyExtensibleSingleModelContext<any>): any => {
     ...context,
     pathToField: context.pathToField.concat({ type: 'index' }),
     // disables from using this with dependency() etc.
-    nonExtensible: true
+    nonExtensible: true,
   };
 };
 

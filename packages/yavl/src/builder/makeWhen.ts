@@ -1,26 +1,12 @@
 import * as R from 'ramda';
-import {
-  WhenDefinitionInput,
-  ModelDefinitionFn,
-  ModelDefinitionFnWithNoArg,
-  WhenTestFn
-} from '../types';
+import { WhenDefinitionInput, ModelDefinitionFn, ModelDefinitionFnWithNoArg, WhenTestFn } from '../types';
 import { ExtractDependencies } from './dependency';
 import { IsTypeNarrowed, WhenModelDefinitionFn } from './types';
 
-export interface MakeWhenFn<
-  FormData,
-  ExternalData = undefined,
-  ErrorType = string
-> {
+export interface MakeWhenFn<FormData, ExternalData = undefined, ErrorType = string> {
   <Data, NarrowedType extends ExtractDependencies<Data>>(
     data: Data,
-    testFn: WhenTestFn<
-      ExtractDependencies<Data>,
-      FormData,
-      ExternalData,
-      NarrowedType
-    >
+    testFn: WhenTestFn<ExtractDependencies<Data>, FormData, ExternalData, NarrowedType>,
   ): (
     modelDefinitionFn: IsTypeNarrowed<
       ExtractDependencies<Data>,
@@ -31,27 +17,16 @@ export interface MakeWhenFn<
     elseModelDefinitionFn?: IsTypeNarrowed<
       ExtractDependencies<Data>,
       NarrowedType,
-      WhenModelDefinitionFn<
-        Data,
-        Exclude<ExtractDependencies<Data>, NarrowedType>,
-        ErrorType
-      >,
+      WhenModelDefinitionFn<Data, Exclude<ExtractDependencies<Data>, NarrowedType>, ErrorType>,
       ModelDefinitionFnWithNoArg<ErrorType>
-    >
+    >,
   ) => WhenDefinitionInput<ErrorType>[];
 }
 
-const makeWhen: MakeWhenFn<any, any, any> = (
-  data: any,
-  testFn: WhenTestFn<any, any, any, any>
-): any => {
+const makeWhen: MakeWhenFn<any, any, any> = (data: any, testFn: WhenTestFn<any, any, any, any>): any => {
   const when = (
-    modelDefinitionFn:
-      | ModelDefinitionFn<any, any>
-      | ModelDefinitionFnWithNoArg<any>,
-    elseModelDefinitionFn?:
-      | ModelDefinitionFn<any, any>
-      | ModelDefinitionFnWithNoArg<any>
+    modelDefinitionFn: ModelDefinitionFn<any, any> | ModelDefinitionFnWithNoArg<any>,
+    elseModelDefinitionFn?: ModelDefinitionFn<any, any> | ModelDefinitionFnWithNoArg<any>,
   ): WhenDefinitionInput<any>[] => {
     const definitions = modelDefinitionFn(data);
 
@@ -59,7 +34,7 @@ const makeWhen: MakeWhenFn<any, any, any> = (
       type: 'when',
       dependencies: data,
       testFn,
-      children: [definitions]
+      children: [definitions],
     };
 
     if (elseModelDefinitionFn) {
@@ -69,7 +44,7 @@ const makeWhen: MakeWhenFn<any, any, any> = (
         type: 'when',
         dependencies: data,
         testFn: R.complement(testFn),
-        children: [elseDefinitions]
+        children: [elseDefinitions],
       };
 
       return [whenDefinition, elseDefinition];

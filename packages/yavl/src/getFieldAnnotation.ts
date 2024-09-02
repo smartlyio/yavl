@@ -3,17 +3,13 @@ import { ModelValidationContext } from './validate/types';
 import getFieldAnnotations from './getFieldAnnotations';
 
 interface GetFieldAnnotationFn {
-  <Value>(
-    context: ModelValidationContext<any, any, any>,
-    field: string,
-    annotation: Annotation<Value>
-  ): Value;
+  <Value>(context: ModelValidationContext<any, any, any>, field: string, annotation: Annotation<Value>): Value;
 
   <Value, DefaultValue>(
     context: ModelValidationContext<any, any, any>,
     field: string,
     annotation: Annotation<Value>,
-    defaultValue: DefaultValue
+    defaultValue: DefaultValue,
   ): Value | DefaultValue;
 }
 
@@ -31,9 +27,7 @@ const getFieldAnnotation: GetFieldAnnotationFn = <Value, DefaultValue>(
   } else if (defaultValue !== noValue) {
     return defaultValue;
   } else {
-    throw new Error(
-      `Annotation "${annotation.toString()}" not found for ${field}`
-    );
+    throw new Error(`Annotation "${annotation.toString()}" not found for ${field}`);
   }
 };
 

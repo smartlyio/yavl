@@ -1,10 +1,4 @@
-import {
-  createValidationContext,
-  Model,
-  model,
-  ModelValidationContext,
-  updateModel
-} from '../src';
+import { createValidationContext, Model, model, ModelValidationContext, updateModel } from '../src';
 
 describe('pick', () => {
   let validationContext: ModelValidationContext<any> | undefined;
@@ -34,13 +28,13 @@ describe('pick', () => {
 
     const initialData: TestModel = {
       field: 'test',
-      obj: { a: 1, b: 2 }
+      obj: { a: 1, b: 2 },
     };
 
     const testModel = model<TestModel>((root, model) => [
       model.withFields(root, ['field', 'obj'], ({ field, obj }) => [
-        model.validate(field, model.pick(obj, ['a']), validator)
-      ])
+        model.validate(field, model.pick(obj, ['a']), validator),
+      ]),
     ]);
 
     it('should run validations when picked keys change', () => {
@@ -49,17 +43,12 @@ describe('pick', () => {
 
       const updatedData = {
         ...initialData,
-        obj: { a: 3, b: 2 } // a changes
+        obj: { a: 3, b: 2 }, // a changes
       };
       testIncrementalValidate(testModel, updatedData);
 
       expect(validator).toHaveBeenCalledTimes(1);
-      expect(validator).toHaveBeenCalledWith(
-        updatedData.field,
-        { a: 3 },
-        updatedData,
-        undefined
-      );
+      expect(validator).toHaveBeenCalledWith(updatedData.field, { a: 3 }, updatedData, undefined);
     });
 
     it('should only run validations when picked keys change', () => {
@@ -68,7 +57,7 @@ describe('pick', () => {
 
       const updatedData = {
         ...initialData,
-        obj: { a: 1, b: 3 } // b changes
+        obj: { a: 1, b: 3 }, // b changes
       };
       testIncrementalValidate(testModel, updatedData);
 
@@ -86,13 +75,13 @@ describe('pick', () => {
     };
 
     const initialData: TestModel = {
-      field: 'test'
+      field: 'test',
     };
 
     const testModel = model<TestModel>((root, model) => [
       model.withFields(root, ['field', 'obj'], ({ field, obj }) => [
-        model.validate(field, model.pick(obj, ['a']), validator)
-      ])
+        model.validate(field, model.pick(obj, ['a']), validator),
+      ]),
     ]);
 
     it('should run validate when a picked value turns into defined', () => {
@@ -103,19 +92,14 @@ describe('pick', () => {
       const updatedData = {
         ...initialData,
         obj: {
-          a: 1
-        }
+          a: 1,
+        },
       };
 
       testIncrementalValidate(testModel, updatedData);
 
       expect(validator).toHaveBeenCalledTimes(1);
-      expect(validator).toHaveBeenCalledWith(
-        updatedData.field,
-        { a: 1 },
-        updatedData,
-        undefined
-      );
+      expect(validator).toHaveBeenCalledWith(updatedData.field, { a: 1 }, updatedData, undefined);
     });
 
     it('should not run validate when a non-picked value turns into defined', () => {
@@ -126,8 +110,8 @@ describe('pick', () => {
       const updatedData = {
         ...initialData,
         obj: {
-          b: 1
-        }
+          b: 1,
+        },
       };
 
       testIncrementalValidate(testModel, updatedData);
@@ -155,8 +139,8 @@ describe('pick', () => {
       obj: {
         type: 'ab',
         a: 1,
-        b: 2
-      }
+        b: 2,
+      },
     };
 
     const testModel = model<TestModel>((root, model) => [
@@ -164,11 +148,9 @@ describe('pick', () => {
         model.when(
           model.dependsOn(obj, ['type']),
           (obj): obj is AbObj => obj.type === 'ab',
-          (narrowedObj) => [
-            model.validate(field, model.pick(narrowedObj, ['a']), validator)
-          ]
-        )
-      ])
+          narrowedObj => [model.validate(field, model.pick(narrowedObj, ['a']), validator)],
+        ),
+      ]),
     ]);
 
     it('should run validate when a picked value turns into defined', () => {
@@ -178,17 +160,12 @@ describe('pick', () => {
 
       const updatedData: TestModel = {
         ...initialData,
-        obj: { type: 'ab', a: 3, b: 2 } // a changes
+        obj: { type: 'ab', a: 3, b: 2 }, // a changes
       };
       testIncrementalValidate(testModel, updatedData);
 
       expect(validator).toHaveBeenCalledTimes(1);
-      expect(validator).toHaveBeenCalledWith(
-        updatedData.field,
-        { a: 3 },
-        updatedData,
-        undefined
-      );
+      expect(validator).toHaveBeenCalledWith(updatedData.field, { a: 3 }, updatedData, undefined);
     });
 
     it('should not run validate when a non-picked value turns into defined', () => {
@@ -197,7 +174,7 @@ describe('pick', () => {
 
       const updatedData: TestModel = {
         ...initialData,
-        obj: { type: 'ab', a: 1, b: 3 } // b changes
+        obj: { type: 'ab', a: 1, b: 3 }, // b changes
       };
       testIncrementalValidate(testModel, updatedData);
 

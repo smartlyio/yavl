@@ -9,10 +9,7 @@ import resolveModelPath from './resolveModelPath';
  * Trying to pass a model path with [all] indices will
  * cause an error to be thrown.
  */
-const resolveModelPathStr = (
-  path: PathToField,
-  currentIndices: Record<string, number>
-): string => {
+const resolveModelPathStr = (path: PathToField, currentIndices: Record<string, number>): string => {
   const resolvedPath = resolveModelPath(path, currentIndices);
   return dataPathToStr(resolvedPath);
 };

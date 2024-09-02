@@ -3,7 +3,7 @@ import { ResolvedValidations } from '../validate/types';
 
 export const getResolvedValidationErrors = <ErrorType>(
   resolvedValidations: ResolvedValidations<ErrorType>['current'],
-  field: string
+  field: string,
 ): ErrorType[] | undefined => {
   if (!(field in resolvedValidations)) {
     return undefined;
@@ -15,14 +15,10 @@ export const getResolvedValidationErrors = <ErrorType>(
 export const updateResolvedValidationErrors = <ErrorType>(
   resolvedValidations: ResolvedValidations<ErrorType>,
   field: string,
-  errors: ErrorType[] | undefined
+  errors: ErrorType[] | undefined,
 ): void => {
   if (errors !== undefined) {
-    resolvedValidations.current = R.assoc(
-      field,
-      R.uniq(errors),
-      resolvedValidations.current
-    );
+    resolvedValidations.current = R.assoc(field, R.uniq(errors), resolvedValidations.current);
   } else {
     // delete errors from field
     resolvedValidations.current = R.dissoc(field, resolvedValidations.current);

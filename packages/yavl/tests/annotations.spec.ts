@@ -5,7 +5,7 @@ import {
   Model,
   model,
   ModelValidationContext,
-  updateModel
+  updateModel,
 } from '../src';
 import { AnnotationData } from '../src/types';
 
@@ -34,11 +34,11 @@ describe('annotations', () => {
 
     const testModel = model<TestModel>((root, model) => [
       model.withFields(root, ['value', 'list'], ({ value, list }) => [
-        model.array(list, (item) => [
+        model.array(list, item => [
           model.annotate(value, testAnnotation, item),
-          model.validate(value, item, (_, item) => `error: ${item}`)
-        ])
-      ])
+          model.validate(value, item, (_, item) => `error: ${item}`),
+        ]),
+      ]),
     ]);
 
     it('should work for initial update', () => {
@@ -46,8 +46,8 @@ describe('annotations', () => {
 
       expect(getAllAnnotations(validationContext!)).toEqual({
         value: {
-          [testAnnotation]: 'c'
-        }
+          [testAnnotation]: 'c',
+        },
       });
     });
 
@@ -57,8 +57,8 @@ describe('annotations', () => {
 
       expect(getAllAnnotations(validationContext!)).toEqual({
         value: {
-          [testAnnotation]: 'c'
-        }
+          [testAnnotation]: 'c',
+        },
       });
     });
   });
@@ -69,11 +69,7 @@ describe('annotations', () => {
     };
 
     const testModel = model<TestModel>((root, model) => [
-      model.field(root, 'list', (list) => [
-        model.array(list, (item) => [
-          model.annotate(item, testAnnotation, 'test')
-        ])
-      ])
+      model.field(root, 'list', list => [model.array(list, item => [model.annotate(item, testAnnotation, 'test')])]),
     ]);
 
     it('should return annotations for initial items', () => {
@@ -81,11 +77,11 @@ describe('annotations', () => {
 
       expect(getAllAnnotations(validationContext!)).toEqual({
         'list[0]': {
-          [testAnnotation]: 'test'
+          [testAnnotation]: 'test',
         },
         'list[1]': {
-          [testAnnotation]: 'test'
-        }
+          [testAnnotation]: 'test',
+        },
       });
     });
 
@@ -95,14 +91,14 @@ describe('annotations', () => {
 
       expect(getAllAnnotations(validationContext!)).toEqual({
         'list[0]': {
-          [testAnnotation]: 'test'
+          [testAnnotation]: 'test',
         },
         'list[1]': {
-          [testAnnotation]: 'test'
+          [testAnnotation]: 'test',
         },
         'list[2]': {
-          [testAnnotation]: 'test'
-        }
+          [testAnnotation]: 'test',
+        },
       });
     });
 
@@ -112,8 +108,8 @@ describe('annotations', () => {
 
       expect(getAllAnnotations(validationContext!)).toEqual({
         'list[0]': {
-          [testAnnotation]: 'test'
-        }
+          [testAnnotation]: 'test',
+        },
       });
     });
   });
@@ -124,62 +120,62 @@ describe('annotations', () => {
     };
 
     const testModel = model<TestModel>((root, model) => [
-      model.field(root, 'list', (list) => [
-        model.array(list, (item) => [
+      model.field(root, 'list', list => [
+        model.array(list, item => [
           model.when(
             item,
-            (item) => item.value !== undefined,
-            () => [model.annotate(item, testAnnotation, 'test')]
-          )
-        ])
-      ])
+            item => item.value !== undefined,
+            () => [model.annotate(item, testAnnotation, 'test')],
+          ),
+        ]),
+      ]),
     ]);
 
     it('should return annotations for initial items', () => {
       testIncrementalValidate(testModel, {
-        list: [{ value: 'a' }, { value: 'b' }]
+        list: [{ value: 'a' }, { value: 'b' }],
       });
 
       expect(getAllAnnotations(validationContext!)).toEqual({
         'list[0]': {
-          [testAnnotation]: 'test'
+          [testAnnotation]: 'test',
         },
         'list[1]': {
-          [testAnnotation]: 'test'
-        }
+          [testAnnotation]: 'test',
+        },
       });
     });
 
     it('should return annotations for new items', () => {
       testIncrementalValidate(testModel, { list: [{ value: 'a' }] });
       testIncrementalValidate(testModel, {
-        list: [{ value: 'a' }, { value: 'b' }, { value: 'c' }]
+        list: [{ value: 'a' }, { value: 'b' }, { value: 'c' }],
       });
 
       expect(getAllAnnotations(validationContext!)).toEqual({
         'list[0]': {
-          [testAnnotation]: 'test'
+          [testAnnotation]: 'test',
         },
         'list[1]': {
-          [testAnnotation]: 'test'
+          [testAnnotation]: 'test',
         },
         'list[2]': {
-          [testAnnotation]: 'test'
-        }
+          [testAnnotation]: 'test',
+        },
       });
     });
 
     it('should remove annotations for deleted items', () => {
       testIncrementalValidate(testModel, {
-        list: [{ value: 'a' }, { value: 'b' }, { value: 'c' }]
+        list: [{ value: 'a' }, { value: 'b' }, { value: 'c' }],
       });
 
       testIncrementalValidate(testModel, { list: [{ value: 'a' }] });
 
       expect(getAllAnnotations(validationContext!)).toEqual({
         'list[0]': {
-          [testAnnotation]: 'test'
-        }
+          [testAnnotation]: 'test',
+        },
       });
     });
   });
@@ -194,8 +190,8 @@ describe('annotations', () => {
       const testModel = model<TestModel>((root, model) => [
         model.withFields(root, ['a', 'b'], ({ a, b }) => [
           model.annotate(a, testAnnotation, a),
-          model.annotate(b, testAnnotation, b)
-        ])
+          model.annotate(b, testAnnotation, b),
+        ]),
       ]);
 
       let initialAnnotations: Record<string, AnnotationData>;
@@ -218,7 +214,7 @@ describe('annotations', () => {
         expect(oldAnnotations).toEqual({ a: { test: 'x' }, b: { test: 'y' } });
         expect(newAnnotations).toEqual({
           a: { test: 'changed' },
-          b: { test: 'y' }
+          b: { test: 'y' },
         });
       });
 

@@ -13,7 +13,7 @@ describe('getFieldAnnotation', () => {
 
     beforeEach(() => {
       jest.mocked(getFieldAnnotations).mockReturnValue({
-        [meta]: 'found'
+        [meta]: 'found',
       });
 
       result = getFieldAnnotation(mockModel, 'test[0].field', meta);
@@ -21,10 +21,7 @@ describe('getFieldAnnotation', () => {
 
     it('should call getFieldAnnotations to get all annotations for field', () => {
       expect(getFieldAnnotations).toHaveBeenCalledTimes(1);
-      expect(getFieldAnnotations).toHaveBeenCalledWith(
-        mockModel,
-        'test[0].field'
-      );
+      expect(getFieldAnnotations).toHaveBeenCalledWith(mockModel, 'test[0].field');
     });
 
     it('should return the specified annotation', () => {
@@ -39,22 +36,15 @@ describe('getFieldAnnotation', () => {
 
     describe('and default value is given', () => {
       it('should return the default value', () => {
-        const result = getFieldAnnotation(
-          mockModel,
-          'test[0].field',
-          meta,
-          'default value'
-        );
+        const result = getFieldAnnotation(mockModel, 'test[0].field', meta, 'default value');
         expect(result).toEqual('default value');
       });
     });
 
     describe('and default value is not given', () => {
       it('should throw an error', () => {
-        expect(() =>
-          getFieldAnnotation(mockModel, 'test[0].field', meta)
-        ).toThrowErrorMatchingInlineSnapshot(
-          `"Annotation "meta" not found for test[0].field"`
+        expect(() => getFieldAnnotation(mockModel, 'test[0].field', meta)).toThrowErrorMatchingInlineSnapshot(
+          `"Annotation "meta" not found for test[0].field"`,
         );
       });
     });

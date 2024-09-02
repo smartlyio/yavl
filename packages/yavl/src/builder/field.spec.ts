@@ -8,7 +8,7 @@ describe('field', () => {
 
   const parentContext: ModelContext<any> = {
     type: 'internal',
-    pathToField: [{ type: 'field', name: 'parent' }]
+    pathToField: [{ type: 'field', name: 'parent' }],
   };
 
   let result: SupportedDefinition<any>;
@@ -25,8 +25,8 @@ describe('field', () => {
         type: 'internal',
         pathToField: [
           { type: 'field', name: 'parent' },
-          { type: 'field', name: 'child' }
-        ]
+          { type: 'field', name: 'child' },
+        ],
       };
 
       expect(modelDefinitionFn).toHaveBeenCalledTimes(1);

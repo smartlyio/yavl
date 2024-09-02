@@ -6,15 +6,15 @@ const processDependentPermutations = (
   parentDefinitions: readonly RecursiveDefinition<any>[],
   data: any,
   currentIndices: Record<string, number>,
-  processFn: (indexPermutation: Record<string, number>) => void
+  processFn: (indexPermutation: Record<string, number>) => void,
 ) => {
   const indexPermutations = getDependentIndexPermutations(
     findClosestArrayFromDefinitions(parentDefinitions),
     data,
-    currentIndices
+    currentIndices,
   );
 
-  indexPermutations.forEach((indices) => processFn(indices));
+  indexPermutations.forEach(indices => processFn(indices));
 };
 
 export default processDependentPermutations;

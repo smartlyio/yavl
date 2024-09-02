@@ -9,7 +9,7 @@ const resolveDependencies = <Data, ExternalData, ErrorType>(
   processingContext: ProcessingContext<Data, ExternalData, ErrorType>,
   dependencies: any,
   currentIndices: Record<string, number>,
-  runCacheForField: MutatingFieldProcessingCacheEntry<any> | undefined
+  runCacheForField: MutatingFieldProcessingCacheEntry<any> | undefined,
 ): any => {
   if (isAnyModelContext(dependencies)) {
     const modelContext = dependencies;
@@ -19,7 +19,7 @@ const resolveDependencies = <Data, ExternalData, ErrorType>(
       modelContext.type,
       modelContext.pathToField,
       currentIndices,
-      runCacheForField
+      runCacheForField,
     );
   } else if (isComputedContext(dependencies)) {
     // for computed context simply resolve the dependencies and pass to the computeFn
@@ -31,7 +31,7 @@ const resolveDependencies = <Data, ExternalData, ErrorType>(
       processingContext,
       computedContext.dependencies,
       currentIndices,
-      runCacheForField
+      runCacheForField,
     );
     const result = computedContext.computeFn(computeInput);
     runCacheForField?.processedComputations.set(computedContext, result);
@@ -47,31 +47,20 @@ const resolveDependencies = <Data, ExternalData, ErrorType>(
       {
         ...processingContext,
         data: previousData,
-        externalData: processingContext.previousExternalDataAtStartOfUpdate
+        externalData: processingContext.previousExternalDataAtStartOfUpdate,
       },
       previousContext.dependencies,
       currentIndices,
-      runCacheForField
+      runCacheForField,
     );
   } else if (Array.isArray(dependencies)) {
-    return dependencies.map((dependency) =>
-      resolveDependencies(
-        processingContext,
-        dependency,
-        currentIndices,
-        runCacheForField
-      )
+    return dependencies.map(dependency =>
+      resolveDependencies(processingContext, dependency, currentIndices, runCacheForField),
     );
   } else if (R.is(Object, dependencies) && typeof dependencies !== 'function') {
     return R.mapObjIndexed(
-      (dependency) =>
-        resolveDependencies(
-          processingContext,
-          dependency,
-          currentIndices,
-          runCacheForField
-        ),
-      dependencies
+      dependency => resolveDependencies(processingContext, dependency, currentIndices, runCacheForField),
+      dependencies,
     );
   } else {
     return dependencies;

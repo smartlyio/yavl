@@ -7,7 +7,7 @@ describe('withFields', () => {
 
   const parentContext: ModelContext<any> = {
     type: 'internal',
-    pathToField: [{ type: 'field', name: 'parent' }]
+    pathToField: [{ type: 'field', name: 'parent' }],
   };
 
   let result: SupportedDefinition<any>;
@@ -23,22 +23,22 @@ describe('withFields', () => {
       type: 'internal',
       pathToField: [
         { type: 'field', name: 'parent' },
-        { type: 'field', name: 'childA' }
-      ]
+        { type: 'field', name: 'childA' },
+      ],
     };
 
     const expectedContextB = {
       type: 'internal',
       pathToField: [
         { type: 'field', name: 'parent' },
-        { type: 'field', name: 'childB' }
-      ]
+        { type: 'field', name: 'childB' },
+      ],
     };
 
     expect(modelDefinitionFn).toHaveBeenCalledTimes(1);
     expect(modelDefinitionFn).toHaveBeenCalledWith({
       childA: expectedContextA,
-      childB: expectedContextB
+      childB: expectedContextB,
     });
   });
 

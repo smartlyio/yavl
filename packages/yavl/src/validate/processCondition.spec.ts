@@ -25,13 +25,13 @@ describe('processCondition', () => {
     type: 'when',
     dependencies: mockDependencies,
     testFn,
-    children: []
+    children: [],
   };
 
   const parentDefinitions: any = [];
 
   const mockCurrentIndices: any = {
-    mock: 'mockCurrentIndices'
+    mock: 'mockCurrentIndices',
   };
 
   beforeEach(() => {
@@ -45,7 +45,7 @@ describe('processCondition', () => {
   const testProcessCondition = ({
     isNewCondition,
     testResult,
-    isInitialValidation = true
+    isInitialValidation = true,
   }: {
     isNewCondition: boolean;
     testResult: boolean;
@@ -54,13 +54,7 @@ describe('processCondition', () => {
     mockProcessingContext.isInitialValidation = isInitialValidation;
 
     jest.mocked(checkParentConditions).mockReturnValue(testResult);
-    processCondition(
-      mockProcessingContext,
-      condition,
-      parentDefinitions,
-      isNewCondition,
-      mockCurrentIndices
-    );
+    processCondition(mockProcessingContext, condition, parentDefinitions, isNewCondition, mockCurrentIndices);
   };
 
   describe('when parent path is inactive', () => {
@@ -89,7 +83,7 @@ describe('processCondition', () => {
           expect(checkParentConditions).toHaveBeenCalledWith(
             mockProcessingContext,
             parentDefinitions.concat(condition),
-            mockCurrentIndices
+            mockCurrentIndices,
           );
         });
       });
@@ -108,14 +102,14 @@ describe('processCondition', () => {
                 mockProcessingContext,
                 'annotations',
                 parentDefinitions.concat(condition),
-                mockCurrentIndices
+                mockCurrentIndices,
               );
               expect(processModelRecursively).toHaveBeenNthCalledWith(
                 2,
                 mockProcessingContext,
                 'conditions',
                 parentDefinitions.concat(condition),
-                mockCurrentIndices
+                mockCurrentIndices,
               );
             });
           });
@@ -125,14 +119,12 @@ describe('processCondition', () => {
               testProcessCondition({
                 isNewCondition: true,
                 testResult: true,
-                isInitialValidation: true
+                isInitialValidation: true,
               });
             });
 
             it('should not record anything in unprocessedValidationsForConditons', () => {
-              expect(
-                mockProcessingContext.unprocessedValidationsForConditons
-              ).toEqual([]);
+              expect(mockProcessingContext.unprocessedValidationsForConditons).toEqual([]);
             });
           });
 
@@ -141,18 +133,16 @@ describe('processCondition', () => {
               testProcessCondition({
                 isNewCondition: true,
                 testResult: true,
-                isInitialValidation: false
+                isInitialValidation: false,
               });
             });
 
             it('should record the condition in unprocessedValidationsForConditons', () => {
-              expect(
-                mockProcessingContext.unprocessedValidationsForConditons
-              ).toEqual([
+              expect(mockProcessingContext.unprocessedValidationsForConditons).toEqual([
                 {
                   pathToCondition: parentDefinitions.concat(condition),
-                  indices: mockCurrentIndices
-                }
+                  indices: mockCurrentIndices,
+                },
               ]);
             });
           });
@@ -184,7 +174,7 @@ describe('processCondition', () => {
               beforeEach(() => {
                 testProcessCondition({
                   isNewCondition: false,
-                  testResult: true
+                  testResult: true,
                 });
               });
 
@@ -195,14 +185,14 @@ describe('processCondition', () => {
                   mockProcessingContext,
                   'annotations',
                   parentDefinitions.concat(condition),
-                  mockCurrentIndices
+                  mockCurrentIndices,
                 );
                 expect(processModelRecursively).toHaveBeenNthCalledWith(
                   2,
                   mockProcessingContext,
                   'conditions',
                   parentDefinitions.concat(condition),
-                  mockCurrentIndices
+                  mockCurrentIndices,
                 );
               });
             });
@@ -212,14 +202,12 @@ describe('processCondition', () => {
                 testProcessCondition({
                   isNewCondition: false,
                   testResult: true,
-                  isInitialValidation: true
+                  isInitialValidation: true,
                 });
               });
 
               it('should not record anything in unprocessedValidationsForConditons', () => {
-                expect(
-                  mockProcessingContext.unprocessedValidationsForConditons
-                ).toEqual([]);
+                expect(mockProcessingContext.unprocessedValidationsForConditons).toEqual([]);
               });
             });
 
@@ -228,18 +216,16 @@ describe('processCondition', () => {
                 testProcessCondition({
                   isNewCondition: false,
                   testResult: true,
-                  isInitialValidation: false
+                  isInitialValidation: false,
                 });
               });
 
               it('should record the condition in unprocessedValidationsForConditons', () => {
-                expect(
-                  mockProcessingContext.unprocessedValidationsForConditons
-                ).toEqual([
+                expect(mockProcessingContext.unprocessedValidationsForConditons).toEqual([
                   {
                     pathToCondition: parentDefinitions.concat(condition),
-                    indices: mockCurrentIndices
-                  }
+                    indices: mockCurrentIndices,
+                  },
                 ]);
               });
             });
@@ -268,7 +254,7 @@ describe('processCondition', () => {
               testCacheEntry.isPathActive = false;
               testProcessCondition({
                 isNewCondition: false,
-                testResult: false
+                testResult: false,
               });
             });
 
@@ -282,7 +268,7 @@ describe('processCondition', () => {
               testCacheEntry.isPathActive = true;
               testProcessCondition({
                 isNewCondition: false,
-                testResult: false
+                testResult: false,
               });
             });
 

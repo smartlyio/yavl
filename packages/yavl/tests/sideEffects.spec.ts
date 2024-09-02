@@ -1,11 +1,4 @@
-import {
-  createValidationContext,
-  getModelData,
-  Model,
-  model,
-  ModelValidationContext,
-  updateModel
-} from '../src';
+import { createValidationContext, getModelData, Model, model, ModelValidationContext, updateModel } from '../src';
 
 type TestModel = {
   value?: string;
@@ -31,12 +24,8 @@ describe('computed values', () => {
   describe('active and passive dependencies', () => {
     const testModel = model<TestModel>((root, model) => [
       model.withFields(root, ['value', 'a', 'b'], ({ value, a, b }) => [
-        model.sideEffect(
-          value,
-          { a, b: model.passiveDependency(b) },
-          (_, { a, b }) => `${a} ${b}`
-        )
-      ])
+        model.sideEffect(value, { a, b: model.passiveDependency(b) }, (_, { a, b }) => `${a} ${b}`),
+      ]),
     ]);
 
     it('should run side-effect when active dependency changes', () => {
@@ -44,14 +33,14 @@ describe('computed values', () => {
       expect(getModelData(validationContext!)).toEqual({
         a: 'a1',
         b: 'b1',
-        value: 'a1 b1'
+        value: 'a1 b1',
       });
 
       testIncrementalValidate(testModel, { a: 'a2', b: 'b1' });
       expect(getModelData(validationContext!)).toEqual({
         a: 'a2',
         b: 'b1',
-        value: 'a2 b1'
+        value: 'a2 b1',
       });
     });
 
@@ -60,14 +49,14 @@ describe('computed values', () => {
       expect(getModelData(validationContext!)).toEqual({
         a: 'a1',
         b: 'b1',
-        value: 'a1 b1'
+        value: 'a1 b1',
       });
 
       testIncrementalValidate(testModel, { a: 'a1', b: 'b2', value: 'a1 b1' });
       expect(getModelData(validationContext!)).toEqual({
         a: 'a1',
         b: 'b2',
-        value: 'a1 b1'
+        value: 'a1 b1',
       });
 
       // updating active dependency should sample the current value of passive dependency
@@ -75,7 +64,7 @@ describe('computed values', () => {
       expect(getModelData(validationContext!)).toEqual({
         a: 'a2',
         b: 'b2',
-        value: 'a2 b2'
+        value: 'a2 b2',
       });
     });
 
@@ -84,14 +73,14 @@ describe('computed values', () => {
       expect(getModelData(validationContext!)).toEqual({
         a: 'a1',
         b: 'b1',
-        value: 'a1 b1'
+        value: 'a1 b1',
       });
 
       testIncrementalValidate(testModel, { a: 'a1', b: 'b1', value: 'custom' });
       expect(getModelData(validationContext!)).toEqual({
         a: 'a1',
         b: 'b1',
-        value: 'custom'
+        value: 'custom',
       });
     });
   });

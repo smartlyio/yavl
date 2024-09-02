@@ -8,15 +8,15 @@ describe('optional', () => {
   const modelDefinitionFn = jest.fn();
 
   const whenDefinition: any = {
-    mock: 'whenDefinition'
+    mock: 'whenDefinition',
   };
 
   const parentContext: any = {
-    mock: 'parentContext'
+    mock: 'parentContext',
   };
 
   const whenContext: any = {
-    mock: 'whenContext'
+    mock: 'whenContext',
   };
 
   let optional: ReturnType<MakeOptionalFn<any>>;
@@ -45,11 +45,7 @@ describe('optional', () => {
 
     it('should call when with the given testFn and modelDefinitionFn', () => {
       expect(when).toHaveBeenCalledTimes(1);
-      expect(when).toHaveBeenCalledWith(
-        parentContext,
-        testFn,
-        modelDefinitionFn
-      );
+      expect(when).toHaveBeenCalledWith(parentContext, testFn, modelDefinitionFn);
     });
 
     it('should call provided modelDefinitionFn', () => {

@@ -9,18 +9,14 @@ interface UpdateModelFn {
     context: ModelValidationContext<FormData, ExternalData, ErrorType>,
     data: NoInfer<FormData>,
     externalData?: NoInfer<ExternalData>,
-    isEqualFn?: CompareFn
+    isEqualFn?: CompareFn,
   ): void;
 }
-const updateModel: UpdateModelFn = <
-  Data,
-  ExternalData = undefined,
-  ErrorType = string
->(
+const updateModel: UpdateModelFn = <Data, ExternalData = undefined, ErrorType = string>(
   context: ModelValidationContext<Data, ExternalData, ErrorType>,
   data: Data,
   externalData?: ExternalData,
-  isEqualFn: CompareFn = Object.is
+  isEqualFn: CompareFn = Object.is,
 ): void => {
   const isInitialValidation = context.previousData === undefined;
 
@@ -34,7 +30,7 @@ const updateModel: UpdateModelFn = <
       isInitialValidation,
       data,
       externalData,
-      isEqualFn
+      isEqualFn,
     );
   }
 

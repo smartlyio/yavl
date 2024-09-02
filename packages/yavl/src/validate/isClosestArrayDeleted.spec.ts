@@ -3,7 +3,7 @@ import { isClosestArrayDeleted } from './isClosestArrayDeleted';
 describe('isClosestArrayDeleted', () => {
   const data = {
     value: 'test',
-    list: [{ value: 'inside array', nested: [{}, {}] }, { value: 'another' }]
+    list: [{ value: 'inside array', nested: [{}, {}] }, { value: 'another' }],
   };
 
   it.each`
@@ -20,10 +20,7 @@ describe('isClosestArrayDeleted', () => {
     ${'list[0].nested[2].field'} | ${true}
     ${'list[1].nested[1].field'} | ${true}
     ${'list[1].nested[2].field'} | ${true}
-  `(
-    'should return $expectedResult for "$field"',
-    ({ field, expectedResult }) => {
-      expect(isClosestArrayDeleted(data, field)).toBe(expectedResult);
-    }
-  );
+  `('should return $expectedResult for "$field"', ({ field, expectedResult }) => {
+    expect(isClosestArrayDeleted(data, field)).toBe(expectedResult);
+  });
 });

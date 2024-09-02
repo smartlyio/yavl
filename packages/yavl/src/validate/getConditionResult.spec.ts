@@ -12,10 +12,7 @@ import * as getProcessingCacheForField from './getProcessingCacheForField';
 import { ProcessingContext } from './types';
 import { getMockProcessingContext } from '../../tests/helpers/getMockProcessingContext';
 
-const getProcessingCacheForFieldSpy = jest.spyOn(
-  getProcessingCacheForField,
-  'default'
-);
+const getProcessingCacheForFieldSpy = jest.spyOn(getProcessingCacheForField, 'default');
 
 describe('getConditionResult', () => {
   const parentDefinitions: any = { mock: 'parentDefinitions' };
@@ -34,12 +31,7 @@ describe('getConditionResult', () => {
   const doTest = (condition: any, testResult = true) => {
     testFn.mockReturnValue(testResult);
 
-    return getConditionResult(
-      mockProcessingContext,
-      condition,
-      parentDefinitions,
-      mockCurrentIndices
-    );
+    return getConditionResult(mockProcessingContext, condition, parentDefinitions, mockCurrentIndices);
   };
 
   beforeEach(() => {
@@ -55,7 +47,7 @@ describe('getConditionResult', () => {
     expect(getProcessingCacheForFieldSpy).toHaveBeenCalledTimes(1);
     expect(getProcessingCacheForFieldSpy).toHaveBeenCalledWith(
       mockProcessingContext.fieldProcessingCache,
-      resolvedModelPath
+      resolvedModelPath,
     );
   });
 
@@ -70,7 +62,7 @@ describe('getConditionResult', () => {
       mockProcessingContext,
       dependencies,
       mockCurrentIndices,
-      expect.anything()
+      expect.anything(),
     );
   });
 
@@ -80,7 +72,7 @@ describe('getConditionResult', () => {
     expect(testFn).toHaveBeenCalledWith(
       resolvedDependencies,
       mockProcessingContext.data,
-      mockProcessingContext.externalData
+      mockProcessingContext.externalData,
     );
   });
 

@@ -1,8 +1,4 @@
-import {
-  ModelDefinitionFn,
-  ModelDefinitionFnWithNoArg,
-  SupportedDefinition
-} from './types';
+import { ModelDefinitionFn, ModelDefinitionFnWithNoArg, SupportedDefinition } from './types';
 
 export { default as model } from './model';
 export { default as createValidationContext } from './validate/createValidationContext';
@@ -26,12 +22,8 @@ export { default as isModelContext } from './utils/isModelContext';
 export * from './hooks';
 
 export type WhenFn<If = never, Else = never, ErrorType = string> = (
-  ifFn: [If] extends [never]
-    ? ModelDefinitionFnWithNoArg<ErrorType>
-    : ModelDefinitionFn<If, ErrorType>,
-  elseFn?: [Else] extends [never]
-    ? ModelDefinitionFnWithNoArg<ErrorType>
-    : ModelDefinitionFn<Else, ErrorType>
+  ifFn: [If] extends [never] ? ModelDefinitionFnWithNoArg<ErrorType> : ModelDefinitionFn<If, ErrorType>,
+  elseFn?: [Else] extends [never] ? ModelDefinitionFnWithNoArg<ErrorType> : ModelDefinitionFn<Else, ErrorType>,
 ) => SupportedDefinition<ErrorType>[];
 
 export type { ModelBuilder } from './model';
@@ -54,12 +46,9 @@ export type {
   ValueOrContextOfType,
   ContextType,
   SameContextOfType,
-  AnnotationData
+  AnnotationData,
 } from './types';
-export type {
-  ModelValidationContext,
-  ModelValidationErrors
-} from './validate/types';
+export type { ModelValidationContext, ModelValidationErrors } from './validate/types';
 export type { FieldFn } from './builder/field';
 export type { ArrayFn } from './builder/array';
 export type { RequiredFn } from './builder/required';

@@ -14,20 +14,18 @@ type ExternalData = {
   allowedRegions: string[];
 };
 
-const myModel = model<TargetingForm, ExternalData>(
-  (form, { field, dependency, externalData, validate }) => [
-    field(form, 'geo', (geo) => [
-      field(geo, 'region', (region) => [
-        validate(
-          region,
-          dependency(externalData, 'allowedRegions'),
-          (region, allowedRegions) => allowedRegions.includes(region),
-          'Invalid region'
-        )
-      ])
-    ])
-  ]
-);
+const myModel = model<TargetingForm, ExternalData>((form, { field, dependency, externalData, validate }) => [
+  field(form, 'geo', geo => [
+    field(geo, 'region', region => [
+      validate(
+        region,
+        dependency(externalData, 'allowedRegions'),
+        (region, allowedRegions) => allowedRegions.includes(region),
+        'Invalid region',
+      ),
+    ]),
+  ]),
+]);
 
 validateModel(
   myModel,
@@ -35,14 +33,14 @@ validateModel(
   {
     geo: {
       country: 'FI',
-      region: 'NEW_YORK'
-    }
+      region: 'NEW_YORK',
+    },
   },
   // external data (comes over API)
   {
     allowedCountries: ['FI', 'US'],
-    allowedRegions: ['UUSIMAA']
-  }
+    allowedRegions: ['UUSIMAA'],
+  },
 );
 
 console.log(myModel);

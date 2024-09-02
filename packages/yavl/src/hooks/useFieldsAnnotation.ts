@@ -14,14 +14,14 @@ interface UseFieldsAnnotation {
   <T>(
     context: ModelValidationContext<any, any, any>,
     annotation: Annotation<T>,
-    filters?: UseFieldsAnnotationFilters
+    filters?: UseFieldsAnnotationFilters,
   ): Record<string, T>;
 }
 
 export const useFieldsAnnotation: UseFieldsAnnotation = <T>(
   context: ModelValidationContext<any, any, any>,
   annotation: Annotation<T>,
-  filters?: UseFieldsAnnotationFilters
+  filters?: UseFieldsAnnotationFilters,
 ): Record<string, T> => {
   const memoizedFilters = useMemoizedValue(filters);
   const annotations = useAnnotations(
@@ -29,16 +29,13 @@ export const useFieldsAnnotation: UseFieldsAnnotation = <T>(
     useMemo(
       () => ({
         pathPrefix: memoizedFilters?.pathPrefix,
-        annotations: [annotation]
+        annotations: [annotation],
       }),
-      [memoizedFilters, annotation]
-    )
+      [memoizedFilters, annotation],
+    ),
   );
 
-  const fieldAnnotations = R.mapObjIndexed(
-    (data) => getAnnotationValue(data, annotation),
-    annotations
-  );
+  const fieldAnnotations = R.mapObjIndexed(data => getAnnotationValue(data, annotation), annotations);
 
   return fieldAnnotations;
 };

@@ -1,9 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { subscribeToAnnotations } from '../subscribeToAnnotations';
-import {
-  AnnotationsSubscriptionFilters,
-  AnnotationsSubscriptionValue
-} from '../types';
+import { AnnotationsSubscriptionFilters, AnnotationsSubscriptionValue } from '../types';
 import { ModelValidationContext } from '../validate/types';
 import useForceUpdate from './useForceUpdate';
 import { useMemoizedValue } from './useMemoizedValue';
@@ -18,7 +15,7 @@ type TRef<T> =
 interface UseAnnotations {
   (
     context: ModelValidationContext<any, any, any>,
-    filters?: AnnotationsSubscriptionFilters
+    filters?: AnnotationsSubscriptionFilters,
   ): AnnotationsSubscriptionValue;
 }
 
@@ -27,11 +24,11 @@ const defaultFilters: AnnotationsSubscriptionFilters = {};
 
 export const useAnnotations: UseAnnotations = (
   context: ModelValidationContext<any, any, any>,
-  filters?: AnnotationsSubscriptionFilters
+  filters?: AnnotationsSubscriptionFilters,
 ): AnnotationsSubscriptionValue => {
   const memoizedFilters = useMemoizedValue(filters);
   const annotationValueRef = useRef<TRef<AnnotationsSubscriptionValue>>({
-    hasValue: false
+    hasValue: false,
   });
 
   const forceUpdate = useForceUpdate();
@@ -39,32 +36,26 @@ export const useAnnotations: UseAnnotations = (
     // because this useMemo can run when eg. path or annotation changes,
     // let's make sure to reset the current value in that case to avoid bugs
     annotationValueRef.current = {
-      hasValue: false
+      hasValue: false,
     };
 
     const subscribe = (value: AnnotationsSubscriptionValue) => {
       annotationValueRef.current = {
         hasValue: true,
-        value
+        value,
       };
 
       forceUpdate();
     };
 
-    return subscribeToAnnotations(
-      context,
-      memoizedFilters ?? defaultFilters,
-      subscribe
-    );
+    return subscribeToAnnotations(context, memoizedFilters ?? defaultFilters, subscribe);
   }, [context, memoizedFilters, forceUpdate]);
 
   // unsubscribes from changes if the field or annotation changes, or when unmount happens
   useEffect(() => unsubscribe, [unsubscribe]);
 
   if (!annotationValueRef.current.hasValue) {
-    throw new Error(
-      `subscriber did not instantly notify the current value, this should never happen`
-    );
+    throw new Error(`subscriber did not instantly notify the current value, this should never happen`);
   }
 
   return annotationValueRef.current.value;

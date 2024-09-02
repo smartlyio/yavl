@@ -6,7 +6,7 @@ describe('array', () => {
 
   const parentContext: ModelContext<any> = {
     type: 'internal',
-    pathToField: [{ type: 'field', name: 'parent' }]
+    pathToField: [{ type: 'field', name: 'parent' }],
   };
 
   const modelDefinitions: any = { mock: 'model definitions' };
@@ -24,8 +24,8 @@ describe('array', () => {
       type: 'internal',
       pathToField: [
         { type: 'field', name: 'parent' },
-        { type: 'array', focus: 'current' }
-      ]
+        { type: 'array', focus: 'current' },
+      ],
     };
 
     expect(modelDefinitionFn).toHaveBeenCalledTimes(1);

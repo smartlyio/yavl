@@ -5,7 +5,7 @@ describe('processDependenciesRecursively', () => {
   const cb = jest.fn();
   const testContext: ModelContext<any> = {
     type: 'internal',
-    pathToField: [{ type: 'field', name: 'test' }]
+    pathToField: [{ type: 'field', name: 'test' }],
   };
 
   describe('with dependencies being model context', () => {
@@ -23,18 +23,18 @@ describe('processDependenciesRecursively', () => {
     describe('with dependsOn dependencies', () => {
       const dependsOnA: ModelContext<any> = {
         type: 'internal',
-        pathToField: [{ type: 'field', name: 'depA' }]
+        pathToField: [{ type: 'field', name: 'depA' }],
       };
 
       const dependsOnB: ModelContext<any> = {
         type: 'internal',
-        pathToField: [{ type: 'field', name: 'depB' }]
+        pathToField: [{ type: 'field', name: 'depB' }],
       };
 
       const testContextWithDependsOn: ModelContext<any> = {
         type: 'internal',
         pathToField: [{ type: 'field', name: 'test' }],
-        dependsOn: [dependsOnA, dependsOnB]
+        dependsOn: [dependsOnA, dependsOnB],
       };
 
       beforeEach(() => {
@@ -55,9 +55,9 @@ describe('processDependenciesRecursively', () => {
       dependencies: {
         data: testContext,
         list: [testContext, 'test'],
-        plainData: 'test'
+        plainData: 'test',
       },
-      computeFn: () => {}
+      computeFn: () => {},
     };
 
     beforeEach(() => {
@@ -76,9 +76,9 @@ describe('processDependenciesRecursively', () => {
     beforeEach(() => {
       processDependenciesRecursively(
         {
-          dep: testContext
+          dep: testContext,
         },
-        cb
+        cb,
       );
     });
 
@@ -105,10 +105,10 @@ describe('processDependenciesRecursively', () => {
         {
           nested: {
             dep: testContext,
-            array: [{}, { value: testContext }]
-          }
+            array: [{}, { value: testContext }],
+          },
         },
-        cb
+        cb,
       );
     });
 

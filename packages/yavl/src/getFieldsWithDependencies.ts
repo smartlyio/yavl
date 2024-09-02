@@ -1,16 +1,11 @@
 import { getPathWithoutIndices } from './utils/getPathWithoutIndices';
 import { valueAnnotation } from './annotations';
-import {
-  FieldDependencyCache,
-  FieldDependencyEntry,
-  FieldsWithDependencies,
-  HasDependenciesInfo
-} from './types';
+import { FieldDependencyCache, FieldDependencyEntry, FieldsWithDependencies, HasDependenciesInfo } from './types';
 
 const noDependencies: HasDependenciesInfo = {
   computedValues: false,
   conditions: false,
-  validations: false
+  validations: false,
 };
 
 const getFieldWithParents = (field: string) => {
@@ -48,9 +43,7 @@ const getFieldWithParents = (field: string) => {
  * by the getChangedAnnotations() in processModelChanges(), which processes all annotations
  * if there are any dependencies for them.
  */
-const hasFieldDependencies = (
-  fieldCache: FieldDependencyEntry<any> | undefined
-): HasDependenciesInfo => {
+const hasFieldDependencies = (fieldCache: FieldDependencyEntry<any> | undefined): HasDependenciesInfo => {
   if (!fieldCache) {
     return noDependencies;
   }
@@ -58,29 +51,26 @@ const hasFieldDependencies = (
   const isFieldUsedAsConditionDependency = fieldCache.conditions.length > 0;
   const isFieldUsedAsValidationDependency = fieldCache.validations.length > 0;
   const isFieldUsedAsComputedValueDependency = fieldCache.annotations.some(
-    ({ definition, isDependencyOfValue }) =>
-      definition.annotation === valueAnnotation && isDependencyOfValue
+    ({ definition, isDependencyOfValue }) => definition.annotation === valueAnnotation && isDependencyOfValue,
   );
 
   return {
     computedValues: isFieldUsedAsComputedValueDependency,
     conditions: isFieldUsedAsConditionDependency,
-    validations: isFieldUsedAsValidationDependency
+    validations: isFieldUsedAsValidationDependency,
   };
 };
 
-export const getFieldsWithDependencies = (
-  fieldDependencyCache: FieldDependencyCache<any>
-): FieldsWithDependencies => {
+export const getFieldsWithDependencies = (fieldDependencyCache: FieldDependencyCache<any>): FieldsWithDependencies => {
   // always nclude the root paths, if there is something that depends on root directly,
   // the loop below will overwrite this entry with hasDependencies = true
   const result: FieldsWithDependencies = {
     'internal:': {
-      hasDependencies: noDependencies
+      hasDependencies: noDependencies,
     },
     'external:': {
-      hasDependencies: noDependencies
-    }
+      hasDependencies: noDependencies,
+    },
   };
 
   Object.entries(fieldDependencyCache).forEach(([field, fieldCache]) => {
@@ -88,29 +78,24 @@ export const getFieldsWithDependencies = (
     const fieldWithParents = getFieldWithParents(normalizedField);
 
     const hasDependencies = hasFieldDependencies(fieldCache);
-    const existingHasDependencies: HasDependenciesInfo =
-      result[normalizedField]?.hasDependencies ?? noDependencies;
+    const existingHasDependencies: HasDependenciesInfo = result[normalizedField]?.hasDependencies ?? noDependencies;
 
     result[normalizedField] = {
       hasDependencies: {
-        computedValues:
-          hasDependencies.computedValues ||
-          existingHasDependencies.computedValues,
-        conditions:
-          hasDependencies.conditions || existingHasDependencies.conditions,
-        validations:
-          hasDependencies.validations || existingHasDependencies.validations
-      }
+        computedValues: hasDependencies.computedValues || existingHasDependencies.computedValues,
+        conditions: hasDependencies.conditions || existingHasDependencies.conditions,
+        validations: hasDependencies.validations || existingHasDependencies.validations,
+      },
     };
 
-    fieldWithParents.forEach((fieldPart) => {
+    fieldWithParents.forEach(fieldPart => {
       // don't process parent field if we already have an entry for it
       if (result[fieldPart] !== undefined) {
         return;
       }
 
       result[fieldPart] = {
-        hasDependencies: noDependencies
+        hasDependencies: noDependencies,
       };
     });
   });

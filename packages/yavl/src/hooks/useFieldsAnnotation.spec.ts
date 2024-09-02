@@ -16,25 +16,21 @@ describe('useFieldsAnnotation', () => {
     };
 
     const testModel = model<TestModel>((root, builder) =>
-      builder.field(root, 'items', (items) => [
-        builder.array(items, (item) => [
-          builder.field(item, 'field', (field) => [
-            builder.annotate(field, testAnnotation, 'test')
-          ])
-        ])
-      ])
+      builder.field(root, 'items', items => [
+        builder.array(items, item => [
+          builder.field(item, 'field', field => [builder.annotate(field, testAnnotation, 'test')]),
+        ]),
+      ]),
     );
 
     const modelContext = createValidationContext(testModel);
     updateModel(modelContext, { items: [{ field: 'a' }, { field: 'b' }] });
 
-    const hook = renderHook(() =>
-      useFieldsAnnotation(modelContext, testAnnotation)
-    );
+    const hook = renderHook(() => useFieldsAnnotation(modelContext, testAnnotation));
 
     expect(hook.result.current).toEqual({
       'items[0].field': 'test',
-      'items[1].field': 'test'
+      'items[1].field': 'test',
     });
 
     act(() => {
@@ -42,7 +38,7 @@ describe('useFieldsAnnotation', () => {
     });
 
     expect(hook.result.current).toEqual({
-      'items[0].field': 'test'
+      'items[0].field': 'test',
     });
   });
 });

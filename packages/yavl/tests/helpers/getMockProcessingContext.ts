@@ -2,7 +2,7 @@ import createErrorCacheEntry from '../../src/validate/createErrorCacheEntry';
 import { ProcessingContext } from '../../src/validate/types';
 
 export const getMockProcessingContext = (
-  overwrites?: Partial<ProcessingContext<any, any, any>>
+  overwrites?: Partial<ProcessingContext<any, any, any>>,
 ): ProcessingContext<any, any, any> => ({
   isInitialValidation: true,
   data: { mock: 'data' },
@@ -19,5 +19,5 @@ export const getMockProcessingContext = (
   changedAnnotationsCache: new Map(),
   unprocessedValidationsForConditons: [],
   isEqualFn: Object.is,
-  ...overwrites
+  ...overwrites,
 });

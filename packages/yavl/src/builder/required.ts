@@ -9,16 +9,11 @@ export interface RequiredFn<ErrorType = string> {
   <FieldType>(
     parentContext: ModelContext<FieldType>,
     error: ErrorType,
-    modelDefinitionFn?: ModelDefinitionFn<
-      ModelContext<Exclude<FieldType, undefined>>,
-      ErrorType
-    >
+    modelDefinitionFn?: ModelDefinitionFn<ModelContext<Exclude<FieldType, undefined>>, ErrorType>,
   ): SupportedDefinition<ErrorType>[];
 }
 
-export type MakeRequiredFn<ErrorType> = (
-  testFn: (value: any) => boolean
-) => RequiredFn<ErrorType>;
+export type MakeRequiredFn<ErrorType> = (testFn: (value: any) => boolean) => RequiredFn<ErrorType>;
 
 const makeRequired: MakeRequiredFn<any> = (testFn: (value: any) => boolean) => (
   ...args: any[]
@@ -29,7 +24,7 @@ const makeRequired: MakeRequiredFn<any> = (testFn: (value: any) => boolean) => (
 
   const definitions: SupportedDefinition<any> = [
     annotate(parentContext, annotations.isRequired, true),
-    validate(parentContext, parentContext, validator(testFn, error))
+    validate(parentContext, parentContext, validator(testFn, error)),
   ];
 
   if (modelDefinitionFn) {

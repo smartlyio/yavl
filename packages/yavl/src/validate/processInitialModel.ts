@@ -2,20 +2,13 @@ import { CompareFn, ModelValidationContext } from './types';
 import { processModelRecursively } from './processModelRecursively';
 import { updateModelCaches } from './updateModelCaches';
 import { processModelChanges } from './processModelChanges';
-import {
-  createProcessingContext,
-  updateContextDataAndChangedAnnotations
-} from './processModelHelpers';
+import { createProcessingContext, updateContextDataAndChangedAnnotations } from './processModelHelpers';
 
-export const processInitialModel = <
-  Data,
-  ExternalData = undefined,
-  ErrorType = string
->(
+export const processInitialModel = <Data, ExternalData = undefined, ErrorType = string>(
   context: ModelValidationContext<Data, ExternalData, ErrorType>,
   data: Data,
   externalData: ExternalData,
-  isEqualFn: CompareFn = Object.is
+  isEqualFn: CompareFn = Object.is,
 ): void => {
   const model = context.model;
   const isInitialValidation = true;
@@ -37,32 +30,18 @@ export const processInitialModel = <
     previousDataAtStartOfUpdate: undefined,
     previousExternalDataAtStartOfUpdate: undefined,
     externalData,
-    isEqualFn
+    isEqualFn,
   });
 
-  updateModelCaches(
-    processingContext,
-    [model.modelDefinition],
-    context.previousData,
-    {},
-    false
-  );
+  updateModelCaches(processingContext, [model.modelDefinition], context.previousData, {}, false);
 
-  processModelRecursively(
-    processingContext,
-    'annotations',
-    [model.modelDefinition],
-    {}
-  );
+  processModelRecursively(processingContext, 'annotations', [model.modelDefinition], {});
 
   {
     // update any new computed fields and re-run the loop
     updateContextDataAndChangedAnnotations(context, processingContext);
 
-    if (
-      !isEqualFn(processingContext.data, data) ||
-      processingContext.changedAnnotationsCache.size > 0
-    ) {
+    if (!isEqualFn(processingContext.data, data) || processingContext.changedAnnotationsCache.size > 0) {
       processingContext = processModelChanges(
         context,
         processingContext,
@@ -70,25 +49,17 @@ export const processInitialModel = <
         isInitialValidation,
         processingContext.data,
         externalData,
-        isEqualFn
+        isEqualFn,
       );
     }
   }
 
-  processModelRecursively(
-    processingContext,
-    'conditions',
-    [model.modelDefinition],
-    {}
-  );
+  processModelRecursively(processingContext, 'conditions', [model.modelDefinition], {});
 
   // update any new computed fields and re-run the loop
   updateContextDataAndChangedAnnotations(context, processingContext);
 
-  if (
-    !isEqualFn(processingContext.data, data) ||
-    processingContext.changedAnnotationsCache.size > 0
-  ) {
+  if (!isEqualFn(processingContext.data, data) || processingContext.changedAnnotationsCache.size > 0) {
     processingContext = processModelChanges(
       context,
       processingContext,
@@ -96,14 +67,9 @@ export const processInitialModel = <
       isInitialValidation,
       processingContext.data,
       externalData,
-      isEqualFn
+      isEqualFn,
     );
   }
 
-  processModelRecursively(
-    processingContext,
-    'validations',
-    [model.modelDefinition],
-    {}
-  );
+  processModelRecursively(processingContext, 'validations', [model.modelDefinition], {});
 };

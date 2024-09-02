@@ -8,7 +8,7 @@ export const createProcessingContext = <Data, ExternalData, ErrorType>({
   externalData,
   previousDataAtStartOfUpdate,
   previousExternalDataAtStartOfUpdate,
-  isEqualFn
+  isEqualFn,
 }: {
   context: ModelValidationContext<Data, ExternalData, ErrorType>;
   isInitialValidation: boolean;
@@ -32,27 +32,20 @@ export const createProcessingContext = <Data, ExternalData, ErrorType>({
   fieldProcessingCache: {},
   changedAnnotationsCache: new Map(),
   unprocessedValidationsForConditons: [],
-  isEqualFn
+  isEqualFn,
 });
 
-export const updateContextDataAndChangedAnnotations = <
-  Data,
-  ExternalData,
-  ErrorType
->(
+export const updateContextDataAndChangedAnnotations = <Data, ExternalData, ErrorType>(
   context: ModelValidationContext<Data, ExternalData, ErrorType>,
-  processingContext: ProcessingContext<Data, ExternalData, ErrorType>
+  processingContext: ProcessingContext<Data, ExternalData, ErrorType>,
 ): void => {
   context.previousData = processingContext.dataAtStartOfPass;
   context.previousExternalData = processingContext.externalData;
 
   processingContext.changedAnnotationsCache.forEach((annotations, field) => {
-    const pendingAnnotationsForField = getChangedAnnotationsCacheForPath(
-      context.pendingChangedAnnotations,
-      field
-    );
+    const pendingAnnotationsForField = getChangedAnnotationsCacheForPath(context.pendingChangedAnnotations, field);
 
-    annotations.forEach((annotation) => {
+    annotations.forEach(annotation => {
       pendingAnnotationsForField.add(annotation);
     });
   });

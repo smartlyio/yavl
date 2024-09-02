@@ -8,7 +8,7 @@ import {
   getFieldsWithAnnotations,
   ModelValidationContext,
   subscribeToFieldAnnotation,
-  updateModel
+  updateModel,
 } from '../src';
 
 type TestModel = {
@@ -19,7 +19,7 @@ type TestModel = {
 
 const initialData: TestModel = {
   number: 3,
-  multiplier: 2
+  multiplier: 2,
 };
 
 const multiplied = createAnnotation<number>('multiplied');
@@ -28,17 +28,9 @@ const computeFn = jest.fn();
 // TODO: should we combine dynamicAnnotations & annotationSubscribers tests to just annotations?
 describe('dynamic annotations', () => {
   const testModel = model<TestModel>((root, model) => [
-    model.withFields(
-      root,
-      ['annotatedField', 'number', 'multiplier'],
-      ({ annotatedField, number, multiplier }) => [
-        model.annotate(
-          annotatedField,
-          multiplied,
-          model.compute({ number, multiplier }, computeFn)
-        )
-      ]
-    )
+    model.withFields(root, ['annotatedField', 'number', 'multiplier'], ({ annotatedField, number, multiplier }) => [
+      model.annotate(annotatedField, multiplied, model.compute({ number, multiplier }, computeFn)),
+    ]),
   ]);
 
   const subscriber = jest.fn();
@@ -46,18 +38,11 @@ describe('dynamic annotations', () => {
   let validationContext: ModelValidationContext<TestModel>;
 
   beforeEach(() => {
-    computeFn.mockImplementation(
-      ({ number, multiplier }) => number * multiplier
-    );
+    computeFn.mockImplementation(({ number, multiplier }) => number * multiplier);
 
     validationContext = createValidationContext(testModel);
     updateModel(validationContext, initialData);
-    subscribeToFieldAnnotation(
-      validationContext,
-      'annotatedField',
-      multiplied,
-      subscriber
-    );
+    subscribeToFieldAnnotation(validationContext, 'annotatedField', multiplied, subscriber);
   });
 
   describe('on initial validation', () => {
@@ -74,18 +59,14 @@ describe('dynamic annotations', () => {
     });
 
     it('should return correct dynamic annotation with getFieldAnnotation', () => {
-      const result = getFieldAnnotation(
-        validationContext,
-        'annotatedField',
-        multiplied
-      );
+      const result = getFieldAnnotation(validationContext, 'annotatedField', multiplied);
 
       expect(result).toBe(6);
     });
 
     it('should return correct dynamic annotation with getFieldsWithAnnotations', () => {
       const result = getFieldsWithAnnotations(validationContext, {
-        [multiplied]: 6
+        [multiplied]: 6,
       });
 
       expect(result).toEqual(['annotatedField']);
@@ -100,7 +81,7 @@ describe('dynamic annotations', () => {
   describe('when dependencies for the dynamic annotation changes', () => {
     const updatedData: TestModel = {
       ...initialData,
-      multiplier: 3
+      multiplier: 3,
     };
 
     beforeEach(() => {
@@ -120,18 +101,14 @@ describe('dynamic annotations', () => {
     });
 
     it('should return correct dynamic annotation with getFieldAnnotation', () => {
-      const result = getFieldAnnotation(
-        validationContext,
-        'annotatedField',
-        multiplied
-      );
+      const result = getFieldAnnotation(validationContext, 'annotatedField', multiplied);
 
       expect(result).toBe(9);
     });
 
     it('should return correct dynamic annotation with getFieldsWithAnnotations', () => {
       const result = getFieldsWithAnnotations(validationContext, {
-        [multiplied]: 9
+        [multiplied]: 9,
       });
 
       expect(result).toEqual(['annotatedField']);
@@ -146,7 +123,7 @@ describe('dynamic annotations', () => {
   describe('when field with a dynamic annotation changes but the change does not affect the value of the annotation', () => {
     const updatedData: TestModel = {
       ...initialData,
-      annotatedField: 'changed'
+      annotatedField: 'changed',
     };
 
     beforeEach(() => {
