@@ -1,8 +1,5 @@
 import { act, renderHook } from '@testing-library/react-hooks';
-import { createAnnotation } from '../../../yavl/src/annotations';
-import model from '../../../yavl/src/model';
-import createValidationContext from '../../../yavl/src/validate/createValidationContext';
-import updateModel from '../../../yavl/src/validate/updateModel';
+import { updateModel, createValidationContext, model, createAnnotation } from '@smartlyio/yavl';
 import { useFieldsAnnotation } from './useFieldsAnnotation';
 
 describe('useFieldsAnnotation', () => {
