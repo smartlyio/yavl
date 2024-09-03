@@ -13,17 +13,13 @@
   "scripts": {
     "build": "lerna run --stream build",
     "clean": "lerna run clean",
+    "reinstall": "rm -rf node_modules && yarn install",
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --ext .ts && yarn typecheck",
     "lint:fix": "eslint . --ext .ts --fix && yarn typecheck",
-    "prepack": "yarn build",
     "test": "yarn jest",
     "test:watch": "yarn jest --watch",
-    "test:all": "yarn lint && yarn test",
-    "ci:install": "yarn install --frozen-lockfile",
-    "ci:build": "yarn run --silent build",
-    "ci:lint": "yarn lint",
-    "ci:test": "yarn test"
+    "test:all": "yarn lint && yarn test"
   },
   "dependencies": {
     "ramda": "^0.28.0"
