@@ -17,15 +17,11 @@
     "strict": true,
     "noEmit": true,
     "paths": {
-      "@smartlyio/yavl": ["./packages/yavl/src"]
+      "@smartlyio/yavl": ["./packages/yavl/src/index.ts"],
+      "@smartlyio/yavl-hooks": ["./packages/yavl-hooks/src/index.ts"]
     },
     "outDir": "dist"
   },
-  "include": [
-    "packages/*/index.ts",
-    "packages/*/tests",
-    "packages/*/examples",
-    "packages/*/src"
-  ],
+  "include": ["packages/*/index.ts", "packages/*/tests", "packages/*/examples", "packages/*/src"],
   "exclude": ["node_modules", "dist"]
 }

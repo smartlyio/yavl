@@ -1,8 +1,12 @@
 import { useMemo, useCallback } from 'react';
-import { Model } from '../types';
-import { ModelValidationContext, ModelValidationErrors, CompareFn } from '../validate/types';
-import createValidationContext from '../validate/createValidationContext';
-import validateModel from '../validate/validateModel';
+import {
+  Model,
+  ModelValidationContext,
+  ModelValidationErrors,
+  CompareFn,
+  createValidationContext,
+  validateModel,
+} from '@smartlyio/yavl';
 
 export const useIncrementalValidation = <Data, ExternalData, ErrorType>(
   model: Model<Data, ExternalData, ErrorType>,
@@ -11,7 +15,7 @@ export const useIncrementalValidation = <Data, ExternalData, ErrorType>(
 ) => {
   const modelContext = useMemo<ModelValidationContext<Data, ExternalData, ErrorType>>(
     () => createValidationContext(model, initialExternalData),
-    [model] // eslint-disable-line
+    [model], // eslint-disable-line
   );
 
   const validate = useCallback(

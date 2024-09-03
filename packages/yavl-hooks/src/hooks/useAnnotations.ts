@@ -1,8 +1,13 @@
 import { useEffect, useMemo, useRef } from 'react';
-import subscribeToFieldAnnotation from '../subscribeToFieldAnnotation';
-import { Annotation, noValue } from '../types';
-import { ModelValidationContext } from '../validate/types';
+
 import useForceUpdate from './useForceUpdate';
+import { useMemoizedValue } from './useMemoizedValue';
+import {
+  ModelValidationContext,
+  AnnotationsSubscriptionValue,
+  AnnotationsSubscriptionFilters,
+  subscribeToAnnotations,
+} from '@smartlyio/yavl';
 
 type TRef<T> =
   | { hasValue: false }
@@ -11,25 +16,22 @@ type TRef<T> =
       value: T;
     };
 
-interface UseFieldAnnotation {
-  <Value>(context: ModelValidationContext<any, any, any>, path: string, annotation: Annotation<Value>): Value;
-
-  <Value, DefaultValue>(
+interface UseAnnotations {
+  (
     context: ModelValidationContext<any, any, any>,
-    path: string,
-    annotation: Annotation<Value>,
-    defaultValue: DefaultValue,
-  ): Value | DefaultValue;
+    filters?: AnnotationsSubscriptionFilters,
+  ): AnnotationsSubscriptionValue;
 }
 
-export const useFieldAnnotation: UseFieldAnnotation = <Value, DefaultValue>(
+// create outside of the hook so the object is not re-generated
+const defaultFilters: AnnotationsSubscriptionFilters = {};
+
+export const useAnnotations: UseAnnotations = (
   context: ModelValidationContext<any, any, any>,
-  path: string,
-  annotation: Annotation<Value>,
-  ...rest: [DefaultValue?]
-): Value | DefaultValue => {
-  const defaultValue = rest.length > 0 ? (rest[0] as DefaultValue) : noValue;
-  const annotationValueRef = useRef<TRef<Value | DefaultValue>>({
+  filters?: AnnotationsSubscriptionFilters,
+): AnnotationsSubscriptionValue => {
+  const memoizedFilters = useMemoizedValue(filters);
+  const annotationValueRef = useRef<TRef<AnnotationsSubscriptionValue>>({
     hasValue: false,
   });
 
@@ -41,7 +43,7 @@ export const useFieldAnnotation: UseFieldAnnotation = <Value, DefaultValue>(
       hasValue: false,
     };
 
-    const subscribe = (value: Value | DefaultValue) => {
+    const subscribe = (value: AnnotationsSubscriptionValue) => {
       annotationValueRef.current = {
         hasValue: true,
         value,
@@ -50,8 +52,8 @@ export const useFieldAnnotation: UseFieldAnnotation = <Value, DefaultValue>(
       forceUpdate();
     };
 
-    return subscribeToFieldAnnotation(context, path, annotation, subscribe, defaultValue as DefaultValue);
-  }, [context, path, annotation, defaultValue, forceUpdate]);
+    return subscribeToAnnotations(context, memoizedFilters ?? defaultFilters, subscribe);
+  }, [context, memoizedFilters, forceUpdate]);
 
   // unsubscribes from changes if the field or annotation changes, or when unmount happens
   useEffect(() => unsubscribe, [unsubscribe]);

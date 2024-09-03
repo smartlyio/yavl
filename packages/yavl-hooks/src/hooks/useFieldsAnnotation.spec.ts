@@ -1,8 +1,8 @@
 import { act, renderHook } from '@testing-library/react-hooks';
-import { createAnnotation } from '../annotations';
-import model from '../model';
-import createValidationContext from '../validate/createValidationContext';
-import updateModel from '../validate/updateModel';
+import { createAnnotation } from '../../../yavl/src/annotations';
+import model from '../../../yavl/src/model';
+import createValidationContext from '../../../yavl/src/validate/createValidationContext';
+import updateModel from '../../../yavl/src/validate/updateModel';
 import { useFieldsAnnotation } from './useFieldsAnnotation';
 
 describe('useFieldsAnnotation', () => {
