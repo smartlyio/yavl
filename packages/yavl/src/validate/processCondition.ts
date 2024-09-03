@@ -13,7 +13,7 @@ import { getIsPathActive } from './getIsPathActive';
 const handleInactivatedChildDefinitions = (
   processingContext: ProcessingContext<any, any, any>,
   cacheEntry: ModelValidationCache<any>,
-  handledFields: Set<string> = new Set()
+  handledFields: Set<string> = new Set(),
 ) => {
   cacheEntry.annotations.forEach((fieldAnnotationCache, pathToField) => {
     fieldAnnotationCache.forEach((_, { annotation }) => {
@@ -28,14 +28,10 @@ const handleInactivatedChildDefinitions = (
     }
   });
 
-  cacheEntry.children.forEach((childCacheEntry) => {
+  cacheEntry.children.forEach(childCacheEntry => {
     // we don't need to care about old inactive paths of children conditions
     if (childCacheEntry.isPathActive) {
-      handleInactivatedChildDefinitions(
-        processingContext,
-        childCacheEntry,
-        handledFields
-      );
+      handleInactivatedChildDefinitions(processingContext, childCacheEntry, handledFields);
     }
   });
 };
@@ -45,13 +41,9 @@ const processCondition = <Data, ExternalData, ErrorType>(
   condition: WhenDefinition<ErrorType>,
   parentDefinitions: RecursiveDefinition<ErrorType>[],
   isNewCondition: boolean,
-  currentIndices: Record<string, number>
+  currentIndices: Record<string, number>,
 ) => {
-  const isParentPathActive = getIsPathActive(
-    processingContext.validateDiffCache,
-    parentDefinitions,
-    currentIndices
-  );
+  const isParentPathActive = getIsPathActive(processingContext.validateDiffCache, parentDefinitions, currentIndices);
 
   /**
    * We can have a situation when nested conditions change from inactive to active at the same time.
@@ -90,10 +82,7 @@ const processCondition = <Data, ExternalData, ErrorType>(
   const closestArray = findClosestArrayFromDefinitions(parentDefinitions);
   const pathToArrayStr = resolveModelPathStr(closestArray, currentIndices);
 
-  const cacheForField = getProcessingCacheForField(
-    processingContext.fieldProcessingCache,
-    pathToArrayStr
-  );
+  const cacheForField = getProcessingCacheForField(processingContext.fieldProcessingCache, pathToArrayStr);
 
   // if this when() is aready processed by eg. dependency changing, don't re-process
   if (cacheForField.processedConditionDefinitions.has(condition)) {
@@ -103,16 +92,12 @@ const processCondition = <Data, ExternalData, ErrorType>(
   // regardless of how we exit from this function, we don't want re-process this later
   cacheForField.processedConditionDefinitions.set(condition, true);
 
-  const isPathActive = checkParentConditions(
-    processingContext,
-    parentDefinitions.concat(condition),
-    currentIndices
-  );
+  const isPathActive = checkParentConditions(processingContext, parentDefinitions.concat(condition), currentIndices);
 
   const errorCacheEntry = findErrorCacheEntry(
     processingContext.validateDiffCache,
     parentDefinitions.concat(condition),
-    currentIndices
+    currentIndices,
   );
 
   const wasConditionTruePreviously = errorCacheEntry.isPathActive;
@@ -131,12 +116,7 @@ const processCondition = <Data, ExternalData, ErrorType>(
      * When path changes to active we need to first update any annotations
      * that were affected by the change.
      */
-    processModelRecursively(
-      processingContext,
-      'annotations',
-      parentDefinitions.concat(condition),
-      currentIndices
-    );
+    processModelRecursively(processingContext, 'annotations', parentDefinitions.concat(condition), currentIndices);
 
     /**
      * If the condition just turned to true, we want to re-validate everything under
@@ -144,12 +124,7 @@ const processCondition = <Data, ExternalData, ErrorType>(
      * update, meaning the data itself under the path might not have been updated, but
      * we still want to re-run the validations to gather the errors.
      */
-    processModelRecursively(
-      processingContext,
-      'conditions',
-      parentDefinitions.concat(condition),
-      currentIndices
-    );
+    processModelRecursively(processingContext, 'conditions', parentDefinitions.concat(condition), currentIndices);
 
     if (!processingContext.isInitialValidation) {
       /**
@@ -160,7 +135,7 @@ const processCondition = <Data, ExternalData, ErrorType>(
        */
       processingContext.unprocessedValidationsForConditons.push({
         pathToCondition: parentDefinitions.concat(condition),
-        indices: currentIndices
+        indices: currentIndices,
       });
     }
   } else if (conditionChangedToFalse) {

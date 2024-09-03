@@ -24,10 +24,10 @@ describe('createValidationContext', () => {
         resolvedValidations: { current: {} },
         subscriptions: {
           fieldAnnotation: new Map(),
-          annotations: new Set()
+          annotations: new Set(),
         },
         pendingChangedAnnotations: new Map(),
-        transactionCounter: 0
+        transactionCounter: 0,
       });
     });
   });
@@ -44,10 +44,10 @@ describe('createValidationContext', () => {
         resolvedValidations: { current: {} },
         subscriptions: {
           fieldAnnotation: new Map(),
-          annotations: new Set()
+          annotations: new Set(),
         },
         pendingChangedAnnotations: new Map(),
-        transactionCounter: 0
+        transactionCounter: 0,
       });
     });
   });

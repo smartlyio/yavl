@@ -21,41 +21,35 @@ describe('model', () => {
   const optionalFn = (): any => [];
 
   const mockModelDefinitions: any = {
-    mock: 'mockModelDefinitions'
+    mock: 'mockModelDefinitions',
   };
 
   const processedMockModelDefinitions: any = {
-    mock: 'processedMockModelDefinitions'
+    mock: 'processedMockModelDefinitions',
   };
 
   const mockFieldDependencyCache: any = {
-    mock: 'mockFieldDependencyCache'
+    mock: 'mockFieldDependencyCache',
   };
 
   const mockFieldsWithDependencies: any = {
-    mock: 'mockFieldsWithDependencies'
+    mock: 'mockFieldsWithDependencies',
   };
 
   const expectedRootContext = { type: 'internal', pathToField: [] };
   const expectedModelDefinition = {
     type: 'model',
     context: expectedRootContext,
-    children: processedMockModelDefinitions
+    children: processedMockModelDefinitions,
   };
 
   beforeEach(() => {
     modelBuilder.mockReturnValue(mockModelDefinitions);
     jest.mocked(makeRequired).mockReturnValue(requiredFn);
     jest.mocked(makeOptional).mockReturnValue(optionalFn);
-    jest
-      .mocked(processDefinitionList)
-      .mockReturnValue(processedMockModelDefinitions);
-    jest
-      .mocked(buildFieldDependencyCache)
-      .mockReturnValue(mockFieldDependencyCache);
-    jest
-      .mocked(getFieldsWithDependencies)
-      .mockReturnValue(mockFieldsWithDependencies);
+    jest.mocked(processDefinitionList).mockReturnValue(processedMockModelDefinitions);
+    jest.mocked(buildFieldDependencyCache).mockReturnValue(mockFieldDependencyCache);
+    jest.mocked(getFieldsWithDependencies).mockReturnValue(mockFieldsWithDependencies);
   });
 
   describe('when options are not provided', () => {
@@ -75,32 +69,24 @@ describe('model', () => {
 
     it('should call the model builder', () => {
       expect(modelBuilder).toHaveBeenCalledTimes(1);
-      expect(modelBuilder).toHaveBeenCalledWith(
-        expectedRootContext,
-        expect.anything()
-      );
+      expect(modelBuilder).toHaveBeenCalledWith(expectedRootContext, expect.anything());
     });
 
     it('should process returned definitions', () => {
       expect(processDefinitionList).toHaveBeenCalledTimes(1);
-      expect(processDefinitionList).toHaveBeenCalledWith(
-        [expectedRootContext],
-        [mockModelDefinitions]
-      );
+      expect(processDefinitionList).toHaveBeenCalledWith([expectedRootContext], [mockModelDefinitions]);
     });
 
     it('should build a field dependency cache', () => {
       expect(buildFieldDependencyCache).toHaveBeenCalledTimes(1);
-      expect(buildFieldDependencyCache).toHaveBeenCalledWith(
-        expectedModelDefinition
-      );
+      expect(buildFieldDependencyCache).toHaveBeenCalledWith(expectedModelDefinition);
     });
 
     it('should return correct model', () => {
       expect(testModel).toEqual({
         modelDefinition: expectedModelDefinition,
         fieldDependencyCache: mockFieldDependencyCache,
-        fieldsWithDependencies: mockFieldsWithDependencies
+        fieldsWithDependencies: mockFieldsWithDependencies,
       });
     });
   });

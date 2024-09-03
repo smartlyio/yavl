@@ -25,11 +25,11 @@ describe('processAnnotation', () => {
       type: 'internal',
       pathToField: [
         { type: 'field', name: 'mock' },
-        { type: 'field', name: 'field' }
-      ]
+        { type: 'field', name: 'field' },
+      ],
     },
     annotation: testAnnotation,
-    value: 'test value'
+    value: 'test value',
   };
 
   const mockParentDefinitions: RecursiveDefinition<any>[] = [];
@@ -40,7 +40,7 @@ describe('processAnnotation', () => {
   beforeEach(() => {
     mockProcessingContext = getMockProcessingContext({
       data,
-      externalData
+      externalData,
     });
     testCacheEntry = createErrorCacheEntry<any>();
 
@@ -54,34 +54,18 @@ describe('processAnnotation', () => {
 
     describe('and annotation for field has not yet been processed', () => {
       beforeEach(() => {
-        processAnnotation(
-          mockProcessingContext,
-          mockAnnotateDefinition,
-          mockParentDefinitions,
-          currentIndices
-        );
+        processAnnotation(mockProcessingContext, mockAnnotateDefinition, mockParentDefinitions, currentIndices);
       });
 
       it('should update the annotation value for the field', () => {
         expect(testCacheEntry.annotations).toEqual(
-          new Map([
-            [
-              'mock.field',
-              new Map([
-                [mockAnnotateDefinition, { [testAnnotation]: 'test value' }]
-              ])
-            ]
-          ])
+          new Map([['mock.field', new Map([[mockAnnotateDefinition, { [testAnnotation]: 'test value' }]])]]),
         );
       });
 
       it('should mark annotation as changed for the field', () => {
         expect(updateChangedAnnotation).toHaveBeenCalledTimes(1);
-        expect(updateChangedAnnotation).toHaveBeenCalledWith(
-          mockProcessingContext,
-          'mock.field',
-          testAnnotation
-        );
+        expect(updateChangedAnnotation).toHaveBeenCalledWith(mockProcessingContext, 'mock.field', testAnnotation);
       });
     });
 
@@ -89,20 +73,12 @@ describe('processAnnotation', () => {
       beforeEach(() => {
         const cache = getProcessingCacheForField(
           mockProcessingContext.fieldProcessingCache,
-          '' // closest array cache
+          '', // closest array cache
         );
 
-        cache.processedAnnotationDefinitions.set(
-          mockAnnotateDefinition,
-          'processed'
-        );
+        cache.processedAnnotationDefinitions.set(mockAnnotateDefinition, 'processed');
 
-        processAnnotation(
-          mockProcessingContext,
-          mockAnnotateDefinition,
-          mockParentDefinitions,
-          currentIndices
-        );
+        processAnnotation(mockProcessingContext, mockAnnotateDefinition, mockParentDefinitions, currentIndices);
       });
 
       it('should not update the annotation value for the field', () => {
@@ -119,12 +95,7 @@ describe('processAnnotation', () => {
     beforeEach(() => {
       jest.mocked(checkParentConditions).mockReturnValue(false);
 
-      processAnnotation(
-        mockProcessingContext,
-        mockAnnotateDefinition,
-        mockParentDefinitions,
-        currentIndices
-      );
+      processAnnotation(mockProcessingContext, mockAnnotateDefinition, mockParentDefinitions, currentIndices);
     });
 
     it('should not update the annotation value for the field', () => {

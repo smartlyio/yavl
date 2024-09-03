@@ -5,7 +5,7 @@ const createErrorCacheEntry = <ErrorType>() => {
     isPathActive: true,
     annotations: new Map(),
     errors: new Map(),
-    children: new Map()
+    children: new Map(),
   };
 
   return newEntry;

@@ -4,10 +4,7 @@ import { PathToField } from '../types';
  * Converts path in model path format into a string with
  * array indices being [all] or [current]
  */
-const modelPathToStr = (
-  type: 'internal' | 'external',
-  path: PathToField
-): string => {
+const modelPathToStr = (type: 'internal' | 'external', path: PathToField): string => {
   const modelPath = path.reduce<string>((acc, pathPart) => {
     if (pathPart.type === 'field') {
       if (acc.length > 0) {

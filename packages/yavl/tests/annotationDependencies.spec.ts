@@ -5,7 +5,7 @@ import {
   Model,
   model,
   ModelValidationContext,
-  updateModel
+  updateModel,
 } from '../src';
 
 type TestModel = {
@@ -23,10 +23,7 @@ describe('annotation dependencies', () => {
   const testWhen = jest.fn();
   const testValidate = jest.fn();
 
-  const testIncrementalValidate = (
-    testModel: Model<TestModel>,
-    data: TestModel
-  ) => {
+  const testIncrementalValidate = (testModel: Model<TestModel>, data: TestModel) => {
     if (!validationContext) {
       validationContext = createValidationContext(testModel);
     }
@@ -45,20 +42,11 @@ describe('annotation dependencies', () => {
           model.annotate(
             value,
             testAnnotation,
-            model.compute(value, (it) => it?.toUpperCase())
+            model.compute(value, it => it?.toUpperCase()),
           ),
-          model.when(
-            model.annotation(value, testAnnotation),
-            testWhen,
-            () => []
-          ),
-          model.validate(
-            value,
-            model.annotation(value, testAnnotation),
-            testValidate,
-            () => []
-          )
-        ])
+          model.when(model.annotation(value, testAnnotation), testWhen, () => []),
+          model.validate(value, model.annotation(value, testAnnotation), testValidate, () => []),
+        ]),
       ]);
 
       it('should resolve dependencies correctly for initial update', () => {
@@ -68,12 +56,7 @@ describe('annotation dependencies', () => {
         expect(testWhen).toHaveBeenCalledTimes(1);
         expect(testWhen).toHaveBeenCalledWith('TEST', data, undefined);
         expect(testValidate).toHaveBeenCalledTimes(1);
-        expect(testValidate).toHaveBeenCalledWith(
-          'test',
-          'TEST',
-          data,
-          undefined
-        );
+        expect(testValidate).toHaveBeenCalledWith('test', 'TEST', data, undefined);
       });
 
       it('should resolve dependencies correctly for incremental update', () => {
@@ -84,35 +67,21 @@ describe('annotation dependencies', () => {
         expect(testWhen).toHaveBeenCalledTimes(2);
         expect(testWhen).toHaveBeenLastCalledWith('TEST', data, undefined);
         expect(testValidate).toHaveBeenCalledTimes(2);
-        expect(testValidate).toHaveBeenLastCalledWith(
-          'test',
-          'TEST',
-          data,
-          undefined
-        );
+        expect(testValidate).toHaveBeenLastCalledWith('test', 'TEST', data, undefined);
       });
     });
 
     describe('with annotate definition after conditions and validations', () => {
       const testModel = model<TestModel>((root, model) => [
         model.withFields(root, ['value'], ({ value }) => [
-          model.when(
-            model.annotation(value, testAnnotation),
-            testWhen,
-            () => []
-          ),
-          model.validate(
-            value,
-            model.annotation(value, testAnnotation),
-            testValidate,
-            () => []
-          ),
+          model.when(model.annotation(value, testAnnotation), testWhen, () => []),
+          model.validate(value, model.annotation(value, testAnnotation), testValidate, () => []),
           model.annotate(
             value,
             testAnnotation,
-            model.compute(value, (it) => it?.toUpperCase())
-          )
-        ])
+            model.compute(value, it => it?.toUpperCase()),
+          ),
+        ]),
       ]);
 
       it('should resolve dependencies correctly for initial update', () => {
@@ -122,12 +91,7 @@ describe('annotation dependencies', () => {
         expect(testWhen).toHaveBeenCalledTimes(1);
         expect(testWhen).toHaveBeenCalledWith('TEST', data, undefined);
         expect(testValidate).toHaveBeenCalledTimes(1);
-        expect(testValidate).toHaveBeenCalledWith(
-          'test',
-          'TEST',
-          data,
-          undefined
-        );
+        expect(testValidate).toHaveBeenCalledWith('test', 'TEST', data, undefined);
       });
 
       it('should resolve dependencies correctly for incremental update', () => {
@@ -138,12 +102,7 @@ describe('annotation dependencies', () => {
         expect(testWhen).toHaveBeenCalledTimes(2);
         expect(testWhen).toHaveBeenLastCalledWith('TEST', data, undefined);
         expect(testValidate).toHaveBeenCalledTimes(2);
-        expect(testValidate).toHaveBeenLastCalledWith(
-          'test',
-          'TEST',
-          data,
-          undefined
-        );
+        expect(testValidate).toHaveBeenLastCalledWith('test', 'TEST', data, undefined);
       });
     });
   });
@@ -155,10 +114,10 @@ describe('annotation dependencies', () => {
           model.annotate(
             value,
             testAnnotation,
-            model.compute(value, (it) => it?.toUpperCase())
+            model.compute(value, it => it?.toUpperCase()),
           ),
-          model.value(computed, model.annotation(value, testAnnotation))
-        ])
+          model.value(computed, model.annotation(value, testAnnotation)),
+        ]),
       ]);
 
       it('should resolve dependencies correctly for initial update', () => {
@@ -167,7 +126,7 @@ describe('annotation dependencies', () => {
 
         expect(getModelData(validationContext!)).toEqual({
           value: 'test',
-          computed: 'TEST'
+          computed: 'TEST',
         });
       });
 
@@ -178,7 +137,7 @@ describe('annotation dependencies', () => {
 
         expect(getModelData(validationContext!)).toEqual({
           value: 'test',
-          computed: 'TEST'
+          computed: 'TEST',
         });
       });
     });
@@ -190,9 +149,9 @@ describe('annotation dependencies', () => {
           model.annotate(
             value,
             testAnnotation,
-            model.compute(value, (it) => it?.toUpperCase())
-          )
-        ])
+            model.compute(value, it => it?.toUpperCase()),
+          ),
+        ]),
       ]);
 
       it('should resolve dependencies correctly for initial update', () => {
@@ -201,7 +160,7 @@ describe('annotation dependencies', () => {
 
         expect(getModelData(validationContext!)).toEqual({
           value: 'test',
-          computed: 'TEST'
+          computed: 'TEST',
         });
       });
 
@@ -212,7 +171,7 @@ describe('annotation dependencies', () => {
 
         expect(getModelData(validationContext!)).toEqual({
           value: 'test',
-          computed: 'TEST'
+          computed: 'TEST',
         });
       });
     });
@@ -221,43 +180,27 @@ describe('annotation dependencies', () => {
   describe('annotation as dependency inside an array', () => {
     const testModel = model<TestModel>((root, model) => [
       model.withFields(root, ['list'], ({ list }) => [
-        model.array(list, (item) => [
+        model.array(list, item => [
           model.annotate(item, testAnnotation, 'test'),
-          model.validate(
-            item,
-            model.annotation(item, testAnnotation),
-            testValidate
-          )
-        ])
-      ])
+          model.validate(item, model.annotation(item, testAnnotation), testValidate),
+        ]),
+      ]),
     ]);
 
     it('should not evaluate the annotation when array item is removed', () => {
       const initialData: TestModel = {
-        list: ['a', 'b']
+        list: ['a', 'b'],
       };
       testIncrementalValidate(testModel, initialData);
 
       expect(testValidate).toHaveBeenCalledTimes(2);
-      expect(testValidate).toHaveBeenNthCalledWith(
-        1,
-        'a',
-        'test',
-        initialData,
-        undefined
-      );
+      expect(testValidate).toHaveBeenNthCalledWith(1, 'a', 'test', initialData, undefined);
 
-      expect(testValidate).toHaveBeenNthCalledWith(
-        2,
-        'b',
-        'test',
-        initialData,
-        undefined
-      );
+      expect(testValidate).toHaveBeenNthCalledWith(2, 'b', 'test', initialData, undefined);
 
       const updatedData: TestModel = {
         ...initialData,
-        list: [initialData.list![0]]
+        list: [initialData.list![0]],
       };
       testIncrementalValidate(testModel, updatedData);
 
@@ -270,27 +213,24 @@ describe('annotation dependencies', () => {
   describe('direct array of annotations as dependency', () => {
     const testModel = model<TestModel>((root, model) => [
       model.withFields(root, ['list', 'computed'], ({ list, computed }) => {
-        const annotationDependencies = model.annotation(
-          model.dependency(list, model.array.all),
-          testAnnotation
-        );
+        const annotationDependencies = model.annotation(model.dependency(list, model.array.all), testAnnotation);
 
         return [
-          model.array(list, (item) => [
+          model.array(list, item => [
             model.annotate(
               item,
               testAnnotation,
-              model.compute(item, (it) => it?.toUpperCase())
-            )
+              model.compute(item, it => it?.toUpperCase()),
+            ),
           ]),
 
           model.when(annotationDependencies, testWhen, () => []),
           model.value(
             computed,
-            model.compute(annotationDependencies, (arr) => arr.join(','))
-          )
+            model.compute(annotationDependencies, arr => arr.join(',')),
+          ),
         ];
-      })
+      }),
     ]);
 
     const inputData: TestModel = { list: ['a', 'b', 'c'] };
@@ -300,11 +240,7 @@ describe('annotation dependencies', () => {
       testIncrementalValidate(testModel, inputData);
 
       expect(testWhen).toHaveBeenCalledTimes(1);
-      expect(testWhen).toHaveBeenCalledWith(
-        ['A', 'B', 'C'],
-        expectedData,
-        undefined
-      );
+      expect(testWhen).toHaveBeenCalledWith(['A', 'B', 'C'], expectedData, undefined);
       expect(getModelData(validationContext!)).toEqual(expectedData);
     });
 
@@ -313,11 +249,7 @@ describe('annotation dependencies', () => {
       testIncrementalValidate(testModel, inputData);
 
       expect(testWhen).toHaveBeenCalledTimes(2);
-      expect(testWhen).toHaveBeenLastCalledWith(
-        ['A', 'B', 'C'],
-        expectedData,
-        undefined
-      );
+      expect(testWhen).toHaveBeenLastCalledWith(['A', 'B', 'C'], expectedData, undefined);
       expect(getModelData(validationContext!)).toEqual(expectedData);
     });
 
@@ -325,48 +257,40 @@ describe('annotation dependencies', () => {
       testIncrementalValidate(testModel, {});
 
       expect(testWhen).toHaveBeenCalledTimes(1);
-      expect(testWhen).toHaveBeenLastCalledWith(
-        [],
-        { computed: '' },
-        undefined
-      );
+      expect(testWhen).toHaveBeenLastCalledWith([], { computed: '' }, undefined);
     });
   });
 
   describe('indirect array of annotations as dependency', () => {
     const testModel = model<TestModel>((root, model) => [
-      model.withFields(
-        root,
-        ['complexList', 'computed'],
-        ({ complexList, computed }) => {
-          const annotationDependencies = model.annotation(
-            model.dependency(complexList, model.array.all, 'value'),
-            testAnnotation
-          );
+      model.withFields(root, ['complexList', 'computed'], ({ complexList, computed }) => {
+        const annotationDependencies = model.annotation(
+          model.dependency(complexList, model.array.all, 'value'),
+          testAnnotation,
+        );
 
-          return [
-            model.array(complexList, (item) => [
-              model.field(item, 'value', (value) => [
-                model.annotate(
-                  value,
-                  testAnnotation,
-                  model.compute(value, (it) => it?.toUpperCase())
-                )
-              ])
+        return [
+          model.array(complexList, item => [
+            model.field(item, 'value', value => [
+              model.annotate(
+                value,
+                testAnnotation,
+                model.compute(value, it => it?.toUpperCase()),
+              ),
             ]),
+          ]),
 
-            model.when(annotationDependencies, testWhen, () => []),
-            model.value(
-              computed,
-              model.compute(annotationDependencies, (arr) => arr.join(','))
-            )
-          ];
-        }
-      )
+          model.when(annotationDependencies, testWhen, () => []),
+          model.value(
+            computed,
+            model.compute(annotationDependencies, arr => arr.join(',')),
+          ),
+        ];
+      }),
     ]);
 
     const inputData: TestModel = {
-      complexList: [{ value: 'a' }, { value: 'b' }, { value: 'c' }]
+      complexList: [{ value: 'a' }, { value: 'b' }, { value: 'c' }],
     };
     const expectedData: TestModel = { ...inputData, computed: 'A,B,C' };
 
@@ -374,11 +298,7 @@ describe('annotation dependencies', () => {
       testIncrementalValidate(testModel, inputData);
 
       expect(testWhen).toHaveBeenCalledTimes(1);
-      expect(testWhen).toHaveBeenCalledWith(
-        ['A', 'B', 'C'],
-        expectedData,
-        undefined
-      );
+      expect(testWhen).toHaveBeenCalledWith(['A', 'B', 'C'], expectedData, undefined);
       expect(getModelData(validationContext!)).toEqual(expectedData);
     });
 
@@ -387,11 +307,7 @@ describe('annotation dependencies', () => {
       testIncrementalValidate(testModel, inputData);
 
       expect(testWhen).toHaveBeenCalledTimes(2);
-      expect(testWhen).toHaveBeenLastCalledWith(
-        ['A', 'B', 'C'],
-        expectedData,
-        undefined
-      );
+      expect(testWhen).toHaveBeenLastCalledWith(['A', 'B', 'C'], expectedData, undefined);
       expect(getModelData(validationContext!)).toEqual(expectedData);
     });
 
@@ -399,40 +315,26 @@ describe('annotation dependencies', () => {
       testIncrementalValidate(testModel, {});
 
       expect(testWhen).toHaveBeenCalledTimes(1);
-      expect(testWhen).toHaveBeenLastCalledWith(
-        [],
-        { computed: '' },
-        undefined
-      );
+      expect(testWhen).toHaveBeenLastCalledWith([], { computed: '' }, undefined);
     });
   });
 
   describe('annotation default values', () => {
     it('should throw when there is no annotation and no default value', () => {
       const testModel = model<TestModel>((root, model) => [
-        model.field(root, 'value', (value) => [
-          model.when(
-            model.annotation(value, testAnnotation),
-            testWhen,
-            () => []
-          )
-        ])
+        model.field(root, 'value', value => [model.when(model.annotation(value, testAnnotation), testWhen, () => [])]),
       ]);
 
       expect(() => testIncrementalValidate(testModel, {})).toThrow(
-        'Annotation "test" from field "value" used as a dependency, but there is no data for the annotation'
+        'Annotation "test" from field "value" used as a dependency, but there is no data for the annotation',
       );
     });
 
     it('should return default value when there is no annotation', () => {
       const testModel = model<TestModel>((root, model) => [
-        model.field(root, 'value', (value) => [
-          model.when(
-            model.annotation(value, testAnnotation, 'default'),
-            testWhen,
-            () => []
-          )
-        ])
+        model.field(root, 'value', value => [
+          model.when(model.annotation(value, testAnnotation, 'default'), testWhen, () => []),
+        ]),
       ]);
 
       expect(() => testIncrementalValidate(testModel, {})).not.toThrow();
@@ -443,61 +345,41 @@ describe('annotation dependencies', () => {
 
     it('should throw when after incremental update there is no annotation and no default value', () => {
       const testModel = model<TestModel>((root, model) => [
-        model.field(root, 'value', (value) => [
+        model.field(root, 'value', value => [
           model.when(
             value,
-            (value) => value === 'initial',
-            () => [model.annotate(value, testAnnotation, 'has value')]
+            value => value === 'initial',
+            () => [model.annotate(value, testAnnotation, 'has value')],
           ),
-          model.when(
-            model.annotation(value, testAnnotation),
-            testWhen,
-            () => []
-          )
-        ])
+          model.when(model.annotation(value, testAnnotation), testWhen, () => []),
+        ]),
       ]);
 
-      expect(() =>
-        testIncrementalValidate(testModel, { value: 'initial' })
-      ).not.toThrow();
+      expect(() => testIncrementalValidate(testModel, { value: 'initial' })).not.toThrow();
 
-      expect(() =>
-        testIncrementalValidate(testModel, { value: 'changed' })
-      ).toThrow(
-        'Annotation "test" from field "value" used as a dependency, but there is no data for the annotation'
+      expect(() => testIncrementalValidate(testModel, { value: 'changed' })).toThrow(
+        'Annotation "test" from field "value" used as a dependency, but there is no data for the annotation',
       );
     });
 
     it('should return default value when after incremental update there is no annotation', () => {
       const testModel = model<TestModel>((root, model) => [
-        model.field(root, 'value', (value) => [
+        model.field(root, 'value', value => [
           model.when(
             value,
-            (value) => value === 'initial',
-            () => [model.annotate(value, testAnnotation, 'has value')]
+            value => value === 'initial',
+            () => [model.annotate(value, testAnnotation, 'has value')],
           ),
-          model.when(
-            model.annotation(value, testAnnotation, 'default'),
-            testWhen,
-            () => []
-          )
-        ])
+          model.when(model.annotation(value, testAnnotation, 'default'), testWhen, () => []),
+        ]),
       ]);
 
-      expect(() =>
-        testIncrementalValidate(testModel, { value: 'initial' })
-      ).not.toThrow();
+      expect(() => testIncrementalValidate(testModel, { value: 'initial' })).not.toThrow();
 
-      expect(() =>
-        testIncrementalValidate(testModel, { value: 'changed' })
-      ).not.toThrow();
+      expect(() => testIncrementalValidate(testModel, { value: 'changed' })).not.toThrow();
 
       expect(testWhen).toHaveBeenCalledTimes(2);
-      expect(testWhen).toHaveBeenCalledWith(
-        'default',
-        { value: 'changed' },
-        undefined
-      );
+      expect(testWhen).toHaveBeenCalledWith('default', { value: 'changed' }, undefined);
     });
   });
 
@@ -508,21 +390,18 @@ describe('annotation dependencies', () => {
           model.annotate(
             value,
             testAnnotation,
-            model.compute(
-              model.annotation(computed, testAnnotation),
-              (it) => it
-            )
+            model.compute(model.annotation(computed, testAnnotation), it => it),
           ),
           model.annotate(
             computed,
             testAnnotation,
-            model.compute(model.annotation(value, testAnnotation), (it) => it)
-          )
-        ])
+            model.compute(model.annotation(value, testAnnotation), it => it),
+          ),
+        ]),
       ]);
 
       expect(() => testIncrementalValidate(testModel, {})).toThrow(
-        'Cyclical dependency to annotation "test" for field "value"'
+        'Cyclical dependency to annotation "test" for field "value"',
       );
     });
 
@@ -531,15 +410,15 @@ describe('annotation dependencies', () => {
         model.withFields(root, ['value'], ({ value }) => [
           model.when(
             model.annotation(value, testAnnotation, 'true'),
-            (it) => it === 'true',
+            it => it === 'true',
             () => [model.annotate(value, testAnnotation, 'false')],
-            () => [model.annotate(value, testAnnotation, 'true')]
-          )
-        ])
+            () => [model.annotate(value, testAnnotation, 'true')],
+          ),
+        ]),
       ]);
 
       expect(() => testIncrementalValidate(testModel, {})).toThrow(
-        'Cyclical dependency to annotation "test" for field "value"'
+        'Cyclical dependency to annotation "test" for field "value"',
       );
     });
 
@@ -548,25 +427,23 @@ describe('annotation dependencies', () => {
         model.withFields(root, ['value'], ({ value }) => [
           model.when(
             value,
-            (it) => it === 'true',
-            () => [model.annotate(value, testAnnotation, value)]
+            it => it === 'true',
+            () => [model.annotate(value, testAnnotation, value)],
           ),
           model.when(
             model.annotation(value, testAnnotation, 'false'),
-            (it) => it === 'true',
-            () => [model.annotate(value, testAnnotation, 'false')]
-          )
-        ])
+            it => it === 'true',
+            () => [model.annotate(value, testAnnotation, 'false')],
+          ),
+        ]),
       ]);
 
       // initial update
-      expect(() =>
-        testIncrementalValidate(testModel, { value: 'false' })
-      ).not.toThrow();
+      expect(() => testIncrementalValidate(testModel, { value: 'false' })).not.toThrow();
 
-      expect(() =>
-        testIncrementalValidate(testModel, { value: 'true' })
-      ).toThrow('Cyclical dependency to annotation "test" for field "value"');
+      expect(() => testIncrementalValidate(testModel, { value: 'true' })).toThrow(
+        'Cyclical dependency to annotation "test" for field "value"',
+      );
     });
   });
 });

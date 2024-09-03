@@ -6,7 +6,7 @@ describe('getIndicesFromStrPath', () => {
     expect(result).toEqual({
       nested: 1,
       'nested[1].path.to': 0,
-      'nested[1].path.to[0]': 2
+      'nested[1].path.to[0]': 2,
     });
   });
 
@@ -15,15 +15,13 @@ describe('getIndicesFromStrPath', () => {
     expect(result).toEqual({
       '': 1,
       '[1].path.to': 0,
-      '[1].path.to[0]': 2
+      '[1].path.to[0]': 2,
     });
   });
 
   it('should throw an error for invalid format', () => {
-    expect(() =>
-      getIndicesFromStrPath('invalid[123.array')
-    ).toThrowErrorMatchingInlineSnapshot(
-      `"Invalid path, array not in correct format"`
+    expect(() => getIndicesFromStrPath('invalid[123.array')).toThrowErrorMatchingInlineSnapshot(
+      `"Invalid path, array not in correct format"`,
     );
   });
 });

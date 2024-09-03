@@ -2,9 +2,7 @@ import * as R from 'ramda';
 
 type StringOrNumber = string | number;
 
-const splitPathByArray = (
-  path: readonly StringOrNumber[]
-): [string[], StringOrNumber[]] => {
+const splitPathByArray = (path: readonly StringOrNumber[]): [string[], StringOrNumber[]] => {
   const [head, tail] = R.splitWhen(R.is(Number), path);
   return [head as string[], tail];
 };
@@ -12,7 +10,7 @@ const splitPathByArray = (
 const calculatePermutationsRecursively = (
   basePath: string,
   path: readonly StringOrNumber[],
-  includeCurrentPermutations: boolean
+  includeCurrentPermutations: boolean,
 ): string[] => {
   // return basePath when there is no more path to recurse
   if (path.length === 0) {
@@ -34,25 +32,15 @@ const calculatePermutationsRecursively = (
   const indexAndAllPermutations = calculatePermutationsRecursively(
     `${headPathStr}[${index}]`,
     tailWithoutArray,
-    false
-  ).concat(
-    calculatePermutationsRecursively(
-      `${headPathStr}[all]`,
-      tailWithoutArray,
-      false
-    )
-  );
+    false,
+  ).concat(calculatePermutationsRecursively(`${headPathStr}[all]`, tailWithoutArray, false));
 
   if (!includeCurrentPermutations) {
     return indexAndAllPermutations;
   }
 
   return indexAndAllPermutations.concat(
-    calculatePermutationsRecursively(
-      `${headPathStr}[current]`,
-      tailWithoutArray,
-      true
-    )
+    calculatePermutationsRecursively(`${headPathStr}[current]`, tailWithoutArray, true),
   );
 };
 
@@ -79,14 +67,11 @@ const calculatePermutationsRecursively = (
  * For external dependencies, the permutations are always using [all],
  * as it is not possible forto have current focus on external data.
  */
-const getDependencyPathPermutations = (
-  type: 'internal' | 'external',
-  path: readonly StringOrNumber[]
-): string[] => {
+const getDependencyPathPermutations = (type: 'internal' | 'external', path: readonly StringOrNumber[]): string[] => {
   const paths = calculatePermutationsRecursively('', path, type === 'internal');
 
   // remove the leading period and prefix with the dep type
-  return paths.map((path) => `${type}:${path.substr(1)}`);
+  return paths.map(path => `${type}:${path.substr(1)}`);
 };
 
 export default getDependencyPathPermutations;

@@ -5,16 +5,13 @@ import {
   AnnotationsSubscriptionFilters,
   AnnotationsSubscriptionValue,
   SubscribeToAnnotationsFn,
-  UnsubscribeFn
+  UnsubscribeFn,
 } from './types';
 import { ModelValidationContext } from './validate/types';
 
 interface SubscribeToAnnotations {
   // subscribes to all annotations
-  (
-    context: ModelValidationContext<any, any, any>,
-    subscribeFn: SubscribeToAnnotationsFn
-  ): UnsubscribeFn;
+  (context: ModelValidationContext<any, any, any>, subscribeFn: SubscribeToAnnotationsFn): UnsubscribeFn;
 
   // subscribes to specific annotations in specific paths
   <Annotations extends Annotation<unknown>[]>(
@@ -23,13 +20,13 @@ interface SubscribeToAnnotations {
       pathPrefix?: string;
       annotations?: Annotations;
     },
-    subscribeFn: SubscribeToAnnotationsFn
+    subscribeFn: SubscribeToAnnotationsFn,
   ): UnsubscribeFn;
 }
 
 const getInitialValue = (
   context: ModelValidationContext<any, any, any>,
-  { pathPrefix, annotations }: AnnotationsSubscriptionFilters
+  { pathPrefix, annotations }: AnnotationsSubscriptionFilters,
 ): AnnotationsSubscriptionValue => {
   return Object.entries(context.resolvedAnnotations.current).reduce(
     (acc: AnnotationsSubscriptionValue, [path, annotationData]) => {
@@ -37,9 +34,7 @@ const getInitialValue = (
         return acc;
       }
 
-      const filteredAnnotationData = annotations
-        ? R.pick(annotations, annotationData)
-        : annotationData;
+      const filteredAnnotationData = annotations ? R.pick(annotations, annotationData) : annotationData;
 
       if (R.isEmpty(filteredAnnotationData)) {
         return acc;
@@ -47,15 +42,13 @@ const getInitialValue = (
 
       return { ...acc, [path]: filteredAnnotationData };
     },
-    {}
+    {},
   );
 };
 
 export const subscribeToAnnotations: SubscribeToAnnotations = (
   context: ModelValidationContext<any, any, any>,
-  ...rest:
-    | [SubscribeToAnnotationsFn]
-    | [AnnotationsSubscriptionFilters, SubscribeToAnnotationsFn]
+  ...rest: [SubscribeToAnnotationsFn] | [AnnotationsSubscriptionFilters, SubscribeToAnnotationsFn]
 ): UnsubscribeFn => {
   const filters = typeof rest[0] === 'object' ? rest[0] : {};
   const subscribeFn = typeof rest[0] === 'object' ? rest[1]! : rest[0];
@@ -64,7 +57,7 @@ export const subscribeToAnnotations: SubscribeToAnnotations = (
   const subscription: AnnotationsSubscription = {
     filters,
     previousValue: value,
-    subscribeFn
+    subscribeFn,
   };
 
   context.subscriptions.annotations.add(subscription);

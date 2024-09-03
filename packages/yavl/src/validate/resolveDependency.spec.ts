@@ -6,31 +6,31 @@ const makeData = (type: 'internal' | 'external') => ({
   array: [
     {
       value: 'valA',
-      nestedArray: [{ value: 'nestedValA' }]
+      nestedArray: [{ value: 'nestedValA' }],
     },
     {
       value: 'valB',
-      nestedArray: [{ value: 'nestedValB' }, { value: 'nestedValC' }]
-    }
+      nestedArray: [{ value: 'nestedValB' }, { value: 'nestedValC' }],
+    },
   ],
   multiDimensionalArray: [
     [{ value: 1 }, { value: 2 }],
-    [{ value: 3 }, { value: 4 }]
+    [{ value: 3 }, { value: 4 }],
   ],
   multiDimensionalArrayInArray: [
     {
       array: [
         [{ value: 1 }, { value: 2 }],
-        [{ value: 3 }, { value: 4 }]
-      ]
+        [{ value: 3 }, { value: 4 }],
+      ],
     },
     {
       array: [
         [{ value: 5 }, { value: 6 }],
-        [{ value: 7 }, { value: 8 }]
-      ]
-    }
-  ]
+        [{ value: 7 }, { value: 8 }],
+      ],
+    },
+  ],
 });
 
 describe('resolveDependency', () => {
@@ -38,13 +38,13 @@ describe('resolveDependency', () => {
   const externalData = makeData('external');
   const currentIndices = {
     array: 1,
-    'array[1].nestedArray': 0
+    'array[1].nestedArray': 0,
   };
   const runCacheForField = undefined;
 
   const processingContext = getMockProcessingContext({
     data,
-    externalData
+    externalData,
   });
 
   it('should return correct data with field access', () => {
@@ -54,11 +54,11 @@ describe('resolveDependency', () => {
         'internal',
         [
           { type: 'field', name: 'nested' },
-          { type: 'field', name: 'value' }
+          { type: 'field', name: 'value' },
         ],
         currentIndices,
-        runCacheForField
-      )
+        runCacheForField,
+      ),
     ).toEqual('internal data');
   });
 
@@ -69,11 +69,11 @@ describe('resolveDependency', () => {
         'internal',
         [
           { type: 'field', name: 'array' },
-          { type: 'array', focus: 'all' }
+          { type: 'array', focus: 'all' },
         ],
         currentIndices,
-        runCacheForField
-      )
+        runCacheForField,
+      ),
     ).toEqual(data.array);
   });
 
@@ -85,11 +85,11 @@ describe('resolveDependency', () => {
         [
           { type: 'field', name: 'array' },
           { type: 'array', focus: 'all' },
-          { type: 'field', name: 'value' }
+          { type: 'field', name: 'value' },
         ],
         currentIndices,
-        runCacheForField
-      )
+        runCacheForField,
+      ),
     ).toEqual(['valA', 'valB']);
   });
 
@@ -103,11 +103,11 @@ describe('resolveDependency', () => {
           { type: 'array', focus: 'all' },
           { type: 'field', name: 'nestedArray' },
           { type: 'array', focus: 'all' },
-          { type: 'field', name: 'value' }
+          { type: 'field', name: 'value' },
         ],
         currentIndices,
-        runCacheForField
-      )
+        runCacheForField,
+      ),
     ).toEqual(['nestedValA', 'nestedValB', 'nestedValC']);
   });
 
@@ -118,14 +118,14 @@ describe('resolveDependency', () => {
         'internal',
         [
           { type: 'field', name: 'multiDimensionalArray' },
-          { type: 'array', focus: 'all' }
+          { type: 'array', focus: 'all' },
         ],
         currentIndices,
-        runCacheForField
-      )
+        runCacheForField,
+      ),
     ).toEqual([
       [{ value: 1 }, { value: 2 }],
-      [{ value: 3 }, { value: 4 }]
+      [{ value: 3 }, { value: 4 }],
     ]);
   });
 
@@ -137,11 +137,11 @@ describe('resolveDependency', () => {
         [
           { type: 'field', name: 'multiDimensionalArray' },
           { type: 'array', focus: 'all' },
-          { type: 'array', focus: 'all' }
+          { type: 'array', focus: 'all' },
         ],
         currentIndices,
-        runCacheForField
-      )
+        runCacheForField,
+      ),
     ).toEqual([{ value: 1 }, { value: 2 }, { value: 3 }, { value: 4 }]);
   });
 
@@ -154,11 +154,11 @@ describe('resolveDependency', () => {
           { type: 'field', name: 'multiDimensionalArray' },
           { type: 'array', focus: 'all' },
           { type: 'array', focus: 'all' },
-          { type: 'field', name: 'value' }
+          { type: 'field', name: 'value' },
         ],
         currentIndices,
-        runCacheForField
-      )
+        runCacheForField,
+      ),
     ).toEqual([1, 2, 3, 4]);
   });
 
@@ -170,20 +170,20 @@ describe('resolveDependency', () => {
         [
           { type: 'field', name: 'multiDimensionalArrayInArray' },
           { type: 'array', focus: 'all' },
-          { type: 'field', name: 'array' }
+          { type: 'field', name: 'array' },
         ],
         currentIndices,
-        runCacheForField
-      )
+        runCacheForField,
+      ),
     ).toEqual([
       [
         [{ value: 1 }, { value: 2 }],
-        [{ value: 3 }, { value: 4 }]
+        [{ value: 3 }, { value: 4 }],
       ],
       [
         [{ value: 5 }, { value: 6 }],
-        [{ value: 7 }, { value: 8 }]
-      ]
+        [{ value: 7 }, { value: 8 }],
+      ],
     ]);
 
     expect(
@@ -194,16 +194,16 @@ describe('resolveDependency', () => {
           { type: 'field', name: 'multiDimensionalArrayInArray' },
           { type: 'array', focus: 'all' },
           { type: 'field', name: 'array' },
-          { type: 'array', focus: 'all' }
+          { type: 'array', focus: 'all' },
         ],
         currentIndices,
-        runCacheForField
-      )
+        runCacheForField,
+      ),
     ).toEqual([
       [{ value: 1 }, { value: 2 }],
       [{ value: 3 }, { value: 4 }],
       [{ value: 5 }, { value: 6 }],
-      [{ value: 7 }, { value: 8 }]
+      [{ value: 7 }, { value: 8 }],
     ]);
 
     expect(
@@ -215,11 +215,11 @@ describe('resolveDependency', () => {
           { type: 'array', focus: 'all' },
           { type: 'field', name: 'array' },
           { type: 'array', focus: 'all' },
-          { type: 'array', focus: 'all' }
+          { type: 'array', focus: 'all' },
         ],
         currentIndices,
-        runCacheForField
-      )
+        runCacheForField,
+      ),
     ).toEqual([
       { value: 1 },
       { value: 2 },
@@ -228,7 +228,7 @@ describe('resolveDependency', () => {
       { value: 5 },
       { value: 6 },
       { value: 7 },
-      { value: 8 }
+      { value: 8 },
     ]);
   });
 
@@ -239,8 +239,8 @@ describe('resolveDependency', () => {
         'internal',
         [{ type: 'field', name: 'nonExistentField' }],
         currentIndices,
-        runCacheForField
-      )
+        runCacheForField,
+      ),
     ).toBeUndefined();
   });
 
@@ -253,27 +253,19 @@ describe('resolveDependency', () => {
           { type: 'field', name: 'array' },
           { type: 'array', focus: 'all' },
           { type: 'field', name: 'nestedArray' },
-          { type: 'array', focus: 'current' }
+          { type: 'array', focus: 'current' },
         ],
         currentIndices,
-        runCacheForField
-      )
+        runCacheForField,
+      ),
     ).toThrowErrorMatchingInlineSnapshot(
-      `"Trying to focus current array index after already focusing on all elements earlier in the path"`
+      `"Trying to focus current array index after already focusing on all elements earlier in the path"`,
     );
   });
 
   describe('with internal dependency', () => {
     it('should return data from form data', () => {
-      expect(
-        resolveDependency(
-          processingContext,
-          'internal',
-          [],
-          currentIndices,
-          runCacheForField
-        )
-      ).toEqual(data);
+      expect(resolveDependency(processingContext, 'internal', [], currentIndices, runCacheForField)).toEqual(data);
     });
 
     it('should return correct data with current array focus', () => {
@@ -286,26 +278,20 @@ describe('resolveDependency', () => {
             { type: 'array', focus: 'current' },
             { type: 'field', name: 'nestedArray' },
             { type: 'array', focus: 'current' },
-            { type: 'field', name: 'value' }
+            { type: 'field', name: 'value' },
           ],
           currentIndices,
-          runCacheForField
-        )
+          runCacheForField,
+        ),
       ).toEqual('nestedValB');
     });
   });
 
   describe('with external dependency', () => {
     it('should return data from external data', () => {
-      expect(
-        resolveDependency(
-          processingContext,
-          'external',
-          [],
-          currentIndices,
-          runCacheForField
-        )
-      ).toEqual(externalData);
+      expect(resolveDependency(processingContext, 'external', [], currentIndices, runCacheForField)).toEqual(
+        externalData,
+      );
     });
 
     it('should throw when trying to access arrays with current focus', () => {
@@ -315,13 +301,13 @@ describe('resolveDependency', () => {
           'external',
           [
             { type: 'field', name: 'array' },
-            { type: 'array', focus: 'current' }
+            { type: 'array', focus: 'current' },
           ],
           currentIndices,
-          runCacheForField
-        )
+          runCacheForField,
+        ),
       ).toThrowErrorMatchingInlineSnapshot(
-        `"Trying to focus current path of array failed; current focus is not supported for external data"`
+        `"Trying to focus current path of array failed; current focus is not supported for external data"`,
       );
     });
   });

@@ -12,7 +12,7 @@ type Test = {
 describe('dependsOn', () => {
   const context: ModelContext<Test> = {
     type: 'internal',
-    pathToField: [{ type: 'field', name: 'test' }]
+    pathToField: [{ type: 'field', name: 'test' }],
   };
 
   describe('with field names as dependencies', () => {
@@ -46,16 +46,16 @@ describe('dependsOn', () => {
           type: 'internal',
           pathToField: context.pathToField.concat({
             type: 'field',
-            name: 'field'
-          })
+            name: 'field',
+          }),
         },
         {
           type: 'internal',
           pathToField: context.pathToField.concat({
             type: 'field',
-            name: 'nested'
-          })
-        }
+            name: 'nested',
+          }),
+        },
       ]);
     });
   });
@@ -64,20 +64,14 @@ describe('dependsOn', () => {
     const directDependency = dependency(context, 'field');
     const nestedDependency = dependency(context, 'nested', 'field');
 
-    const dependsOnContext = dependsOn(context, [
-      directDependency,
-      nestedDependency
-    ]);
+    const dependsOnContext = dependsOn(context, [directDependency, nestedDependency]);
 
     it('should not return passive dependency', () => {
       expect(dependsOnContext.isPassive).toBeUndefined();
     });
 
     it('should return the dependencies in the dependsOn', () => {
-      expect(dependsOnContext.dependsOn).toEqual([
-        directDependency,
-        nestedDependency
-      ]);
+      expect(dependsOnContext.dependsOn).toEqual([directDependency, nestedDependency]);
     });
   });
 });

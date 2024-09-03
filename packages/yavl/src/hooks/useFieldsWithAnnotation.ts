@@ -15,14 +15,14 @@ interface UseFieldsWithAnnotation {
   <T>(
     context: ModelValidationContext<any, any, any>,
     annotation: Annotation<T>,
-    filters?: UseFieldsWithAnnotationFilters<T>
+    filters?: UseFieldsWithAnnotationFilters<T>,
   ): string[];
 }
 
 export const useFieldsWithAnnotation: UseFieldsWithAnnotation = <T>(
   context: ModelValidationContext<any, any, any>,
   annotation: Annotation<T>,
-  filters?: UseFieldsWithAnnotationFilters<T>
+  filters?: UseFieldsWithAnnotationFilters<T>,
 ): string[] => {
   const memoizedFilters = useMemoizedValue(filters);
   const annotations = useAnnotations(
@@ -30,10 +30,10 @@ export const useFieldsWithAnnotation: UseFieldsWithAnnotation = <T>(
     useMemo(
       () => ({
         pathPrefix: memoizedFilters?.pathPrefix,
-        annotations: [annotation]
+        annotations: [annotation],
       }),
-      [memoizedFilters, annotation]
-    )
+      [memoizedFilters, annotation],
+    ),
   );
 
   const fieldsWithAnnotation = useMemo(
@@ -51,14 +51,11 @@ export const useFieldsWithAnnotation: UseFieldsWithAnnotation = <T>(
          */
         memoizedFilters === undefined ||
         !('value' in memoizedFilters) ||
-        R.equals(
-          memoizedFilters.value,
-          getAnnotationValue(fieldAnnotations, annotation)
-        )
+        R.equals(memoizedFilters.value, getAnnotationValue(fieldAnnotations, annotation))
           ? [field]
-          : []
+          : [],
       ),
-    [annotations, annotation, memoizedFilters]
+    [annotations, annotation, memoizedFilters],
   );
 
   return fieldsWithAnnotation;

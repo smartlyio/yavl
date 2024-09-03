@@ -13,11 +13,7 @@ const isValidPassword = (password: string) => {
   if (password.length < 8 || password.length > 32) {
     return false;
   }
-  if (
-    !/[a-z]/.test(password) ||
-    !/[A-Z]/.test(password) ||
-    !/[0-9]/.test(password)
-  ) {
+  if (!/[a-z]/.test(password) || !/[A-Z]/.test(password) || !/[0-9]/.test(password)) {
     return false;
   }
   return true;
@@ -28,34 +24,23 @@ const myModel = model<MyForm>((user, { field, when, validate, dependency }) => [
   // when(dependency(user, 'isDisabled'), (isDisabled) => !isDisabled, () => [ ... ])
   when(
     user,
-    (user) => !user.isDisabled,
+    user => !user.isDisabled,
     () => [
-      field(user, 'name', (name) => [
-        validate(
-          name,
-          (name) => name.length >= 5,
-          'Name must be at least 5 characters'
-        )
-      ]),
+      field(user, 'name', name => [validate(name, name => name.length >= 5, 'Name must be at least 5 characters')]),
 
-      field(user, 'password', (password) => [
+      field(user, 'password', password => [
         validate(password, isValidPassword, 'Invalid password'),
-        validate(
-          password,
-          dependency(user, 'passwordAgain'),
-          (pw1, pw2) => pw1 !== pw2,
-          'Passwords do not match'
-        )
-      ])
-    ]
-  )
+        validate(password, dependency(user, 'passwordAgain'), (pw1, pw2) => pw1 !== pw2, 'Passwords do not match'),
+      ]),
+    ],
+  ),
 ]);
 
 const errors = validateModel(myModel, {
   name: 'John',
   password: 'Example123',
   passwordAgain: 'invalid',
-  isDisabled: false
+  isDisabled: false,
 });
 
 console.log(errors);

@@ -17,17 +17,11 @@ const resolveDependency = <Data, ExternalData, ErrorType>(
   dependencyType: 'internal' | 'external',
   pathToDependency: PathToField,
   currentIndices: Record<string, number>,
-  runCacheForField: MutatingFieldProcessingCacheEntry<any> | undefined
+  runCacheForField: MutatingFieldProcessingCacheEntry<any> | undefined,
 ): any | undefined => {
-  const {
-    data: rootData,
-    externalData,
-    resolvedAnnotations,
-    annotationBeingResolved
-  } = processingContext;
+  const { data: rootData, externalData, resolvedAnnotations, annotationBeingResolved } = processingContext;
 
-  const formOrExternalData =
-    dependencyType === 'internal' ? rootData : externalData;
+  const formOrExternalData = dependencyType === 'internal' ? rootData : externalData;
 
   const lastPart = R.last(pathToDependency);
   const result = pathToDependency.reduce<DependencyReducerContext>(
@@ -39,14 +33,14 @@ const resolveDependency = <Data, ExternalData, ErrorType>(
           return {
             ...acc,
             data: R.prop(pathPart.name, data),
-            paths: paths.map((path) => path.concat(pathPart.name))
+            paths: paths.map(path => path.concat(pathPart.name)),
           };
         } else {
           if (data === undefined) {
             return {
               ...acc,
               data: undefined,
-              paths: []
+              paths: [],
             };
           }
 
@@ -57,13 +51,12 @@ const resolveDependency = <Data, ExternalData, ErrorType>(
           return {
             ...acc,
             data: R.pluck(pathPart.name, data),
-            paths: paths.map((path) => path.concat(pathPart.name))
+            paths: paths.map(path => path.concat(pathPart.name)),
           };
         }
       } else if (pathPart.type === 'array') {
         if (pathPart.focus === 'index') {
-          const isSingleFocus =
-            isFocusedOnSinglePath || pathPart.multiToSingleFocus;
+          const isSingleFocus = isFocusedOnSinglePath || pathPart.multiToSingleFocus;
 
           /**
            * There are two different cases for having an "index" focus in the path:
@@ -80,14 +73,14 @@ const resolveDependency = <Data, ExternalData, ErrorType>(
             ? paths.length > 0
               ? [paths[pathPart.index]]
               : []
-            : paths.map((path) => path.concat(pathPart.index));
+            : paths.map(path => path.concat(pathPart.index));
 
           if (isSingleFocus) {
             return {
               ...acc,
               data: R.prop(pathPart.index, data),
               paths: indexedPaths,
-              isFocusedOnSinglePath: true
+              isFocusedOnSinglePath: true,
             };
           } else {
             if (data === undefined) {
@@ -95,7 +88,7 @@ const resolveDependency = <Data, ExternalData, ErrorType>(
                 ...acc,
                 data: undefined,
                 paths: [],
-                isFocusedOnSinglePath: false
+                isFocusedOnSinglePath: false,
               };
             }
 
@@ -108,13 +101,13 @@ const resolveDependency = <Data, ExternalData, ErrorType>(
               // the data we pick from is already filtered, so here we use the index as is, not the original one
               data: R.pluck(pathPart.index, data),
               paths: indexedPaths,
-              isFocusedOnSinglePath: false
+              isFocusedOnSinglePath: false,
             };
           }
         } else if (pathPart.focus === 'current') {
           if (!isFocusedOnSinglePath) {
             throw new Error(
-              `Trying to focus current array index after already focusing on all elements earlier in the path`
+              `Trying to focus current array index after already focusing on all elements earlier in the path`,
             );
           }
 
@@ -123,24 +116,20 @@ const resolveDependency = <Data, ExternalData, ErrorType>(
 
           if (dependencyType === 'external') {
             throw new Error(
-              `Trying to focus current path of ${pathStr} failed; current focus is not supported for external data`
+              `Trying to focus current path of ${pathStr} failed; current focus is not supported for external data`,
             );
           }
 
           const currentIndex = currentIndices[pathStr];
 
           if (currentIndex === undefined) {
-            throw new Error(
-              `Trying to access current index of ${pathStr}, but current index missing for the path`
-            );
+            throw new Error(`Trying to access current index of ${pathStr}, but current index missing for the path`);
           }
 
           return {
             ...acc,
-            data: isFocusedOnSinglePath
-              ? R.prop(currentIndex, data)
-              : R.pluck(currentIndex, data as any[]),
-            paths: paths.map((path) => path.concat(currentIndex))
+            data: isFocusedOnSinglePath ? R.prop(currentIndex, data) : R.pluck(currentIndex, data as any[]),
+            paths: paths.map(path => path.concat(currentIndex)),
           };
         } else {
           // if there's no data at this path, reset paths to empty since we're no longer focusing any data
@@ -149,7 +138,7 @@ const resolveDependency = <Data, ExternalData, ErrorType>(
               ...acc,
               data: [],
               paths: [],
-              isFocusedOnSinglePath: false
+              isFocusedOnSinglePath: false,
             };
           }
 
@@ -176,7 +165,7 @@ const resolveDependency = <Data, ExternalData, ErrorType>(
             ...acc,
             data: arrayData,
             paths: nextPaths,
-            isFocusedOnSinglePath: false
+            isFocusedOnSinglePath: false,
           };
         }
       } else if (pathPart.type === 'annotation') {
@@ -185,14 +174,10 @@ const resolveDependency = <Data, ExternalData, ErrorType>(
          * It's not trivial to support annotations (or computed values) when resolving default values.
          */
         if (!resolvedAnnotations) {
-          throw new Error(
-            'Using annotations as dependencies to default values is not supported'
-          );
+          throw new Error('Using annotations as dependencies to default values is not supported');
         }
 
-        const getAnnotationForField = (
-          path: ReadonlyArray<string | number>
-        ) => {
+        const getAnnotationForField = (path: ReadonlyArray<string | number>) => {
           const pathStr = dataPathToStr(path);
 
           if (annotationBeingResolved) {
@@ -200,22 +185,16 @@ const resolveDependency = <Data, ExternalData, ErrorType>(
               annotationBeingResolved.field === pathStr &&
               annotationBeingResolved.annotation === pathPart.annotation
             ) {
-              throw new Error(
-                `Cyclical dependency to annotation "${pathPart.annotation}" for field "${pathStr}"`
-              );
+              throw new Error(`Cyclical dependency to annotation "${pathPart.annotation}" for field "${pathStr}"`);
             }
           }
 
-          const annotationValue = getResolvedAnnotation(
-            resolvedAnnotations.current,
-            pathStr,
-            pathPart.annotation
-          );
+          const annotationValue = getResolvedAnnotation(resolvedAnnotations.current, pathStr, pathPart.annotation);
 
           if (annotationValue === noValue) {
             if (!pathPart.defaultValue.hasValue) {
               throw new Error(
-                `Annotation "${pathPart.annotation}" from field "${pathStr}" used as a dependency, but there is no data for the annotation`
+                `Annotation "${pathPart.annotation}" from field "${pathStr}" used as a dependency, but there is no data for the annotation`,
               );
             }
 
@@ -228,7 +207,7 @@ const resolveDependency = <Data, ExternalData, ErrorType>(
         if (isFocusedOnSinglePath) {
           return {
             ...acc,
-            data: getAnnotationForField(paths[0])
+            data: getAnnotationForField(paths[0]),
           };
         } else {
           // Handle the case having array.all of "T | undefined" as dependency.
@@ -244,7 +223,7 @@ const resolveDependency = <Data, ExternalData, ErrorType>(
 
           return {
             ...acc,
-            data: paths.map((path) => getAnnotationForField(path))
+            data: paths.map(path => getAnnotationForField(path)),
           };
         }
       } else if (pathPart.type === 'pick') {
@@ -262,13 +241,11 @@ const resolveDependency = <Data, ExternalData, ErrorType>(
          * If we are dealing with an array, we want to pick the keys
          * from every array element, otherwise pick from the object
          */
-        const narrowFn = Array.isArray(data)
-          ? R.project(pathPart.keys)
-          : R.pick(pathPart.keys);
+        const narrowFn = Array.isArray(data) ? R.project(pathPart.keys) : R.pick(pathPart.keys);
 
         return {
           ...acc,
-          data: data !== undefined ? narrowFn(data) : data
+          data: data !== undefined ? narrowFn(data) : data,
         };
       } else if (pathPart.type === 'filter') {
         if (!Array.isArray(data)) {
@@ -284,14 +261,10 @@ const resolveDependency = <Data, ExternalData, ErrorType>(
               processingContext,
               pathPart.dependencies,
               currentIndices,
-              runCacheForField
+              runCacheForField,
             );
 
-            isFiltered = pathPart.filterFn(
-              pickedKeys,
-              resolvedDependencies,
-              index
-            );
+            isFiltered = pathPart.filterFn(pickedKeys, resolvedDependencies, index);
           } else {
             isFiltered = pathPart.filterFn(pickedKeys, index);
           }
@@ -302,28 +275,28 @@ const resolveDependency = <Data, ExternalData, ErrorType>(
 
           return {
             value,
-            index
+            index,
           };
         });
 
-        const filteredIndices = filteredDataWithIndices.map((it) => it.index);
+        const filteredIndices = filteredDataWithIndices.map(it => it.index);
 
         return {
           ...acc,
-          data: filteredDataWithIndices.map((it) => it.value),
+          data: filteredDataWithIndices.map(it => it.value),
           isFocusedOnSinglePath: false,
-          paths: paths.filter((_, index) => filteredIndices.includes(index))
+          paths: paths.filter((_, index) => filteredIndices.includes(index)),
         };
       } else if (pathPart.type === 'path') {
         if (isFocusedOnSinglePath) {
           return {
             ...acc,
-            data: dataPathToStr(paths[0])
+            data: dataPathToStr(paths[0]),
           };
         } else {
           return {
             ...acc,
-            data: paths.map((path) => dataPathToStr(path))
+            data: paths.map(path => dataPathToStr(path)),
           };
         }
       } else if (pathPart.type === 'index') {
@@ -338,7 +311,7 @@ const resolveDependency = <Data, ExternalData, ErrorType>(
         if (isFocusedOnSinglePath) {
           return { ...acc, data: getIndexOfPath(paths[0]) };
         } else {
-          return { ...acc, data: paths.map((path) => getIndexOfPath(path)) };
+          return { ...acc, data: paths.map(path => getIndexOfPath(path)) };
         }
       } else {
         return assertUnreachable(pathPart);
@@ -347,8 +320,8 @@ const resolveDependency = <Data, ExternalData, ErrorType>(
     {
       data: formOrExternalData,
       paths: [[]],
-      isFocusedOnSinglePath: true
-    }
+      isFocusedOnSinglePath: true,
+    },
   );
 
   if (!resolvedAnnotations) {

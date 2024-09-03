@@ -7,7 +7,7 @@ type TransactionCb<Result> = (args: TransactionArgs) => Result;
 
 export const transaction = <FormData, ExternalData, ErrorType, Result>(
   context: ModelValidationContext<FormData, ExternalData, ErrorType>,
-  cb: TransactionCb<Result>
+  cb: TransactionCb<Result>,
 ): Result => {
   if (context.transactionCounter > 0) {
     /**
@@ -51,10 +51,7 @@ export const transaction = <FormData, ExternalData, ErrorType, Result>(
       // clear the changed annotations so we don't notify the subscribers next time updateModel() is called
       context.pendingChangedAnnotations.clear();
     } else {
-      if (
-        context.transactionCounter === 0 &&
-        context.pendingChangedAnnotations.size > 0
-      ) {
+      if (context.transactionCounter === 0 && context.pendingChangedAnnotations.size > 0) {
         notifySubscribers(context);
       }
     }

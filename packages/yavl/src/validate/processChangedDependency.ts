@@ -68,44 +68,38 @@ const processDependencyPermutations = (
   type: 'internal' | 'external',
   fieldDependency: FieldDependency<any>,
   currentIndices: Record<string, number>,
-  callback: (indexPermutation: Record<string, number>) => void
+  callback: (indexPermutation: Record<string, number>) => void,
 ) => {
-  const closestArrayOfDependency = findClosestArrayFromDefinitions(
-    fieldDependency.parentDefinitions
-  );
+  const closestArrayOfDependency = findClosestArrayFromDefinitions(fieldDependency.parentDefinitions);
   // field dependencies are always to internal data
   const closestArrayOfDependencyNormalized = getPathWithoutIndices(
-    modelPathToStr('internal', closestArrayOfDependency)
+    modelPathToStr('internal', closestArrayOfDependency),
   );
 
-  const changedFieldPathNormalized = getPathWithoutIndices(
-    modelPathToStr(type, fieldDependency.modelPath)
-  );
+  const changedFieldPathNormalized = getPathWithoutIndices(modelPathToStr(type, fieldDependency.modelPath));
 
   const isDependencyInsideArray = closestArrayOfDependency.length > 0;
   const isSameArray =
-    isDependencyInsideArray &&
-    changedFieldPathNormalized.indexOf(closestArrayOfDependencyNormalized) ===
-      0;
+    isDependencyInsideArray && changedFieldPathNormalized.indexOf(closestArrayOfDependencyNormalized) === 0;
 
   if (isSameArray) {
     const indexPermutations = getDependentIndexPermutations(
       fieldDependency.modelPath,
       processingContext.data,
-      currentIndices
+      currentIndices,
     );
 
-    indexPermutations.forEach((indexPermutation) => {
+    indexPermutations.forEach(indexPermutation => {
       callback(indexPermutation);
     });
   } else {
     const indexPermutations = getDependentIndexPermutations(
       closestArrayOfDependency,
       processingContext.data,
-      currentIndices
+      currentIndices,
     );
 
-    indexPermutations.forEach((indexPermutation) => {
+    indexPermutations.forEach(indexPermutation => {
       callback(indexPermutation);
     });
   }
@@ -116,84 +110,64 @@ export const processChangedDependency = <Data, ExternalData, ErrorType>(
   pass: 'annotations' | 'conditions' | 'validations',
   type: 'internal' | 'external',
   changedFieldDependency: FieldDependencyEntry<ErrorType>,
-  currentIndices: Record<string, number>
+  currentIndices: Record<string, number>,
 ) => {
   if (pass === 'annotations') {
     const dependentAnnotations = changedFieldDependency.annotations.filter(
       // we only need to process annotations if a dependency of the value has changed
       // or if the annotation is a computed value
-      (dependentAnnotation) =>
-        dependentAnnotation.isDependencyOfValue ||
-        dependentAnnotation.isComputedValue
+      dependentAnnotation => dependentAnnotation.isDependencyOfValue || dependentAnnotation.isComputedValue,
     );
 
-    dependentAnnotations.forEach((dependentAnnotation) => {
-      processDependencyPermutations(
-        processingContext,
-        type,
-        dependentAnnotation,
-        currentIndices,
-        (indexPermutation) => {
-          processAnnotation(
-            processingContext,
-            dependentAnnotation.definition,
-            dependentAnnotation.parentDefinitions,
-            indexPermutation
-          );
-        }
-      );
+    dependentAnnotations.forEach(dependentAnnotation => {
+      processDependencyPermutations(processingContext, type, dependentAnnotation, currentIndices, indexPermutation => {
+        processAnnotation(
+          processingContext,
+          dependentAnnotation.definition,
+          dependentAnnotation.parentDefinitions,
+          indexPermutation,
+        );
+      });
     });
   }
 
   if (pass === 'conditions') {
-    changedFieldDependency.conditions.forEach((dependentCondition) => {
-      processDependencyPermutations(
-        processingContext,
-        type,
-        dependentCondition,
-        currentIndices,
-        (indexPermutation) => {
-          processCondition(
-            processingContext,
-            dependentCondition.definition,
-            dependentCondition.parentDefinitions,
-            false, // isNewCondition = false
-            indexPermutation
-          );
-        }
-      );
+    changedFieldDependency.conditions.forEach(dependentCondition => {
+      processDependencyPermutations(processingContext, type, dependentCondition, currentIndices, indexPermutation => {
+        processCondition(
+          processingContext,
+          dependentCondition.definition,
+          dependentCondition.parentDefinitions,
+          false, // isNewCondition = false
+          indexPermutation,
+        );
+      });
     });
   }
 
   if (pass === 'validations') {
-    changedFieldDependency.validations.forEach((dependentValidation) => {
+    changedFieldDependency.validations.forEach(dependentValidation => {
       if (dependentValidation.isPassive) {
         return;
       }
 
-      processDependencyPermutations(
-        processingContext,
-        type,
-        dependentValidation,
-        currentIndices,
-        (indexPermutation) => {
-          const isActive = getIsPathActive(
-            processingContext.validateDiffCache,
-            dependentValidation.parentDefinitions,
-            indexPermutation
-          );
+      processDependencyPermutations(processingContext, type, dependentValidation, currentIndices, indexPermutation => {
+        const isActive = getIsPathActive(
+          processingContext.validateDiffCache,
+          dependentValidation.parentDefinitions,
+          indexPermutation,
+        );
 
-          // don't process validation unless the path is active
-          if (isActive) {
-            processValidation(
-              processingContext,
-              dependentValidation.definition,
-              dependentValidation.parentDefinitions,
-              indexPermutation
-            );
-          }
+        // don't process validation unless the path is active
+        if (isActive) {
+          processValidation(
+            processingContext,
+            dependentValidation.definition,
+            dependentValidation.parentDefinitions,
+            indexPermutation,
+          );
         }
-      );
+      });
     });
   }
 };

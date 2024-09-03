@@ -1,10 +1,5 @@
 import * as R from 'ramda';
-import {
-  AnyContext,
-  ContextType,
-  KeysOfUnion,
-  SameContextOfType
-} from '../types';
+import { AnyContext, ContextType, KeysOfUnion, SameContextOfType } from '../types';
 import compute from './compute';
 import isComputedContext from '../utils/isComputedContext';
 import { isPreviousContext } from '../utils/isPreviousContext';
@@ -15,7 +10,7 @@ export interface PickBuilderFn {
     Keys extends KeysOfUnion<ContextType<Context>> & string
   >(
     context: Context,
-    keys: readonly Keys[]
+    keys: readonly Keys[],
   ): SameContextOfType<
     Context,
     | Pick<Extract<ContextType<Context>, Record<string, unknown>>, Keys>
@@ -23,10 +18,7 @@ export interface PickBuilderFn {
   >;
 }
 
-const pick: PickBuilderFn = (
-  context: AnyContext<any>,
-  keys: readonly string[]
-): any => {
+const pick: PickBuilderFn = (context: AnyContext<any>, keys: readonly string[]): any => {
   if (isComputedContext(context) || isPreviousContext(context)) {
     // we can't use dependsOn on for computed data, we must depend on the whole computed data
     return compute(context, R.pick(keys));
@@ -37,8 +29,8 @@ const pick: PickBuilderFn = (
       dependsOn: undefined,
       pathToField: context.pathToField.concat({
         type: 'pick',
-        keys
-      })
+        keys,
+      }),
     };
   }
 };

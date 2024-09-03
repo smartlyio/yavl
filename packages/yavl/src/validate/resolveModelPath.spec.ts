@@ -5,7 +5,7 @@ describe('resolveModelPath', () => {
     '': 10,
     firstArray: 0,
     'firstArray[0].secondArray': 5,
-    'firstArray[0].secondArray[5]': 2
+    'firstArray[0].secondArray[5]': 2,
   };
 
   it('should return empty array for empty path', () => {
@@ -18,10 +18,10 @@ describe('resolveModelPath', () => {
         [
           { type: 'field', name: 'path' },
           { type: 'field', name: 'to' },
-          { type: 'field', name: 'field' }
+          { type: 'field', name: 'field' },
         ],
-        currentIndices
-      )
+        currentIndices,
+      ),
     ).toEqual(['path', 'to', 'field']);
   });
 
@@ -32,10 +32,10 @@ describe('resolveModelPath', () => {
           { type: 'field', name: 'firstArray' },
           { type: 'array', focus: 'current' },
           { type: 'field', name: 'secondArray' },
-          { type: 'array', focus: 'current' }
+          { type: 'array', focus: 'current' },
         ],
-        currentIndices
-      )
+        currentIndices,
+      ),
     ).toEqual(['firstArray', 0, 'secondArray', 5]);
   });
 
@@ -44,10 +44,10 @@ describe('resolveModelPath', () => {
       resolveModelPath(
         [
           { type: 'array', focus: 'current' },
-          { type: 'field', name: 'test' }
+          { type: 'field', name: 'test' },
         ],
-        currentIndices
-      )
+        currentIndices,
+      ),
     ).toEqual([10, 'test']);
   });
 
@@ -59,10 +59,10 @@ describe('resolveModelPath', () => {
           { type: 'array', focus: 'current' },
           { type: 'field', name: 'secondArray' },
           { type: 'array', focus: 'current' },
-          { type: 'array', focus: 'current' }
+          { type: 'array', focus: 'current' },
         ],
-        currentIndices
-      )
+        currentIndices,
+      ),
     ).toEqual(['firstArray', 0, 'secondArray', 5, 2]);
   });
 
@@ -71,12 +71,12 @@ describe('resolveModelPath', () => {
       resolveModelPath(
         [
           { type: 'field', name: 'nonExistentArray' },
-          { type: 'array', focus: 'current' }
+          { type: 'array', focus: 'current' },
         ],
-        currentIndices
-      )
+        currentIndices,
+      ),
     ).toThrowErrorMatchingInlineSnapshot(
-      `"Trying to access current index of nonExistentArray, but current index missing for the path"`
+      `"Trying to access current index of nonExistentArray, but current index missing for the path"`,
     );
   });
 
@@ -85,12 +85,10 @@ describe('resolveModelPath', () => {
       resolveModelPath(
         [
           { type: 'field', name: 'firstArray' },
-          { type: 'array', focus: 'all' }
+          { type: 'array', focus: 'all' },
         ],
-        currentIndices
-      )
-    ).toThrowErrorMatchingInlineSnapshot(
-      `"All array focus is not supported in resolveModelPath"`
-    );
+        currentIndices,
+      ),
+    ).toThrowErrorMatchingInlineSnapshot(`"All array focus is not supported in resolveModelPath"`);
   });
 });

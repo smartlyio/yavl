@@ -8,7 +8,7 @@ const passiveDependency: DependencyFn = (...args: any[]): any => {
   return {
     type: dependencyContext.type,
     pathToField: dependencyContext.pathToField,
-    isPassive: true
+    isPassive: true,
   };
 };
 

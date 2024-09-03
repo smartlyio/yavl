@@ -13,7 +13,7 @@ describe('annotate', () => {
       context,
       type: 'annotation',
       annotation: testAnnotation,
-      value
+      value,
     });
   });
 });

@@ -5,7 +5,7 @@ import {
   Model,
   model,
   ModelValidationContext,
-  updateModel
+  updateModel,
 } from '../src';
 import * as processValidationModule from '../src/validate/processValidation';
 
@@ -19,11 +19,7 @@ const processValidationSpy = jest.spyOn(processValidationModule, 'default');
 describe('arrays', () => {
   let validationContext: ModelValidationContext<any, any> | undefined;
 
-  const testIncrementalValidate = <T, E>(
-    testModel: Model<T, E>,
-    data: T,
-    externalData?: E
-  ) => {
+  const testIncrementalValidate = <T, E>(testModel: Model<T, E>, data: T, externalData?: E) => {
     if (!validationContext) {
       validationContext = createValidationContext(testModel, externalData);
     }
@@ -44,9 +40,9 @@ describe('arrays', () => {
 
     const validator = jest.fn();
     const testModel = model<TestModel>((root, model) => [
-      model.field(root, 'list', (list) => [
-        model.array(list, (item) => [
-          model.field(item, 'value', (value) => [
+      model.field(root, 'list', list => [
+        model.array(list, item => [
+          model.field(item, 'value', value => [
             model.validate(
               value,
               [
@@ -54,52 +50,37 @@ describe('arrays', () => {
                 // this makes sure that we don't have some caching optimization that would cause
                 // the 2nd dependency from being processed in full
                 model.dep(list, 0, 'value'),
-                model.dep(list, model.array.all, 'value')
+                model.dep(list, model.array.all, 'value'),
               ],
-              validator
-            )
-          ])
-        ])
-      ])
+              validator,
+            ),
+          ]),
+        ]),
+      ]),
     ]);
 
     it('should validate value for all array elements when value for one element changes', () => {
       const initialData: TestModel = {
-        list: [{ value: 'a' }, { value: 'b' }, { value: 'c' }]
+        list: [{ value: 'a' }, { value: 'b' }, { value: 'c' }],
       };
       testIncrementalValidate(testModel, initialData);
 
       const updatedFormData = {
-        list: [{ value: 'x' }, initialData.list![1], initialData.list![2]]
+        list: [{ value: 'x' }, initialData.list![1], initialData.list![2]],
       };
 
       jest.clearAllMocks();
       testIncrementalValidate(testModel, updatedFormData);
 
       expect(validator).toHaveBeenCalledTimes(3);
-      expect(validator).toHaveBeenCalledWith(
-        'x',
-        ['x', ['x', 'b', 'c']],
-        updatedFormData,
-        undefined
-      );
-      expect(validator).toHaveBeenCalledWith(
-        'b',
-        ['x', ['x', 'b', 'c']],
-        updatedFormData,
-        undefined
-      );
-      expect(validator).toHaveBeenCalledWith(
-        'c',
-        ['x', ['x', 'b', 'c']],
-        updatedFormData,
-        undefined
-      );
+      expect(validator).toHaveBeenCalledWith('x', ['x', ['x', 'b', 'c']], updatedFormData, undefined);
+      expect(validator).toHaveBeenCalledWith('b', ['x', ['x', 'b', 'c']], updatedFormData, undefined);
+      expect(validator).toHaveBeenCalledWith('c', ['x', ['x', 'b', 'c']], updatedFormData, undefined);
     });
 
     it('should validate value for all array elements when an array item is removed', () => {
       const initialData: TestModel = {
-        list: [{ value: 'a' }, { value: 'b' }, { value: 'c' }]
+        list: [{ value: 'a' }, { value: 'b' }, { value: 'c' }],
       };
       testIncrementalValidate(testModel, initialData);
 
@@ -109,50 +90,36 @@ describe('arrays', () => {
       testIncrementalValidate(testModel, updatedFormData);
 
       expect(validator).toHaveBeenCalledTimes(2);
-      expect(validator).toHaveBeenCalledWith(
-        'a',
-        ['a', ['a', 'b']],
-        updatedFormData,
-        undefined
-      );
-      expect(validator).toHaveBeenCalledWith(
-        'b',
-        ['a', ['a', 'b']],
-        updatedFormData,
-        undefined
-      );
+      expect(validator).toHaveBeenCalledWith('a', ['a', ['a', 'b']], updatedFormData, undefined);
+      expect(validator).toHaveBeenCalledWith('b', ['a', ['a', 'b']], updatedFormData, undefined);
     });
 
     it('should validate when a new array item with property missing is added', () => {
       let lastValues: (string | undefined)[] = [];
 
       const testModel = model<TestModel>((root, model) => [
-        model.validate(
-          model.passive(root),
-          model.dep(root, 'list', model.array.all, 'value'),
-          (_, values) => {
-            lastValues = values;
-            return undefined;
-          }
-        )
+        model.validate(model.passive(root), model.dep(root, 'list', model.array.all, 'value'), (_, values) => {
+          lastValues = values;
+          return undefined;
+        }),
       ]);
 
       const initialData = {
-        list: [{ value: 'a' }]
+        list: [{ value: 'a' }],
       };
       testIncrementalValidate(testModel, initialData);
       expect(lastValues).toHaveLength(1);
       expect(lastValues).toEqual(['a']);
 
       const updatedData1 = {
-        list: [...initialData.list, { value: undefined }]
+        list: [...initialData.list, { value: undefined }],
       };
       testIncrementalValidate(testModel, updatedData1);
       expect(lastValues).toHaveLength(2);
       expect(lastValues).toEqual(['a', undefined]);
 
       const updatedData2 = {
-        list: [...updatedData1.list, {}]
+        list: [...updatedData1.list, {}],
       };
       testIncrementalValidate(testModel, updatedData2);
       expect(lastValues).toHaveLength(3);
@@ -174,26 +141,26 @@ describe('arrays', () => {
           (_, values) => {
             lastValues = values;
             return undefined;
-          }
-        )
+          },
+        ),
       ]);
 
       const initialData = {
-        list: [{ value: 'a' }]
+        list: [{ value: 'a' }],
       };
       testIncrementalValidate(testModel, {}, initialData);
       expect(lastValues).toHaveLength(1);
       expect(lastValues).toEqual(['a']);
 
       const updatedData1 = {
-        list: [...initialData.list, { value: undefined }]
+        list: [...initialData.list, { value: undefined }],
       };
       testIncrementalValidate(testModel, {}, updatedData1);
       expect(lastValues).toHaveLength(2);
       expect(lastValues).toEqual(['a', undefined]);
 
       const updatedData2 = {
-        list: [...updatedData1.list, {}]
+        list: [...updatedData1.list, {}],
       };
       testIncrementalValidate(testModel, {}, updatedData2);
       expect(lastValues).toHaveLength(3);
@@ -204,14 +171,10 @@ describe('arrays', () => {
       let lastValues: (string | undefined)[] | undefined = undefined;
 
       const testModel = model<TestModel>((root, model) => [
-        model.validate(
-          model.passive(root),
-          model.dep(root, 'list', model.array.all, 'value'),
-          (_, values) => {
-            lastValues = values;
-            return undefined;
-          }
-        )
+        model.validate(model.passive(root), model.dep(root, 'list', model.array.all, 'value'), (_, values) => {
+          lastValues = values;
+          return undefined;
+        }),
       ]);
 
       const initialData = {};
@@ -219,7 +182,7 @@ describe('arrays', () => {
       expect(lastValues).toHaveLength(0);
 
       const updatedData = {
-        list: [{ value: 'a' }, { value: 'b' }]
+        list: [{ value: 'a' }, { value: 'b' }],
       };
       testIncrementalValidate(testModel, updatedData);
       expect(lastValues).toHaveLength(2);
@@ -230,18 +193,14 @@ describe('arrays', () => {
       let lastValues: (string | undefined)[] | undefined = undefined;
 
       const testModel = model<TestModel>((root, model) => [
-        model.validate(
-          model.passive(root),
-          model.dep(root, 'list', model.array.all, 'value'),
-          (_, values) => {
-            lastValues = values;
-            return undefined;
-          }
-        )
+        model.validate(model.passive(root), model.dep(root, 'list', model.array.all, 'value'), (_, values) => {
+          lastValues = values;
+          return undefined;
+        }),
       ]);
 
       const initialData = {
-        list: [{ value: 'a' }, { value: 'b' }]
+        list: [{ value: 'a' }, { value: 'b' }],
       };
       testIncrementalValidate(testModel, initialData);
       expect(lastValues).toHaveLength(2);
@@ -256,18 +215,14 @@ describe('arrays', () => {
       let lastValues: (string | undefined)[] | undefined = undefined;
 
       const testModel = model<TestModel>((root, model) => [
-        model.validate(
-          model.passive(root),
-          model.dep(root, 'list', model.array.all, 'value'),
-          (_, values) => {
-            lastValues = values;
-            return undefined;
-          }
-        )
+        model.validate(model.passive(root), model.dep(root, 'list', model.array.all, 'value'), (_, values) => {
+          lastValues = values;
+          return undefined;
+        }),
       ]);
 
       const initialData = {
-        list: [{ value: 'a' }, { value: 'b' }]
+        list: [{ value: 'a' }, { value: 'b' }],
       };
       testIncrementalValidate(testModel, initialData);
       expect(lastValues).toHaveLength(2);
@@ -288,23 +243,19 @@ describe('arrays', () => {
 
       const testModel = model<TestModel>((root, model) => [
         model.withFields(root, ['list', 'value'], ({ list, value }) => [
-          model.validate(
-            value,
-            model.dep(list, model.array.all, 'value'),
-            () => undefined
-          )
-        ])
+          model.validate(value, model.dep(list, model.array.all, 'value'), () => undefined),
+        ]),
       ]);
 
       const initialData: TestModel = {
-        list: [{ value: 'a' }, { value: 'b' }, { value: 'c' }]
+        list: [{ value: 'a' }, { value: 'b' }, { value: 'c' }],
       };
       testIncrementalValidate(testModel, initialData);
 
       jest.clearAllMocks();
 
       const updatedData: TestModel = {
-        list: [{ value: 'x' }, initialData.list[1], initialData.list[2]]
+        list: [{ value: 'x' }, initialData.list[1], initialData.list[2]],
       };
       testIncrementalValidate(testModel, updatedData);
 
@@ -324,19 +275,17 @@ describe('arrays', () => {
       const validator = jest.fn();
       const testModel = model<TestModel>((root, model) => [
         model.withFields(root, ['list', 'value'], ({ list, value }) => [
-          model.array(list, (item) => [
-            model.field(item, 'value', (itemValue) => [
-              model.validate(itemValue, value, (itemValue, value) =>
-                validator(itemValue, value)
-              )
-            ])
-          ])
-        ])
+          model.array(list, item => [
+            model.field(item, 'value', itemValue => [
+              model.validate(itemValue, value, (itemValue, value) => validator(itemValue, value)),
+            ]),
+          ]),
+        ]),
       ]);
 
       const initialData: TestModel = {
         list: [{ value: 'a' }, { value: 'b' }, { value: 'c' }],
-        value: 'initial'
+        value: 'initial',
       };
       testIncrementalValidate(testModel, initialData);
 
@@ -344,7 +293,7 @@ describe('arrays', () => {
 
       const updatedData: TestModel = {
         list: initialData.list,
-        value: 'changed'
+        value: 'changed',
       };
       testIncrementalValidate(testModel, updatedData);
 
@@ -366,32 +315,30 @@ describe('arrays', () => {
 
     const validator = jest.fn();
     const testModel = model<TestModel, ExternalData>((root, model) => [
-      model.field(root, 'list', (list) => [
-        model.array(list, (item) => [
-          model.field(item, 'value', (itemValue) => [
-            model.validate(
-              itemValue,
-              model.dep(model.externalData, 'value'),
-              (itemValue, value) => validator(itemValue, value)
-            )
-          ])
-        ])
-      ])
+      model.field(root, 'list', list => [
+        model.array(list, item => [
+          model.field(item, 'value', itemValue => [
+            model.validate(itemValue, model.dep(model.externalData, 'value'), (itemValue, value) =>
+              validator(itemValue, value),
+            ),
+          ]),
+        ]),
+      ]),
     ]);
 
     it('should call validator for every array item when field outside the array changes', () => {
       const initialData: TestModel = {
-        list: [{ value: 'a' }, { value: 'b' }, { value: 'c' }]
+        list: [{ value: 'a' }, { value: 'b' }, { value: 'c' }],
       };
       const initialExtData: ExternalData = {
-        value: 'initial'
+        value: 'initial',
       };
       testIncrementalValidate(testModel, initialData, initialExtData);
 
       jest.clearAllMocks();
 
       const updateExtdData: ExternalData = {
-        value: 'changed'
+        value: 'changed',
       };
       testIncrementalValidate(testModel, initialData, updateExtdData);
 
@@ -403,10 +350,10 @@ describe('arrays', () => {
 
     it('should not call validator if there are no items in the array', () => {
       const initialData: TestModel = {
-        list: []
+        list: [],
       };
       const initialExtData: ExternalData = {
-        value: 'initial'
+        value: 'initial',
       };
       testIncrementalValidate(testModel, initialData, initialExtData);
       expect(validator).toHaveBeenCalledTimes(0);
@@ -414,7 +361,7 @@ describe('arrays', () => {
       jest.clearAllMocks();
 
       const updateExtdData: ExternalData = {
-        value: 'changed'
+        value: 'changed',
       };
       testIncrementalValidate(testModel, initialData, updateExtdData);
       expect(validator).toHaveBeenCalledTimes(0);
@@ -428,26 +375,24 @@ describe('arrays', () => {
       };
 
       const testModel = model<TestModel>((root, model) => [
-        model.field(root, 'list', (list) => [
-          model.array(list, (item) => [
-            model.validate(item, (value) => value !== '', 'Item is required')
-          ])
-        ])
+        model.field(root, 'list', list => [
+          model.array(list, item => [model.validate(item, value => value !== '', 'Item is required')]),
+        ]),
       ]);
 
       const initialData: TestModel = {
-        list: ['', '']
+        list: ['', ''],
       };
       testIncrementalValidate(testModel, initialData);
       expect(getValidationErrors(validationContext!)).toEqual({
         'list[0]': ['Item is required'],
-        'list[1]': ['Item is required']
+        'list[1]': ['Item is required'],
       });
 
       jest.clearAllMocks();
 
       const updatedData: TestModel = {
-        list: ['a', 'b']
+        list: ['a', 'b'],
       };
       testIncrementalValidate(testModel, updatedData);
       expect(getValidationErrors(validationContext!)).toEqual(undefined);

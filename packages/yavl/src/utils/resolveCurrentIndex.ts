@@ -1,7 +1,4 @@
-const resolveCurrentIndex = (
-  pathToField: string,
-  currentIndices: Record<string, number>
-): number => {
+const resolveCurrentIndex = (pathToField: string, currentIndices: Record<string, number>): number => {
   const currentIndex = currentIndices[pathToField];
 
   if (currentIndex === undefined) {

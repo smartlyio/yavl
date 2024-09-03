@@ -10,7 +10,7 @@ import {
   AnnotateDefinition,
   FieldDependencyEntry,
   AnnotationsSubscription,
-  ComputedContext
+  ComputedContext,
 } from '../types';
 
 export type FieldErrorTuple<ErrorType> = [string, ErrorType];
@@ -23,43 +23,29 @@ export type MutatingFieldProcessingCacheEntry<ErrorType> = {
   ranValidations: Map<ValidateDefinition<ErrorType>, boolean>;
   conditionTestFnResults: Map<WhenDefinition<ErrorType>, boolean>;
   processedConditionDefinitions: Map<WhenDefinition<ErrorType>, boolean>;
-  processedAnnotationDefinitions: Map<
-    AnnotateDefinition,
-    'processing' | 'processed'
-  >;
+  processedAnnotationDefinitions: Map<AnnotateDefinition, 'processing' | 'processed'>;
   processedComputations: ProcessedComputations;
 };
 
-export type MutatingFieldProcessingCache<ErrorType> = Record<
-  string,
-  MutatingFieldProcessingCacheEntry<ErrorType>
->;
+export type MutatingFieldProcessingCache<ErrorType> = Record<string, MutatingFieldProcessingCacheEntry<ErrorType>>;
 
 export type CompareFn = (a: any, b: any) => boolean;
 
 // Map<PathToField, Map<AnnotateDefinition, AnnotationData>>
-export type ModelValidationAnnotationCache = Map<
-  string,
-  Map<AnnotateDefinition, AnnotationData>
->;
+export type ModelValidationAnnotationCache = Map<string, Map<AnnotateDefinition, AnnotationData>>;
 
 export type ValidateDefinitionErrors<ErrorType> = Map<
   ValidateDefinition<ErrorType>,
   { field: string; errors: ErrorType[] }
 >;
 
-export type MutatingErrorCacheKey<ErrorType> =
-  | RecursiveDefinition<ErrorType>
-  | number;
+export type MutatingErrorCacheKey<ErrorType> = RecursiveDefinition<ErrorType> | number;
 
 export type ModelValidationCache<ErrorType> = {
   isPathActive: boolean;
   annotations: ModelValidationAnnotationCache;
   errors: ValidateDefinitionErrors<ErrorType>;
-  children: Map<
-    MutatingErrorCacheKey<ErrorType>,
-    ModelValidationCache<ErrorType>
-  >;
+  children: Map<MutatingErrorCacheKey<ErrorType>, ModelValidationCache<ErrorType>>;
 };
 
 // { [field]: { [annotation]: Set<subscriptions> }}
@@ -82,11 +68,7 @@ export type ResolvedAnnotations = {
   current: Record<string, AnnotationData>;
 };
 
-export type ModelValidationContext<
-  Data,
-  ExternalData = undefined,
-  ErrorType = string
-> = {
+export type ModelValidationContext<Data, ExternalData = undefined, ErrorType = string> = {
   model: Model<Data, ExternalData, ErrorType>;
   previousData: Data | undefined;
   previousExternalData: ExternalData | undefined;
@@ -101,9 +83,7 @@ export type ModelValidationContext<
   transactionCounter: number;
 };
 
-export type ModelValidationErrors<ErrorType = string> =
-  | Record<string, ErrorType[]>
-  | undefined;
+export type ModelValidationErrors<ErrorType = string> = Record<string, ErrorType[]> | undefined;
 
 export type CurrentIndices = Record<string, number>;
 

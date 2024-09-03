@@ -6,7 +6,7 @@ import {
   ModelValidationContext,
   subscribeToFieldAnnotation,
   transaction,
-  updateModel
+  updateModel,
 } from '../src';
 import { UnsubscribeFn } from '../src/types';
 
@@ -26,33 +26,27 @@ describe('transactions', () => {
     model.withFields(root, ['value', 'computed'], ({ value, computed }) => [
       model.value(
         computed,
-        model.compute(value, (value) => value.toUpperCase())
+        model.compute(value, value => value.toUpperCase()),
       ),
       model.annotate(
         value,
         testAnnotation,
-        model.compute(value, (value) => value.toUpperCase())
+        model.compute(value, value => value.toUpperCase()),
       ),
       // give the value itself as validation error so we can check commit/rollback logic
-      model.validate(value, (value) => value),
+      model.validate(value, value => value),
       // test rolling back a condition changing between false/true
       model.when(
         value,
-        (value) => value === 'changed',
-        () => [model.validate(value, () => 'inside condition')]
-      )
-    ])
+        value => value === 'changed',
+        () => [model.validate(value, () => 'inside condition')],
+      ),
+    ]),
   ]);
 
   beforeEach(() => {
     validationContext = createValidationContext(testModel);
-    unsubscribe = subscribeToFieldAnnotation(
-      validationContext,
-      'value',
-      testAnnotation,
-      subscriber,
-      undefined
-    );
+    unsubscribe = subscribeToFieldAnnotation(validationContext, 'value', testAnnotation, subscriber, undefined);
   });
 
   afterEach(() => {
@@ -74,7 +68,7 @@ describe('transactions', () => {
 
     it('should have the changed errors', () => {
       expect(getValidationErrors(validationContext)).toEqual({
-        value: ['changed', 'inside condition']
+        value: ['changed', 'inside condition'],
       });
     });
 
@@ -91,7 +85,7 @@ describe('transactions', () => {
           transaction(validationContext, ({ rollback }) => {
             updateModel(validationContext, { value: 'initial' });
             rollback();
-          })
+          }),
         ).toThrow('Rolling back initial update is not supported');
       });
     });
@@ -109,7 +103,7 @@ describe('transactions', () => {
 
       it('should have the original errors', () => {
         expect(getValidationErrors(validationContext)).toEqual({
-          value: ['initial']
+          value: ['initial'],
         });
       });
 
@@ -125,7 +119,7 @@ describe('transactions', () => {
 
         it('should have the changed errors', () => {
           expect(getValidationErrors(validationContext)).toEqual({
-            value: ['changed', 'inside condition']
+            value: ['changed', 'inside condition'],
           });
         });
 

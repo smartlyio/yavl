@@ -6,7 +6,7 @@ import when from './when';
 describe('decorate', () => {
   const testContext: ModelContext<any> = {
     type: 'internal',
-    pathToField: []
+    pathToField: [],
   };
 
   let decoratedFn: ValidateFn;
@@ -16,9 +16,7 @@ describe('decorate', () => {
   const validator = () => undefined;
 
   beforeEach(() => {
-    decoratedFn = decorate(validate, (definitions) =>
-      when({}, condition, () => definitions)
-    );
+    decoratedFn = decorate(validate, definitions => when({}, condition, () => definitions));
   });
 
   it('should return a new function', () => {
@@ -37,17 +35,17 @@ describe('decorate', () => {
             {
               context: {
                 pathToField: [],
-                type: 'internal'
+                type: 'internal',
               },
               dependencies: undefined,
               type: 'validate',
-              validators: [validator]
-            }
+              validators: [validator],
+            },
           ],
           dependencies: {},
           testFn: condition,
-          type: 'when'
-        }
+          type: 'when',
+        },
       ]);
     });
   });

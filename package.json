@@ -13,7 +13,7 @@
     "clean": "lerna run clean",
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --ext .ts && yarn typecheck",
-    "lint:fix": "eslint . --ext .ts --fix typecheck",
+    "lint:fix": "eslint . --ext .ts --fix && yarn typecheck",
     "prepack": "yarn build",
     "test": "yarn jest",
     "test:watch": "yarn jest --watch",

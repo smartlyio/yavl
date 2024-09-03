@@ -15,7 +15,7 @@ export type GetChangedDataResult = {
 
 const shouldIncludeField = (
   changesFor: 'annotations' | 'conditions' | 'validations',
-  hasDependencies: HasDependenciesInfo
+  hasDependencies: HasDependenciesInfo,
 ) => {
   if (changesFor === 'annotations') {
     return hasDependencies.computedValues;
@@ -26,11 +26,7 @@ const shouldIncludeField = (
   }
 
   if (changesFor === 'validations') {
-    return (
-      hasDependencies.computedValues ||
-      hasDependencies.conditions ||
-      hasDependencies.validations
-    );
+    return hasDependencies.computedValues || hasDependencies.conditions || hasDependencies.validations;
   }
 
   return assertUnreachable(changesFor);
@@ -46,7 +42,7 @@ const getChangedDataRecursively = (
   currentPath: PathToField,
   includeFieldsWithoutDependencies: boolean,
   changesFor: 'annotations' | 'conditions' | 'validations',
-  isEqualFn: CompareFn
+  isEqualFn: CompareFn,
 ): GetChangedDataResult => {
   const strippedPath = getPathWithoutIndices(dataPathToStr(currentPath));
   const dependencyInfo = fieldsWithDependencies[`${type}:${strippedPath}`];
@@ -57,10 +53,7 @@ const getChangedDataRecursively = (
   }
 
   // don't include non-cascading changes unless requested
-  if (
-    includeFieldsWithoutDependencies ||
-    shouldIncludeField(changesFor, dependencyInfo.hasDependencies)
-  ) {
+  if (includeFieldsWithoutDependencies || shouldIncludeField(changesFor, dependencyInfo.hasDependencies)) {
     changedFields.push(currentPath);
   }
 
@@ -73,9 +66,7 @@ const getChangedDataRecursively = (
    * any definitions that depend on all items of the array using array.all.
    */
   if (
-    (isNewDataArray &&
-      isOldDataArray &&
-      currentNewData.length !== currentOldData.length) ||
+    (isNewDataArray && isOldDataArray && currentNewData.length !== currentOldData.length) ||
     isNewDataArray !== isOldDataArray
   ) {
     arraysWithChangedLength.push(currentPath);
@@ -98,7 +89,7 @@ const getChangedDataRecursively = (
           nextPath,
           includeFieldsWithoutDependencies,
           changesFor,
-          isEqualFn
+          isEqualFn,
         );
       }
     });
@@ -107,24 +98,17 @@ const getChangedDataRecursively = (
     const isOldDataObject = R.is(Object, currentOldData);
 
     const allKeys = R.uniq(
-      (isNewDataObject ? Object.keys(currentNewData) : []).concat(
-        isOldDataObject ? Object.keys(currentOldData) : []
-      )
+      (isNewDataObject ? Object.keys(currentNewData) : []).concat(isOldDataObject ? Object.keys(currentOldData) : []),
     );
 
-    allKeys.forEach((fieldName) => {
+    allKeys.forEach(fieldName => {
       const nextPath = currentPath.concat(fieldName);
-      const nextNewData = isNewDataObject
-        ? currentNewData[fieldName]
-        : undefined;
-      const nextOldData = isOldDataObject
-        ? currentOldData[fieldName]
-        : undefined;
+      const nextNewData = isNewDataObject ? currentNewData[fieldName] : undefined;
+      const nextOldData = isOldDataObject ? currentOldData[fieldName] : undefined;
 
       if (
         !(
-          (isNewDataObject && fieldName in currentNewData) ===
-            (isOldDataObject && fieldName in currentOldData) &&
+          (isNewDataObject && fieldName in currentNewData) === (isOldDataObject && fieldName in currentOldData) &&
           isEqualFn(nextNewData, nextOldData)
         )
       ) {
@@ -138,7 +122,7 @@ const getChangedDataRecursively = (
           nextPath,
           includeFieldsWithoutDependencies,
           changesFor,
-          isEqualFn
+          isEqualFn,
         );
       }
     });
@@ -163,7 +147,7 @@ const getChangedData = <Data>(args: {
     fieldsWithDependencies,
     includeFieldsWithoutDependencies,
     changesFor,
-    isEqualFn = Object.is
+    isEqualFn = Object.is,
   } = args;
 
   if (isEqualFn(newData, oldData)) {
@@ -180,7 +164,7 @@ const getChangedData = <Data>(args: {
     [],
     includeFieldsWithoutDependencies,
     changesFor,
-    isEqualFn
+    isEqualFn,
   );
 };
 

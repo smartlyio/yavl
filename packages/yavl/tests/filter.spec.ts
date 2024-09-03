@@ -6,7 +6,7 @@ import {
   Model,
   model,
   ModelValidationContext,
-  updateModel
+  updateModel,
 } from '../src';
 
 describe('filter', () => {
@@ -35,14 +35,12 @@ describe('filter', () => {
     const initialData: TestModel = {
       list: [
         { filter: 'a', value: 'value a', unused: 'test' },
-        { filter: 'b', value: 'value a', unused: 'test' }
-      ]
+        { filter: 'b', value: 'value a', unused: 'test' },
+      ],
     };
 
     const validateFn = jest.fn();
-    const filterFn = jest.fn(
-      ({ filter }: { filter: string }) => filter === 'b'
-    );
+    const filterFn = jest.fn(({ filter }: { filter: string }) => filter === 'b');
 
     const testModel = model<TestModel>((root, model) => [
       model.withFields(root, ['field', 'list'], ({ field, list }) => {
@@ -53,7 +51,7 @@ describe('filter', () => {
         const valueField = model.dep(firstFilteredItem, 'value');
 
         return [model.validate(field, valueField, validateFn)];
-      })
+      }),
     ]);
 
     it('should call validator when value of filtered item changes', () => {
@@ -61,20 +59,11 @@ describe('filter', () => {
 
       jest.clearAllMocks();
 
-      const updatedData = R.assocPath(
-        ['list', 1, 'value'],
-        'changed',
-        initialData
-      );
+      const updatedData = R.assocPath(['list', 1, 'value'], 'changed', initialData);
       testIncrementalValidate(testModel, updatedData);
 
       expect(validateFn).toHaveBeenCalledTimes(1);
-      expect(validateFn).toHaveBeenCalledWith(
-        undefined,
-        'changed',
-        updatedData,
-        undefined
-      );
+      expect(validateFn).toHaveBeenCalledWith(undefined, 'changed', updatedData, undefined);
     });
 
     it('should call filter function when the dependency of the filter function changes', () => {
@@ -82,11 +71,7 @@ describe('filter', () => {
 
       jest.clearAllMocks();
 
-      const updatedData = R.assocPath(
-        ['list', 1, 'filter'],
-        'changed',
-        initialData
-      );
+      const updatedData = R.assocPath(['list', 1, 'filter'], 'changed', initialData);
       testIncrementalValidate(testModel, updatedData);
 
       // filter fn gets called for every item of the array when something changes
@@ -100,11 +85,7 @@ describe('filter', () => {
 
       jest.clearAllMocks();
 
-      const updatedData = R.assocPath(
-        ['list', 1, 'unused'],
-        'changed',
-        initialData
-      );
+      const updatedData = R.assocPath(['list', 1, 'unused'], 'changed', initialData);
       testIncrementalValidate(testModel, updatedData);
 
       expect(filterFn).toHaveBeenCalledTimes(0);
@@ -119,30 +100,21 @@ describe('filter', () => {
     };
 
     const initialData: TestModel = {
-      list: [{ value: 'a' }, { value: 'b' }]
+      list: [{ value: 'a' }, { value: 'b' }],
     };
 
     const testModel = model<TestModel>((root, model) => [
       model.withFields(root, ['list', 'computed'], ({ list, computed }) => {
-        const filteredList = model.filter(
-          list,
-          ['value'],
-          ({ value }) => value === 'b'
-        );
+        const filteredList = model.filter(list, ['value'], ({ value }) => value === 'b');
 
         // this focuses the 2nd item in initialData
         const firstFilteredItem = model.nthFocus(filteredList, 0);
 
         return [
-          model.array(list, (item) => [
-            model.annotate(item, testAnnotation, model.dep(item, 'value'))
-          ]),
-          model.value(
-            computed,
-            model.annotation(firstFilteredItem, testAnnotation)
-          )
+          model.array(list, item => [model.annotate(item, testAnnotation, model.dep(item, 'value'))]),
+          model.value(computed, model.annotation(firstFilteredItem, testAnnotation)),
         ];
-      })
+      }),
     ]);
 
     it('should give correct annotation with filtered array', () => {
@@ -150,7 +122,7 @@ describe('filter', () => {
 
       expect(getModelData(validationContext!)).toEqual({
         list: initialData.list,
-        computed: 'b'
+        computed: 'b',
       });
     });
   });

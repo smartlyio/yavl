@@ -14,7 +14,7 @@ import {
   FieldFocus,
   ArrayIndexFocus,
   AnyContext,
-  ModelContextToArrayModelContext
+  ModelContextToArrayModelContext,
 } from '../types';
 
 type KeysOfUnionWithArrayFocus<T> = T extends Record<string, unknown>
@@ -31,9 +31,7 @@ type NextAllowedKeys<Context> = KeysOfUnionWithArrayFocus<ContextType<Context>>;
  * 1. With a concrete field name in an object or numeric index in an array
  * 2. Special array focus accessors, eg. array.all and array.current
  */
-type NextField<Type, Key> = Key extends ArrayFocusFn
-  ? MaybeArrayItem<Type>
-  : MaybeField<Type, Key>;
+type NextField<Type, Key> = Key extends ArrayFocusFn ? MaybeArrayItem<Type> : MaybeField<Type, Key>;
 
 /**
  * 1. If we focus array.all, then we must turn eg. ModelContext => ArrayModelContext
@@ -50,11 +48,7 @@ type GetNextContextWithType<Type, Context, Key> = Key extends ArrayAllFocusFn
   : SameContextOfType<Context, Type>;
 
 // NextContext is split into two types to avoid repeating the NextField stuff
-type NextContext<Context, Key> = GetNextContextWithType<
-  NextField<ContextType<Context>, Key>,
-  Context,
-  Key
->;
+type NextContext<Context, Key> = GetNextContextWithType<NextField<ContextType<Context>, Key>, Context, Key>;
 
 /**
  * Traverse through the model recursively, maintaining the correct context type
@@ -75,20 +69,20 @@ export interface DependencyFn {
 
   <Context extends AnyExtensibleContext<any>, K1>(
     field: Context,
-    k1: K1 & NextAllowedKeys<TraverseModel<Context, []>>
+    k1: K1 & NextAllowedKeys<TraverseModel<Context, []>>,
   ): TraverseModel<Context, [K1]>;
 
   <Context extends AnyExtensibleContext<any>, K1, K2>(
     field: Context,
     k1: K1 & NextAllowedKeys<TraverseModel<Context, []>>,
-    k2: K2 & NextAllowedKeys<TraverseModel<Context, [K1]>>
+    k2: K2 & NextAllowedKeys<TraverseModel<Context, [K1]>>,
   ): TraverseModel<Context, [K1, K2]>;
 
   <Context extends AnyExtensibleContext<any>, K1, K2, K3>(
     field: Context,
     k1: K1 & NextAllowedKeys<TraverseModel<Context, []>>,
     k2: K2 & NextAllowedKeys<TraverseModel<Context, [K1]>>,
-    k3: K3 & NextAllowedKeys<TraverseModel<Context, [K1, K2]>>
+    k3: K3 & NextAllowedKeys<TraverseModel<Context, [K1, K2]>>,
   ): TraverseModel<Context, [K1, K2, K3]>;
 
   <Context extends AnyExtensibleContext<any>, K1, K2, K3, K4>(
@@ -96,7 +90,7 @@ export interface DependencyFn {
     k1: K1 & NextAllowedKeys<TraverseModel<Context, []>>,
     k2: K2 & NextAllowedKeys<TraverseModel<Context, [K1]>>,
     k3: K3 & NextAllowedKeys<TraverseModel<Context, [K1, K2]>>,
-    k4: K4 & NextAllowedKeys<TraverseModel<Context, [K1, K2, K3]>>
+    k4: K4 & NextAllowedKeys<TraverseModel<Context, [K1, K2, K3]>>,
   ): TraverseModel<Context, [K1, K2, K3, K4]>;
 
   <Context extends AnyExtensibleContext<any>, K1, K2, K3, K4, K5>(
@@ -105,13 +99,11 @@ export interface DependencyFn {
     k2: K2 & NextAllowedKeys<TraverseModel<Context, [K1]>>,
     k3: K3 & NextAllowedKeys<TraverseModel<Context, [K1, K2]>>,
     k4: K4 & NextAllowedKeys<TraverseModel<Context, [K1, K2, K3]>>,
-    k5: K5 & NextAllowedKeys<TraverseModel<Context, [K1, K2, K3, K4]>>
+    k5: K5 & NextAllowedKeys<TraverseModel<Context, [K1, K2, K3, K4]>>,
   ): TraverseModel<Context, [K1, K2, K3, K4, K5]>;
 }
 
-export type ExtractDependencies<
-  Dependencies
-> = Dependencies extends AnyArrayModelContext<infer U>
+export type ExtractDependencies<Dependencies> = Dependencies extends AnyArrayModelContext<infer U>
   ? U[]
   : Dependencies extends AnyContext<infer U>
   ? U
@@ -123,7 +115,7 @@ const dependency: DependencyFn = (
   parentField: AnyExtensibleContext<any>,
   ...path: readonly (string | ArrayFocusFn)[]
 ): AnyExtensibleContext<any> => {
-  const transformedPath = path.map((arrayOrField) =>
+  const transformedPath = path.map(arrayOrField =>
     typeof arrayOrField === 'function'
       ? arrayOrField()
       : typeof arrayOrField === 'string'
@@ -132,28 +124,26 @@ const dependency: DependencyFn = (
           type: 'array',
           focus: 'index',
           index: arrayOrField,
-          multiToSingleFocus: false
-        } as ArrayIndexFocus)
+          multiToSingleFocus: false,
+        } as ArrayIndexFocus),
   );
 
   const pathToField = parentField.pathToField.concat(transformedPath);
 
-  const multiFocus = pathToField.some(
-    (it) => it.type === 'array' && it.focus === 'all'
-  );
+  const multiFocus = pathToField.some(it => it.type === 'array' && it.focus === 'all');
 
   if (multiFocus) {
     const result: ArrayModelContext<any> | ExternalArrayModelContext<any> = {
       type: parentField.type,
       pathToField,
-      multiFocus: true
+      multiFocus: true,
     };
 
     return result;
   } else {
     const result: ModelContext<any> | ExternalModelContext<any> = {
       type: parentField.type,
-      pathToField
+      pathToField,
     };
 
     return result;

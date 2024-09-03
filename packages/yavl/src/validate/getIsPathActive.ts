@@ -6,14 +6,14 @@ import { ModelValidationCache } from './types';
 export const getIsPathActive = (
   validateDiffCache: ModelValidationCache<any>,
   parentDefinitions: readonly RecursiveDefinition<any>[],
-  indices: Record<string, number>
+  indices: Record<string, number>,
 ) => {
   const { isPathActive } = findErrorCacheEntry(
     validateDiffCache,
     parentDefinitions,
     indices,
     true, // TODO: add test for this
-    false
+    false,
   );
 
   return isPathActive;

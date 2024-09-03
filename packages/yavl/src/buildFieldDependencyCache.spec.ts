@@ -6,7 +6,7 @@ import {
   ValidateDefinition,
   WhenDefinition,
   AnnotateDefinition,
-  SupportedDefinition
+  SupportedDefinition,
 } from './types';
 import processDefinitionList from './processDefinitionList';
 import { createAnnotation } from './annotations';
@@ -29,10 +29,7 @@ describe('buildFieldDependencyCache', () => {
   let arrayDefinition: ArrayDefinition<any>;
 
   const captureArray = (definition: SupportedDefinition) => {
-    arrayDefinition = processDefinitionList(
-      [],
-      [definition]
-    )[0] as ArrayDefinition<any>;
+    arrayDefinition = processDefinitionList([], [definition])[0] as ArrayDefinition<any>;
 
     return definition;
   };
@@ -41,10 +38,7 @@ describe('buildFieldDependencyCache', () => {
     let annotation: AnnotateDefinition;
 
     const captureAnnotation = (definition: SupportedDefinition) => {
-      annotation = processDefinitionList(
-        [],
-        [definition]
-      )[0] as AnnotateDefinition;
+      annotation = processDefinitionList([], [definition])[0] as AnnotateDefinition;
 
       return definition;
     };
@@ -52,28 +46,24 @@ describe('buildFieldDependencyCache', () => {
     describe('simple annotation', () => {
       beforeEach(() => {
         testModel = model<TestModel>((root, model) => [
-          model.field(root, 'value', (value) => [
-            captureAnnotation(model.annotate(value, testAnnotation, true))
-          ])
+          model.field(root, 'value', value => [captureAnnotation(model.annotate(value, testAnnotation, true))]),
         ]);
       });
 
       it('should add cache entry for annotation', () => {
-        expect(
-          testModel.fieldDependencyCache['internal:value']?.annotations
-        ).toEqual([
+        expect(testModel.fieldDependencyCache['internal:value']?.annotations).toEqual([
           {
             definition: annotation,
             modelPath: [
               {
                 type: 'field',
-                name: 'value'
-              }
+                name: 'value',
+              },
             ],
             parentDefinitions: [testModel.modelDefinition],
             isDependencyOfValue: false,
-            isComputedValue: false
-          }
+            isComputedValue: false,
+          },
         ]);
       });
     });
@@ -81,51 +71,44 @@ describe('buildFieldDependencyCache', () => {
     describe('nested annotation', () => {
       beforeEach(() => {
         testModel = model<TestModel>((root, model) => [
-          model.field(root, 'nested', (nested) => [
-            model.field(nested, 'list', (list) => [
+          model.field(root, 'nested', nested => [
+            model.field(nested, 'list', list => [
               captureArray(
-                model.array(list, (elem) => [
-                  model.field(elem, 'value', (value) => [
-                    captureAnnotation(
-                      model.annotate(value, testAnnotation, true)
-                    )
-                  ])
-                ])
-              )
-            ])
-          ])
+                model.array(list, elem => [
+                  model.field(elem, 'value', value => [captureAnnotation(model.annotate(value, testAnnotation, true))]),
+                ]),
+              ),
+            ]),
+          ]),
         ]);
       });
 
       it('should add cache entry with correct parent definitions', () => {
-        expect(
-          testModel.fieldDependencyCache['internal:nested.list[current].value']
-            ?.annotations
-        ).toEqual([
+        expect(testModel.fieldDependencyCache['internal:nested.list[current].value']?.annotations).toEqual([
           {
             definition: annotation,
             modelPath: [
               {
                 type: 'field',
-                name: 'nested'
+                name: 'nested',
               },
               {
                 type: 'field',
-                name: 'list'
+                name: 'list',
               },
               {
                 type: 'array',
-                focus: 'current'
+                focus: 'current',
               },
               {
                 type: 'field',
-                name: 'value'
-              }
+                name: 'value',
+              },
             ],
             parentDefinitions: [testModel.modelDefinition, arrayDefinition],
             isDependencyOfValue: false,
-            isComputedValue: false
-          }
+            isComputedValue: false,
+          },
         ]);
       });
     });
@@ -133,84 +116,74 @@ describe('buildFieldDependencyCache', () => {
     describe('dynamic annotation', () => {
       beforeEach(() => {
         testModel = model<TestModel>((root, model) => [
-          model.withFields(
-            root,
-            ['value', 'anotherValue', 'nested'],
-            ({ value, anotherValue, nested }) => [
-              captureAnnotation(
-                model.annotate(
-                  value,
-                  testAnnotation,
-                  model.compute(
-                    {
-                      anotherValue,
-                      nestedList: model.dependency(nested, 'list')
-                    },
-                    () => true
-                  )
-                )
-              )
-            ]
-          )
+          model.withFields(root, ['value', 'anotherValue', 'nested'], ({ value, anotherValue, nested }) => [
+            captureAnnotation(
+              model.annotate(
+                value,
+                testAnnotation,
+                model.compute(
+                  {
+                    anotherValue,
+                    nestedList: model.dependency(nested, 'list'),
+                  },
+                  () => true,
+                ),
+              ),
+            ),
+          ]),
         ]);
       });
 
       it('should add cache entry for the field for which the annotation is added', () => {
-        expect(
-          testModel.fieldDependencyCache['internal:value']?.annotations
-        ).toEqual([
+        expect(testModel.fieldDependencyCache['internal:value']?.annotations).toEqual([
           {
             definition: annotation,
             modelPath: [
               {
                 type: 'field',
-                name: 'value'
-              }
+                name: 'value',
+              },
             ],
             parentDefinitions: [testModel.modelDefinition],
             isDependencyOfValue: false,
-            isComputedValue: false
-          }
+            isComputedValue: false,
+          },
         ]);
       });
 
       it('should add cache entries for any fields that are used to compute the value', () => {
-        expect(
-          testModel.fieldDependencyCache['internal:anotherValue']?.annotations
-        ).toEqual([
+        expect(testModel.fieldDependencyCache['internal:anotherValue']?.annotations).toEqual([
           {
             definition: annotation,
             modelPath: [
               {
                 type: 'field',
-                name: 'anotherValue'
-              }
+                name: 'anotherValue',
+              },
             ],
             parentDefinitions: [testModel.modelDefinition],
             isDependencyOfValue: true,
-            isComputedValue: false
-          }
+            isComputedValue: false,
+          },
         ]);
 
-        expect(
-          testModel.fieldDependencyCache['internal:nested.list']?.annotations
-        ).toEqual([
+        expect(testModel.fieldDependencyCache['internal:nested.list']?.annotations).toEqual([
           {
             definition: annotation,
             modelPath: [
               {
                 type: 'field',
-                name: 'nested'
+                name: 'nested',
               },
               {
                 type: 'field',
-                name: 'list'
-              }
+                name: 'list',
+              },
             ],
             parentDefinitions: [testModel.modelDefinition],
             isDependencyOfValue: true,
-            isComputedValue: false
-          }
+            isComputedValue: false,
+          },
         ]);
       });
     });
@@ -220,10 +193,7 @@ describe('buildFieldDependencyCache', () => {
     let validation: ValidateDefinition<any>;
 
     const captureValidation = (definition: SupportedDefinition<any>) => {
-      validation = processDefinitionList(
-        [],
-        [definition]
-      )[0] as ValidateDefinition<any>;
+      validation = processDefinitionList([], [definition])[0] as ValidateDefinition<any>;
 
       return definition;
     };
@@ -231,28 +201,24 @@ describe('buildFieldDependencyCache', () => {
     describe('with only context', () => {
       beforeEach(() => {
         testModel = model<TestModel>((root, model) => [
-          model.field(root, 'value', (value) => [
-            captureValidation(model.validate(value, () => true, 'test error'))
-          ])
+          model.field(root, 'value', value => [captureValidation(model.validate(value, () => true, 'test error'))]),
         ]);
       });
 
       it('should add cache entry for the value field', () => {
-        expect(
-          testModel.fieldDependencyCache['internal:value']?.validations
-        ).toEqual([
+        expect(testModel.fieldDependencyCache['internal:value']?.validations).toEqual([
           {
             definition: validation,
             modelPath: [
               {
                 type: 'field',
-                name: 'value'
-              }
+                name: 'value',
+              },
             ],
             parentDefinitions: [testModel.modelDefinition],
             isDependency: false,
-            isPassive: false
-          }
+            isPassive: false,
+          },
         ]);
       });
     });
@@ -260,30 +226,26 @@ describe('buildFieldDependencyCache', () => {
     describe('with passive context', () => {
       beforeEach(() => {
         testModel = model<TestModel>((root, model) => [
-          model.field(root, 'value', (value) => [
-            captureValidation(
-              model.validate(model.passive(value), () => true, 'test error')
-            )
-          ])
+          model.field(root, 'value', value => [
+            captureValidation(model.validate(model.passive(value), () => true, 'test error')),
+          ]),
         ]);
       });
 
       it('should add cache entry for the value field', () => {
-        expect(
-          testModel.fieldDependencyCache['internal:value']?.validations
-        ).toEqual([
+        expect(testModel.fieldDependencyCache['internal:value']?.validations).toEqual([
           {
             definition: validation,
             modelPath: [
               {
                 type: 'field',
-                name: 'value'
-              }
+                name: 'value',
+              },
             ],
             parentDefinitions: [testModel.modelDefinition],
             isDependency: false,
-            isPassive: true
-          }
+            isPassive: true,
+          },
         ]);
       });
     });
@@ -291,54 +253,45 @@ describe('buildFieldDependencyCache', () => {
     describe('with context and dependencies', () => {
       beforeEach(() => {
         testModel = model<TestModel>((root, model) => [
-          model.field(root, 'value', (value) => [
+          model.field(root, 'value', value => [
             captureValidation(
-              model.validate(
-                value,
-                { anotherValue: model.dependency(root, 'anotherValue') },
-                () => true,
-                'test error'
-              )
-            )
-          ])
+              model.validate(value, { anotherValue: model.dependency(root, 'anotherValue') }, () => true, 'test error'),
+            ),
+          ]),
         ]);
       });
 
       it('should add cache entry for the value field', () => {
-        expect(
-          testModel.fieldDependencyCache['internal:value']?.validations
-        ).toEqual([
+        expect(testModel.fieldDependencyCache['internal:value']?.validations).toEqual([
           {
             definition: validation,
             modelPath: [
               {
                 type: 'field',
-                name: 'value'
-              }
+                name: 'value',
+              },
             ],
             parentDefinitions: [testModel.modelDefinition],
             isDependency: false,
-            isPassive: false
-          }
+            isPassive: false,
+          },
         ]);
       });
 
       it('should add cache entry for the anotherValue field', () => {
-        expect(
-          testModel.fieldDependencyCache['internal:anotherValue']?.validations
-        ).toEqual([
+        expect(testModel.fieldDependencyCache['internal:anotherValue']?.validations).toEqual([
           {
             definition: validation,
             modelPath: [
               {
                 type: 'field',
-                name: 'anotherValue'
-              }
+                name: 'anotherValue',
+              },
             ],
             parentDefinitions: [testModel.modelDefinition],
             isDependency: true,
-            isPassive: false
-          }
+            isPassive: false,
+          },
         ]);
       });
     });
@@ -346,51 +299,46 @@ describe('buildFieldDependencyCache', () => {
     describe('nested validations', () => {
       beforeEach(() => {
         testModel = model<TestModel>((root, model) => [
-          model.field(root, 'nested', (nested) => [
-            model.field(nested, 'list', (list) => [
+          model.field(root, 'nested', nested => [
+            model.field(nested, 'list', list => [
               captureArray(
-                model.array(list, (elem) => [
-                  model.field(elem, 'value', (value) => [
-                    captureValidation(
-                      model.validate(value, () => true, 'test error')
-                    )
-                  ])
-                ])
-              )
-            ])
-          ])
+                model.array(list, elem => [
+                  model.field(elem, 'value', value => [
+                    captureValidation(model.validate(value, () => true, 'test error')),
+                  ]),
+                ]),
+              ),
+            ]),
+          ]),
         ]);
       });
 
       it('should add cache entry with correct parent definitions', () => {
-        expect(
-          testModel.fieldDependencyCache['internal:nested.list[current].value']
-            ?.validations
-        ).toEqual([
+        expect(testModel.fieldDependencyCache['internal:nested.list[current].value']?.validations).toEqual([
           {
             definition: validation,
             modelPath: [
               {
                 type: 'field',
-                name: 'nested'
+                name: 'nested',
               },
               {
                 type: 'field',
-                name: 'list'
+                name: 'list',
               },
               {
                 type: 'array',
-                focus: 'current'
+                focus: 'current',
               },
               {
                 type: 'field',
-                name: 'value'
-              }
+                name: 'value',
+              },
             ],
             parentDefinitions: [testModel.modelDefinition, arrayDefinition],
             isDependency: false,
-            isPassive: false
-          }
+            isPassive: false,
+          },
         ]);
       });
     });
@@ -398,54 +346,45 @@ describe('buildFieldDependencyCache', () => {
     describe('nested dependencies', () => {
       beforeEach(() => {
         testModel = model<TestModel>((root, model) => [
-          model.field(root, 'value', (value) => [
+          model.field(root, 'value', value => [
             captureValidation(
               model.validate(
                 value,
-                model.dependency(
-                  root,
-                  'nested',
-                  'list',
-                  model.array.all,
-                  'value'
-                ),
+                model.dependency(root, 'nested', 'list', model.array.all, 'value'),
                 () => true,
-                'test error'
-              )
-            )
-          ])
+                'test error',
+              ),
+            ),
+          ]),
         ]);
       });
 
       it('should add cache entry for the nested value field', () => {
-        expect(
-          testModel.fieldDependencyCache['internal:nested.list[all].value']
-            ?.validations
-        ).toEqual([
+        expect(testModel.fieldDependencyCache['internal:nested.list[all].value']?.validations).toEqual([
           {
             definition: validation,
             modelPath: [
               {
                 type: 'field',
-                name: 'nested'
+                name: 'nested',
               },
               {
                 type: 'field',
-                name: 'list'
+                name: 'list',
               },
               {
                 type: 'array',
-                focus: 'all'
+                focus: 'all',
               },
               {
                 type: 'field',
-                name: 'value'
-              }
+                name: 'value',
+              },
             ],
             parentDefinitions: [testModel.modelDefinition],
             isDependency: true,
-            isPassive: false
-          }
+            isPassive: false,
+          },
         ]);
       });
     });
@@ -455,10 +394,7 @@ describe('buildFieldDependencyCache', () => {
     let condition: WhenDefinitionInput<any>;
 
     const captureCondition = (definitions: SupportedDefinition<any>[]) => {
-      condition = processDefinitionList(
-        [],
-        definitions
-      )[0] as WhenDefinition<any>;
+      condition = processDefinitionList([], definitions)[0] as WhenDefinition<any>;
 
       return definitions;
     };
@@ -471,27 +407,25 @@ describe('buildFieldDependencyCache', () => {
               model.when(
                 { anotherValue: model.dependency(root, 'anotherValue') },
                 () => true,
-                () => []
-              )
-            )
-          ])
+                () => [],
+              ),
+            ),
+          ]),
         ]);
       });
 
       it('should add cache entry for the anotherValue field', () => {
-        expect(
-          testModel.fieldDependencyCache['internal:anotherValue']?.conditions
-        ).toEqual([
+        expect(testModel.fieldDependencyCache['internal:anotherValue']?.conditions).toEqual([
           {
             definition: condition,
             modelPath: [
               {
                 type: 'field',
-                name: 'anotherValue'
-              }
+                name: 'anotherValue',
+              },
             ],
-            parentDefinitions: [testModel.modelDefinition]
-          }
+            parentDefinitions: [testModel.modelDefinition],
+          },
         ]);
       });
     });
@@ -499,53 +433,50 @@ describe('buildFieldDependencyCache', () => {
     describe('nested conditions', () => {
       beforeEach(() => {
         testModel = model<TestModel>((root, model) => [
-          model.field(root, 'nested', (nested) => [
-            model.field(nested, 'list', (list) => [
+          model.field(root, 'nested', nested => [
+            model.field(nested, 'list', list => [
               captureArray(
-                model.array(list, (elem) => [
-                  model.field(elem, 'value', (value) => [
+                model.array(list, elem => [
+                  model.field(elem, 'value', value => [
                     captureCondition(
                       model.when(
                         value,
                         () => true,
-                        () => []
-                      )
-                    )
-                  ])
-                ])
-              )
-            ])
-          ])
+                        () => [],
+                      ),
+                    ),
+                  ]),
+                ]),
+              ),
+            ]),
+          ]),
         ]);
       });
 
       it('should add cache entry with correct parent definitions', () => {
-        expect(
-          testModel.fieldDependencyCache['internal:nested.list[current].value']
-            ?.conditions
-        ).toEqual([
+        expect(testModel.fieldDependencyCache['internal:nested.list[current].value']?.conditions).toEqual([
           {
             definition: condition,
             modelPath: [
               {
                 type: 'field',
-                name: 'nested'
+                name: 'nested',
               },
               {
                 type: 'field',
-                name: 'list'
+                name: 'list',
               },
               {
                 type: 'array',
-                focus: 'current'
+                focus: 'current',
               },
               {
                 type: 'field',
-                name: 'value'
-              }
+                name: 'value',
+              },
             ],
-            parentDefinitions: [testModel.modelDefinition, arrayDefinition]
-          }
+            parentDefinitions: [testModel.modelDefinition, arrayDefinition],
+          },
         ]);
       });
     });
@@ -556,48 +487,39 @@ describe('buildFieldDependencyCache', () => {
           model.field(root, 'value', () => [
             captureCondition(
               model.when(
-                model.dependency(
-                  root,
-                  'nested',
-                  'list',
-                  model.array.all,
-                  'value'
-                ),
+                model.dependency(root, 'nested', 'list', model.array.all, 'value'),
                 () => true,
-                () => []
-              )
-            )
-          ])
+                () => [],
+              ),
+            ),
+          ]),
         ]);
       });
 
       it('should add cache entry for the nested value field', () => {
-        expect(
-          testModel.fieldDependencyCache['internal:nested.list[all].value']
-            ?.conditions
-        ).toEqual([
+        expect(testModel.fieldDependencyCache['internal:nested.list[all].value']?.conditions).toEqual([
           {
             definition: condition,
             modelPath: [
               {
                 type: 'field',
-                name: 'nested'
+                name: 'nested',
               },
               {
                 type: 'field',
-                name: 'list'
+                name: 'list',
               },
               {
                 type: 'array',
-                focus: 'all'
+                focus: 'all',
               },
               {
                 type: 'field',
-                name: 'value'
-              }
+                name: 'value',
+              },
             ],
-            parentDefinitions: [testModel.modelDefinition]
-          }
+            parentDefinitions: [testModel.modelDefinition],
+          },
         ]);
       });
     });

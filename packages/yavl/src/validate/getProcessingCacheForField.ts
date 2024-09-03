@@ -1,11 +1,8 @@
-import {
-  MutatingFieldProcessingCache,
-  MutatingFieldProcessingCacheEntry
-} from './types';
+import { MutatingFieldProcessingCache, MutatingFieldProcessingCacheEntry } from './types';
 
 const getProcessingCacheForField = <ErrorType>(
   fieldProcessingCache: MutatingFieldProcessingCache<ErrorType>,
-  pathToField: string
+  pathToField: string,
 ): MutatingFieldProcessingCacheEntry<ErrorType> => {
   if (!fieldProcessingCache[pathToField]) {
     fieldProcessingCache[pathToField] = {
@@ -13,7 +10,7 @@ const getProcessingCacheForField = <ErrorType>(
       conditionTestFnResults: new Map(),
       processedConditionDefinitions: new Map(),
       processedAnnotationDefinitions: new Map(),
-      processedComputations: new Map()
+      processedComputations: new Map(),
     };
   }
 

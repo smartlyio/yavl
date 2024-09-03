@@ -13,18 +13,13 @@ export const processModelRecursively = <Data, ExternalData, ErrorType>(
   processingContext: ProcessingContext<Data, ExternalData, ErrorType>,
   pass: 'annotations' | 'conditions' | 'validations',
   pathToCurrentDefinition: RecursiveDefinition<ErrorType>[],
-  currentIndices: Record<string, number>
+  currentIndices: Record<string, number>,
 ): void => {
   const currentDefinition = R.last(pathToCurrentDefinition)!;
 
-  currentDefinition.children.forEach((childDefinition) => {
+  currentDefinition.children.forEach(childDefinition => {
     if (childDefinition.type === 'annotation' && pass === 'annotations') {
-      processAnnotation(
-        processingContext,
-        childDefinition,
-        pathToCurrentDefinition,
-        currentIndices
-      );
+      processAnnotation(processingContext, childDefinition, pathToCurrentDefinition, currentIndices);
     }
 
     // processCondition will continue recursing if needed
@@ -36,7 +31,7 @@ export const processModelRecursively = <Data, ExternalData, ErrorType>(
           childDefinition,
           pathToCurrentDefinition,
           true, // isNewCondition = true
-          currentIndices
+          currentIndices,
         );
       } else if (pass === 'annotations') {
         // for annotations pass we want to always recurse to the child definitions
@@ -45,13 +40,13 @@ export const processModelRecursively = <Data, ExternalData, ErrorType>(
           processingContext,
           pass,
           pathToCurrentDefinition.concat(childDefinition),
-          currentIndices
+          currentIndices,
         );
       } else if (pass === 'validations') {
         const isPathActive = getIsPathActive(
           processingContext.validateDiffCache,
           pathToCurrentDefinition.concat(childDefinition),
-          currentIndices
+          currentIndices,
         );
 
         if (isPathActive) {
@@ -59,38 +54,27 @@ export const processModelRecursively = <Data, ExternalData, ErrorType>(
             processingContext,
             pass,
             pathToCurrentDefinition.concat(childDefinition),
-            currentIndices
+            currentIndices,
           );
         }
       }
     }
 
     if (childDefinition.type === 'validate' && pass === 'validations') {
-      processValidation(
-        processingContext,
-        childDefinition,
-        pathToCurrentDefinition,
-        currentIndices
-      );
+      processValidation(processingContext, childDefinition, pathToCurrentDefinition, currentIndices);
     }
 
     if (childDefinition.type === 'array') {
       const parentPath = childDefinition.context.pathToField.slice(0, -1);
-      const pathToArrayStr = resolveModelPathStr(
-        R.dropLast(1, childDefinition.context.pathToField),
-        currentIndices
-      );
-      const runCacheForField = getProcessingCacheForField(
-        processingContext.fieldProcessingCache,
-        pathToArrayStr
-      );
+      const pathToArrayStr = resolveModelPathStr(R.dropLast(1, childDefinition.context.pathToField), currentIndices);
+      const runCacheForField = getProcessingCacheForField(processingContext.fieldProcessingCache, pathToArrayStr);
 
       const newParentArray: any[] | undefined = resolveDependency(
         processingContext,
         'internal',
         parentPath,
         currentIndices,
-        runCacheForField
+        runCacheForField,
       );
 
       if (!Array.isArray(newParentArray)) {
@@ -102,12 +86,7 @@ export const processModelRecursively = <Data, ExternalData, ErrorType>(
       newParentArray.forEach((_, idx) => {
         const nextIndices = { ...currentIndices, [pathToArrayStr]: idx };
 
-        processModelRecursively(
-          processingContext,
-          pass,
-          pathToArrayDef,
-          nextIndices
-        );
+        processModelRecursively(processingContext, pass, pathToArrayDef, nextIndices);
       });
     }
   });

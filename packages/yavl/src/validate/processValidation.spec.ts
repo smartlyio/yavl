@@ -20,39 +20,39 @@ describe('processValidation', () => {
     type: 'validate',
     context: {
       type: 'internal',
-      pathToField: [{ type: 'field', name: 'test' }]
+      pathToField: [{ type: 'field', name: 'test' }],
     },
     dependencies: mockDependencies,
-    validators: [validatorFnA, validatorFnB]
+    validators: [validatorFnA, validatorFnB],
   };
 
   const parentDefinitions: any = [];
 
   const mockData: any = {
-    mock: 'mockData'
+    mock: 'mockData',
   };
 
   const mockExternalData: any = {
-    mock: 'mockExternalData'
+    mock: 'mockExternalData',
   };
 
   const mockCurrentIndices: any = {
-    mock: 'mockCurrentIndices'
+    mock: 'mockCurrentIndices',
   };
 
   const mockResolvedValue: any = {
-    mock: 'mockResolvedValue'
+    mock: 'mockResolvedValue',
   };
 
   const mockResolvedDependencies: any = {
-    mock: 'mockResolvedDependencies'
+    mock: 'mockResolvedDependencies',
   };
 
   beforeEach(() => {
     // flush the fieldProcessingCache for each test
     mockProcessingContext = getMockProcessingContext({
       data: mockData,
-      externalData: mockExternalData
+      externalData: mockExternalData,
     });
 
     jest.mocked(resolveDependency).mockReturnValue(mockResolvedValue);
@@ -60,12 +60,7 @@ describe('processValidation', () => {
   });
 
   const testProcessValidation = () => {
-    processValidation(
-      mockProcessingContext,
-      validation,
-      parentDefinitions,
-      mockCurrentIndices
-    );
+    processValidation(mockProcessingContext, validation, parentDefinitions, mockCurrentIndices);
   };
 
   describe('when there are errors', () => {
@@ -83,7 +78,7 @@ describe('processValidation', () => {
         validation.context.type,
         validation.context.pathToField,
         mockCurrentIndices,
-        expect.anything()
+        expect.anything(),
       );
     });
 
@@ -93,7 +88,7 @@ describe('processValidation', () => {
         mockProcessingContext,
         validation.dependencies,
         mockCurrentIndices,
-        expect.anything()
+        expect.anything(),
       );
     });
 
@@ -104,21 +99,22 @@ describe('processValidation', () => {
         mockResolvedValue,
         mockResolvedDependencies,
         mockData,
-        mockExternalData
+        mockExternalData,
       );
       expect(validatorFnB).toHaveBeenCalledWith(
         mockResolvedValue,
         mockResolvedDependencies,
         mockData,
-        mockExternalData
+        mockExternalData,
       );
     });
 
     it('should set correct errors', () => {
       expect(mockProcessingContext.validateDiffCache.errors.size).toBe(1);
-      expect(
-        mockProcessingContext.validateDiffCache.errors.get(validation)
-      ).toEqual({ field: 'test', errors: ['errorA', 'errorB'] });
+      expect(mockProcessingContext.validateDiffCache.errors.get(validation)).toEqual({
+        field: 'test',
+        errors: ['errorA', 'errorB'],
+      });
     });
 
     describe('when validation is processed with existing errors', () => {
@@ -137,9 +133,10 @@ describe('processValidation', () => {
 
         it('should clear errors', () => {
           expect(mockProcessingContext.validateDiffCache.errors.size).toBe(1);
-          expect(
-            mockProcessingContext.validateDiffCache.errors.get(validation)
-          ).toEqual({ field: 'test', errors: ['new error'] });
+          expect(mockProcessingContext.validateDiffCache.errors.get(validation)).toEqual({
+            field: 'test',
+            errors: ['new error'],
+          });
         });
       });
 

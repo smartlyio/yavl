@@ -10,7 +10,7 @@ import {
   AnySingleModelContext,
   ComputedContext,
   ArrayOfSameContextType,
-  ArrayAllFocus
+  ArrayAllFocus,
 } from '../types';
 import compute from './compute';
 import isComputedContext from '../utils/isComputedContext';
@@ -31,13 +31,10 @@ import isAnyArrayModelContext from '../utils/isAnyArrayModelContext';
  * supported by yavl.
  */
 export interface FilterBuilderFn {
-  <
-    Context extends AnyArrayModelContext<Record<string, unknown>>,
-    Keys extends keyof ContextType<Context> & string
-  >(
+  <Context extends AnyArrayModelContext<Record<string, unknown>>, Keys extends keyof ContextType<Context> & string>(
     context: Context,
     keys: readonly Keys[],
-    filterFn: NoInfer<FilterFnWithoutDependencies<ContextType<Context>, Keys>>
+    filterFn: NoInfer<FilterFnWithoutDependencies<ContextType<Context>, Keys>>,
   ): SameContextOfType<Context, ContextType<Context>>;
 
   <
@@ -48,13 +45,7 @@ export interface FilterBuilderFn {
     context: Context,
     keys: readonly Keys[],
     dependencies: Dependencies,
-    filterFn: NoInfer<
-      FilterFnWithDependencies<
-        ContextType<Context>,
-        Keys,
-        ExtractDependencies<Dependencies>
-      >
-    >
+    filterFn: NoInfer<FilterFnWithDependencies<ContextType<Context>, Keys, ExtractDependencies<Dependencies>>>,
   ): SameContextOfType<Context, ContextType<Context>>;
 
   <
@@ -65,9 +56,7 @@ export interface FilterBuilderFn {
   >(
     context: Context,
     keys: readonly Keys[],
-    filterFn: NoInfer<
-      FilterFnWithoutDependencies<ContextType<Context>[number], Keys>
-    >
+    filterFn: NoInfer<FilterFnWithoutDependencies<ContextType<Context>[number], Keys>>,
   ): ArrayOfSameContextType<Context>;
 
   <
@@ -80,43 +69,30 @@ export interface FilterBuilderFn {
     context: Context,
     keys: readonly Keys[],
     dependencies: Dependencies,
-    filterFn: NoInfer<
-      FilterFnWithDependencies<
-        ContextType<Context>[number],
-        Keys,
-        ExtractDependencies<Dependencies>
-      >
-    >
+    filterFn: NoInfer<FilterFnWithDependencies<ContextType<Context>[number], Keys, ExtractDependencies<Dependencies>>>,
   ): ArrayOfSameContextType<Context>;
 }
 
 const filter: FilterBuilderFn = (
-  context:
-    | AnyArrayModelContext<any>
-    | AnySingleModelContext<any[]>
-    | ComputedContext<any[]>,
+  context: AnyArrayModelContext<any> | AnySingleModelContext<any[]> | ComputedContext<any[]>,
   keys: readonly string[],
   dependenciesOrFilterFn: any,
-  maybeFilterFn?: any
+  maybeFilterFn?: any,
 ): any => {
   const hasDependencies = typeof maybeFilterFn === 'function';
   const filterFn = hasDependencies ? maybeFilterFn : dependenciesOrFilterFn;
-  const maybeDependencies = hasDependencies
-    ? dependenciesOrFilterFn
-    : undefined;
+  const maybeDependencies = hasDependencies ? dependenciesOrFilterFn : undefined;
 
   if (isComputedContext(context)) {
     return compute(
       {
         array: context,
-        deps: maybeDependencies
+        deps: maybeDependencies,
       },
       ({ array, deps }) =>
         array.filter((value, index) =>
-          hasDependencies
-            ? filterFn(R.pick(keys, value), deps, index)
-            : filterFn(R.pick(keys, value), index)
-        )
+          hasDependencies ? filterFn(R.pick(keys, value), deps, index) : filterFn(R.pick(keys, value), index),
+        ),
     );
   }
 
@@ -127,12 +103,12 @@ const filter: FilterBuilderFn = (
         type: 'filter',
         keys,
         dependencies: maybeDependencies,
-        filterFn
+        filterFn,
       }
     : {
         type: 'filter',
         keys,
-        filterFn
+        filterFn,
       };
 
   if (isAnyArrayModelContext(context)) {
@@ -140,12 +116,12 @@ const filter: FilterBuilderFn = (
       ...context,
       // if the parent context was created with dependsOn, we want to ignore that
       dependsOn: undefined,
-      pathToField: context.pathToField.concat(filterFocus)
+      pathToField: context.pathToField.concat(filterFocus),
     };
   } else {
     const arrayAllFocus: ArrayAllFocus = {
       type: 'array',
-      focus: 'all'
+      focus: 'all',
     };
 
     const arrayModelContext: AnyArrayModelContext<any> = {
@@ -156,7 +132,7 @@ const filter: FilterBuilderFn = (
       pathToField: context.pathToField
         // add array all focus before filter in order to build dependency cache correctly
         .concat(arrayAllFocus)
-        .concat(filterFocus)
+        .concat(filterFocus),
     };
 
     return arrayModelContext;

@@ -1,12 +1,5 @@
 import * as R from 'ramda';
-import {
-  createValidationContext,
-  getModelData,
-  Model,
-  model,
-  ModelValidationContext,
-  updateModel
-} from '../src';
+import { createValidationContext, getModelData, Model, model, ModelValidationContext, updateModel } from '../src';
 
 describe('optimizations', () => {
   let validationContext: ModelValidationContext<any> | undefined;
@@ -45,23 +38,23 @@ describe('optimizations', () => {
               () => [
                 // this validation should never be run because it's inside a falsy when, however if the optimizations are handled incorrectly
                 // it's possible that we skip evaluating the parent condition when inner & outer when change at the same time
-                model.validate(c, validator)
-              ]
-            )
-          ])
-        ])
-      ])
+                model.validate(c, validator),
+              ],
+            ),
+          ]),
+        ]),
+      ]),
     ]);
 
     it('should not process the validate inside a condition that is always inactive', () => {
       testIncrementalValidate(testModel, {
         a: false,
-        b: false
+        b: false,
       });
 
       const updatedFormData = {
         a: true,
-        b: true
+        b: true,
       };
 
       jest.clearAllMocks();
@@ -80,20 +73,16 @@ describe('optimizations', () => {
     const innerWhen = jest.fn(R.identity);
 
     const testModel = model<TestModel>((root, model) => [
-      model.field(root, 'cond', (cond) => [
-        model.when({}, alwaysFalse, () => [
-          model.when(cond, innerWhen, () => [])
-        ])
-      ])
+      model.field(root, 'cond', cond => [model.when({}, alwaysFalse, () => [model.when(cond, innerWhen, () => [])])]),
     ]);
 
     it('should not evaluate any test functions for conditions', () => {
       testIncrementalValidate(testModel, {
-        cond: false
+        cond: false,
       });
 
       const updatedFormData = {
-        cond: true
+        cond: true,
       };
 
       jest.clearAllMocks();
@@ -120,41 +109,41 @@ describe('optimizations', () => {
         // defining the value before the nested object should not change order of evaluation
         model.value(
           total,
-          model.compute(nested, (nested) => {
+          model.compute(nested, nested => {
             totalComputations++;
             return nested.a + (nested.b ?? 0);
-          })
+          }),
         ),
         model.withFields(nested, ['a', 'b'], ({ a, b }) => [
           model.value(
             b,
-            model.compute(a, (a) => a + 1)
-          )
-        ])
-      ])
+            model.compute(a, a => a + 1),
+          ),
+        ]),
+      ]),
     ]);
 
     // initial update
     testIncrementalValidate(testModel, {
       nested: {
-        a: 1
-      }
+        a: 1,
+      },
     });
 
     // incremental update
     totalComputations = 0;
     testIncrementalValidate(testModel, {
       nested: {
-        a: 2
-      }
+        a: 2,
+      },
     });
     expect(totalComputations).toBe(1);
     expect(getModelData(validationContext!)).toEqual({
       nested: {
         a: 2,
-        b: 3
+        b: 3,
       },
-      total: 5
+      total: 5,
     });
   });
 
@@ -172,53 +161,49 @@ describe('optimizations', () => {
     const captureWhen = jest.fn();
 
     const testModel = model<TestModel>((root, model) => [
-      model.withFields(
-        root,
-        ['nested', 'value', 'computed'],
-        ({ nested, value, computed }) => [
-          // add a mock dependnecy to nested.value so it get included by getChangedData()
-          model.validate(model.dep(nested, 'value'), () => undefined),
+      model.withFields(root, ['nested', 'value', 'computed'], ({ nested, value, computed }) => [
+        // add a mock dependnecy to nested.value so it get included by getChangedData()
+        model.validate(model.dep(nested, 'value'), () => undefined),
 
-          model.value(
-            computed,
-            model.compute(value, (value) => {
-              captureValue(value);
-              return undefined;
-            })
-          ),
-          model.validate(value, (value) => {
-            captureValidate(value);
+        model.value(
+          computed,
+          model.compute(value, value => {
+            captureValue(value);
             return undefined;
           }),
-          model.when(
-            value,
-            (value) => {
-              captureWhen(value);
-              return true;
-            },
-            () => []
-          )
-        ]
-      )
+        ),
+        model.validate(value, value => {
+          captureValidate(value);
+          return undefined;
+        }),
+        model.when(
+          value,
+          value => {
+            captureWhen(value);
+            return true;
+          },
+          () => [],
+        ),
+      ]),
     ]);
 
     // initial update
     testIncrementalValidate(testModel, {
       nested: {
-        value: 'a'
+        value: 'a',
       },
       value: 'a',
-      computed: undefined
+      computed: undefined,
     });
 
     // incremental update
     jest.clearAllMocks();
     testIncrementalValidate(testModel, {
       nested: {
-        value: 'b'
+        value: 'b',
       },
       value: 'b',
-      computed: undefined
+      computed: undefined,
     });
 
     expect(captureValue).toHaveBeenCalledTimes(1);

@@ -6,25 +6,22 @@ import {
   AnyModelContext,
   AnnotateDefinition,
   ModelDefinition,
-  DefinitionList
+  DefinitionList,
 } from './types';
 import modelPathToStr from './utils/modelPathToStr';
 import processDependenciesRecursively from './utils/processDependenciesRecursively';
 
 const createCacheEntryIfNeeded = (
   fieldDependencyCache: FieldDependencyCache<any>,
-  dependency: AnyModelContext<any>
+  dependency: AnyModelContext<any>,
 ) => {
-  const dependencyPath = modelPathToStr(
-    dependency.type,
-    dependency.pathToField
-  );
+  const dependencyPath = modelPathToStr(dependency.type, dependency.pathToField);
 
   if (!fieldDependencyCache[dependencyPath]) {
     fieldDependencyCache[dependencyPath] = {
       annotations: [],
       validations: [],
-      conditions: []
+      conditions: [],
     };
   }
 
@@ -36,7 +33,7 @@ const createValidationCacheEntry = (
   dependency: AnyModelContext<any>,
   validateDefinition: ValidateDefinition<any>,
   parentDefinitions: RecursiveDefinition<any>[],
-  isDependency: boolean
+  isDependency: boolean,
 ) => {
   const cacheEntry = createCacheEntryIfNeeded(fieldDependencyCache, dependency);
 
@@ -45,25 +42,19 @@ const createValidationCacheEntry = (
     modelPath: dependency.pathToField,
     parentDefinitions,
     isDependency,
-    isPassive: dependency.isPassive ?? false
+    isPassive: dependency.isPassive ?? false,
   });
 };
 
 const createValidationCacheEntries = (
   fieldDependencyCache: FieldDependencyCache<any>,
   validateDefinition: ValidateDefinition<any>,
-  parentDefinitions: RecursiveDefinition<any>[]
+  parentDefinitions: RecursiveDefinition<any>[],
 ) => {
   processDependenciesRecursively(
     [validateDefinition.context],
-    (dependency) => {
-      createValidationCacheEntry(
-        fieldDependencyCache,
-        dependency,
-        validateDefinition,
-        parentDefinitions,
-        false
-      );
+    dependency => {
+      createValidationCacheEntry(fieldDependencyCache, dependency, validateDefinition, parentDefinitions, false);
     },
     /**
      * For the field which we add the validation for, we want to add a cach
@@ -79,54 +70,37 @@ const createValidationCacheEntries = (
      * We check whether the validation entry is passive entry in processChangedDependency,
      * and skip processing validations when the passive field changes.
      */
-    { processPassiveDependencies: true }
+    { processPassiveDependencies: true },
   );
 
-  processDependenciesRecursively(
-    [validateDefinition.dependencies],
-    (dependency) => {
-      createValidationCacheEntry(
-        fieldDependencyCache,
-        dependency,
-        validateDefinition,
-        parentDefinitions,
-        true
-      );
-    }
-  );
+  processDependenciesRecursively([validateDefinition.dependencies], dependency => {
+    createValidationCacheEntry(fieldDependencyCache, dependency, validateDefinition, parentDefinitions, true);
+  });
 };
 
 const createConditionCacheEntry = (
   fieldDependencyCache: FieldDependencyCache<any>,
   dependency: AnyModelContext<any>,
   conditionDefinition: WhenDefinition<any>,
-  parentDefinitions: RecursiveDefinition<any>[]
+  parentDefinitions: RecursiveDefinition<any>[],
 ) => {
   const cacheEntry = createCacheEntryIfNeeded(fieldDependencyCache, dependency);
 
   cacheEntry.conditions.push({
     definition: conditionDefinition,
     modelPath: dependency.pathToField,
-    parentDefinitions
+    parentDefinitions,
   });
 };
 
 const createConditionCacheEntries = (
   fieldDependencyCache: FieldDependencyCache<any>,
   conditionDefinition: WhenDefinition<any>,
-  parentDefinitions: RecursiveDefinition<any>[]
+  parentDefinitions: RecursiveDefinition<any>[],
 ) => {
-  processDependenciesRecursively(
-    conditionDefinition.dependencies,
-    (dependency) => {
-      createConditionCacheEntry(
-        fieldDependencyCache,
-        dependency,
-        conditionDefinition,
-        parentDefinitions
-      );
-    }
-  );
+  processDependenciesRecursively(conditionDefinition.dependencies, dependency => {
+    createConditionCacheEntry(fieldDependencyCache, dependency, conditionDefinition, parentDefinitions);
+  });
 };
 
 const createAnnotationCacheEntry = (
@@ -135,7 +109,7 @@ const createAnnotationCacheEntry = (
   annotateDefinition: AnnotateDefinition,
   parentDefinitions: RecursiveDefinition<any>[],
   isDependencyOfValue: boolean,
-  isComputedValue: boolean
+  isComputedValue: boolean,
 ) => {
   const cacheEntry = createCacheEntryIfNeeded(fieldDependencyCache, dependency);
 
@@ -144,14 +118,14 @@ const createAnnotationCacheEntry = (
     modelPath: dependency.pathToField,
     parentDefinitions,
     isDependencyOfValue,
-    isComputedValue
+    isComputedValue,
   });
 };
 
 const createAnnotationCacheEntries = (
   fieldDependencyCache: FieldDependencyCache<any>,
   annotateDefinition: AnnotateDefinition,
-  parentDefinitions: RecursiveDefinition<any>[]
+  parentDefinitions: RecursiveDefinition<any>[],
 ) => {
   createAnnotationCacheEntry(
     fieldDependencyCache,
@@ -159,61 +133,42 @@ const createAnnotationCacheEntries = (
     annotateDefinition,
     parentDefinitions,
     false,
-    annotateDefinition.context.isComputedValue ?? false
+    annotateDefinition.context.isComputedValue ?? false,
   );
 
-  processDependenciesRecursively(annotateDefinition.value, (dependency) => {
-    createAnnotationCacheEntry(
-      fieldDependencyCache,
-      dependency,
-      annotateDefinition,
-      parentDefinitions,
-      true,
-      false
-    );
+  processDependenciesRecursively(annotateDefinition.value, dependency => {
+    createAnnotationCacheEntry(fieldDependencyCache, dependency, annotateDefinition, parentDefinitions, true, false);
   });
 };
 
 const buildFieldDependencyCacheRecursively = (
   definitions: DefinitionList<any>,
   fieldDependencyCache: FieldDependencyCache<any>,
-  parentDefinitions: RecursiveDefinition<any>[]
+  parentDefinitions: RecursiveDefinition<any>[],
 ): FieldDependencyCache<any> => {
-  definitions.forEach((definition) => {
+  definitions.forEach(definition => {
     if (definition.type === 'annotation') {
-      createAnnotationCacheEntries(
-        fieldDependencyCache,
-        definition,
-        parentDefinitions
-      );
+      createAnnotationCacheEntries(fieldDependencyCache, definition, parentDefinitions);
 
       // no children for annotations
       return;
     }
 
     if (definition.type === 'validate') {
-      createValidationCacheEntries(
-        fieldDependencyCache,
-        definition,
-        parentDefinitions
-      );
+      createValidationCacheEntries(fieldDependencyCache, definition, parentDefinitions);
 
       // no children for validate
       return;
     }
 
     if (definition.type === 'when') {
-      createConditionCacheEntries(
-        fieldDependencyCache,
-        definition,
-        parentDefinitions
-      );
+      createConditionCacheEntries(fieldDependencyCache, definition, parentDefinitions);
     }
 
     buildFieldDependencyCacheRecursively(
       definition.children,
       fieldDependencyCache,
-      parentDefinitions.concat(definition)
+      parentDefinitions.concat(definition),
     );
   });
 
@@ -244,12 +199,8 @@ const buildFieldDependencyCacheRecursively = (
  * Cache is never exposed outside this function, let's do
  * this with mutations for some extra performance.
  */
-const buildFieldDependencyCache = (
-  modelDefinition: ModelDefinition<any, any>
-): FieldDependencyCache<any> => {
-  return buildFieldDependencyCacheRecursively(modelDefinition.children, {}, [
-    modelDefinition
-  ]);
+const buildFieldDependencyCache = (modelDefinition: ModelDefinition<any, any>): FieldDependencyCache<any> => {
+  return buildFieldDependencyCacheRecursively(modelDefinition.children, {}, [modelDefinition]);
 };
 
 export default buildFieldDependencyCache;

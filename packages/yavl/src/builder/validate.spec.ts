@@ -7,16 +7,16 @@ import { ModelContext, SupportedDefinition } from '../types';
 describe('validate', () => {
   const context: ModelContext<any> = {
     type: 'internal',
-    pathToField: [{ type: 'field', name: 'test' }]
+    pathToField: [{ type: 'field', name: 'test' }],
   };
 
   const dependencies: any = {
     depA: { mock: 'dependency A' },
-    depB: { mock: 'dependency B' }
+    depB: { mock: 'dependency B' },
   };
 
   const error: any = {
-    mock: 'error'
+    mock: 'error',
   };
 
   const validatorFn = jest.fn();

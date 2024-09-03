@@ -10,47 +10,45 @@ import { ModelValidationCache } from './types';
 
 const createErrorCacheEntrySpy = jest.spyOn(createErrorCacheEntry, 'default');
 
-const createMockCacheEntry = (
-  isPathActive: boolean
-): ModelValidationCache<any> => {
+const createMockCacheEntry = (isPathActive: boolean): ModelValidationCache<any> => {
   return {
     isPathActive,
     annotations: new Map(),
     errors: new Map(),
-    children: new Map()
+    children: new Map(),
   };
 };
 
 describe('findErrorCacheEntry', () => {
   const pathToArrayField: PathToField = [
     { type: 'field', name: 'list' },
-    { type: 'array', focus: 'current' }
+    { type: 'array', focus: 'current' },
   ];
 
   const arrayDefinition: any = {
     type: 'array',
     context: {
-      pathToField: pathToArrayField
-    }
+      pathToField: pathToArrayField,
+    },
   };
 
   const existingDefinition: any = {
     type: 'when',
-    mock: 'existingDefinition'
+    mock: 'existingDefinition',
   };
 
   const inactiveDefinition: any = {
     type: 'when',
-    mock: 'inactiveDefinition'
+    mock: 'inactiveDefinition',
   };
 
   const missingDefinition: any = {
     type: 'when',
-    mock: 'missingDefinition'
+    mock: 'missingDefinition',
   };
 
   const mockCurrentIndices: any = {
-    mock: 'mockCurrentIndices'
+    mock: 'mockCurrentIndices',
   };
 
   let existingEntryOuter: ModelValidationCache<any>;
@@ -102,11 +100,7 @@ describe('findErrorCacheEntry', () => {
       const definitions = [existingDefinition, missingDefinition];
 
       beforeEach(() => {
-        result = findErrorCacheEntry(
-          mockCache,
-          definitions,
-          mockCurrentIndices
-        );
+        result = findErrorCacheEntry(mockCache, definitions, mockCurrentIndices);
       });
 
       it('should create one new entry', () => {
@@ -118,11 +112,7 @@ describe('findErrorCacheEntry', () => {
       const definitions = [missingDefinition, missingDefinition];
 
       beforeEach(() => {
-        result = findErrorCacheEntry(
-          mockCache,
-          definitions,
-          mockCurrentIndices
-        );
+        result = findErrorCacheEntry(mockCache, definitions, mockCurrentIndices);
       });
 
       it('should create all new entries', () => {
@@ -142,28 +132,17 @@ describe('findErrorCacheEntry', () => {
 
       describe('with resolveLastEntryIfArray = true', () => {
         beforeEach(() => {
-          result = findErrorCacheEntry(
-            mockCache,
-            definitions,
-            mockCurrentIndices,
-            true
-          );
+          result = findErrorCacheEntry(mockCache, definitions, mockCurrentIndices, true);
         });
 
         it('should resolve the path to array', () => {
           expect(resolveModelPathStr).toHaveBeenCalledTimes(1);
-          expect(resolveModelPathStr).toHaveBeenCalledWith(
-            pathToArrayField.slice(0, -1),
-            mockCurrentIndices
-          );
+          expect(resolveModelPathStr).toHaveBeenCalledWith(pathToArrayField.slice(0, -1), mockCurrentIndices);
         });
 
         it('should resolve the current index for the resolved array path', () => {
           expect(resolveCurrentIndex).toHaveBeenCalledTimes(1);
-          expect(resolveCurrentIndex).toHaveBeenCalledWith(
-            'list',
-            mockCurrentIndices
-          );
+          expect(resolveCurrentIndex).toHaveBeenCalledWith('list', mockCurrentIndices);
         });
 
         it('should return the cache for array item', () => {
@@ -173,12 +152,7 @@ describe('findErrorCacheEntry', () => {
 
       describe('with resolveLastEntryIfArray = false', () => {
         beforeEach(() => {
-          result = findErrorCacheEntry(
-            mockCache,
-            definitions,
-            mockCurrentIndices,
-            false
-          );
+          result = findErrorCacheEntry(mockCache, definitions, mockCurrentIndices, false);
         });
 
         it('should not resolve the active item for array', () => {
@@ -200,49 +174,28 @@ describe('findErrorCacheEntry', () => {
 
       describe('with resolveLastEntryIfArray = false', () => {
         beforeEach(() => {
-          result = findErrorCacheEntry(
-            mockCache,
-            definitions,
-            mockCurrentIndices,
-            false
-          );
+          result = findErrorCacheEntry(mockCache, definitions, mockCurrentIndices, false);
         });
 
         it('should resolve the path to array', () => {
           expect(resolveModelPathStr).toHaveBeenCalledTimes(1);
-          expect(resolveModelPathStr).toHaveBeenCalledWith(
-            pathToArrayField.slice(0, -1),
-            mockCurrentIndices
-          );
+          expect(resolveModelPathStr).toHaveBeenCalledWith(pathToArrayField.slice(0, -1), mockCurrentIndices);
         });
 
         it('should resolve the current index for the resolved array path', () => {
           expect(resolveCurrentIndex).toHaveBeenCalledTimes(1);
-          expect(resolveCurrentIndex).toHaveBeenCalledWith(
-            'list',
-            mockCurrentIndices
-          );
+          expect(resolveCurrentIndex).toHaveBeenCalledWith('list', mockCurrentIndices);
         });
       });
     });
   });
 
   describe('with inactive paths', () => {
-    const definitions = [
-      existingDefinition,
-      inactiveDefinition,
-      missingDefinition
-    ];
+    const definitions = [existingDefinition, inactiveDefinition, missingDefinition];
 
     describe('with followInactivePath = true', () => {
       beforeEach(() => {
-        result = findErrorCacheEntry(
-          mockCache,
-          definitions,
-          mockCurrentIndices,
-          false,
-          true
-        );
+        result = findErrorCacheEntry(mockCache, definitions, mockCurrentIndices, false, true);
       });
 
       it('should create a new entry after the inactive one', () => {
@@ -256,13 +209,7 @@ describe('findErrorCacheEntry', () => {
 
     describe('with followInactivePath = false', () => {
       beforeEach(() => {
-        result = findErrorCacheEntry(
-          mockCache,
-          definitions,
-          mockCurrentIndices,
-          false,
-          false
-        );
+        result = findErrorCacheEntry(mockCache, definitions, mockCurrentIndices, false, false);
       });
 
       it('should not create a new entry after the inactive one', () => {

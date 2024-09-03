@@ -12,41 +12,25 @@ describe('processDependentPermutations', () => {
   const processFn = jest.fn();
 
   const pathToField: any = { mock: 'pathToField' };
-  const indexPermutations: any = [
-    { mock: 'indexPermutationA' },
-    { mock: 'indexPermutationB' }
-  ];
+  const indexPermutations: any = [{ mock: 'indexPermutationA' }, { mock: 'indexPermutationB' }];
 
   beforeEach(() => {
     jest.mocked(findClosestArrayFromDefinitions).mockReturnValue(pathToField);
-    jest
-      .mocked(getDependentIndexPermutations)
-      .mockReturnValue(indexPermutations);
+    jest.mocked(getDependentIndexPermutations).mockReturnValue(indexPermutations);
   });
 
   beforeEach(() => {
-    processDependentPermutations(
-      parentDefinitions,
-      mockData,
-      currentIndices,
-      processFn
-    );
+    processDependentPermutations(parentDefinitions, mockData, currentIndices, processFn);
   });
 
   it('should resolve path to field', () => {
     expect(findClosestArrayFromDefinitions).toHaveBeenCalledTimes(1);
-    expect(findClosestArrayFromDefinitions).toHaveBeenCalledWith(
-      parentDefinitions
-    );
+    expect(findClosestArrayFromDefinitions).toHaveBeenCalledWith(parentDefinitions);
   });
 
   it('should get dependent index permutations', () => {
     expect(getDependentIndexPermutations).toHaveBeenCalledTimes(1);
-    expect(getDependentIndexPermutations).toHaveBeenCalledWith(
-      pathToField,
-      mockData,
-      currentIndices
-    );
+    expect(getDependentIndexPermutations).toHaveBeenCalledWith(pathToField, mockData, currentIndices);
   });
 
   it('should call processFn for each returned permutation', () => {

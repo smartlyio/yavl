@@ -4,29 +4,29 @@ describe('getDependentIndexPermutations', () => {
   const mockData: any = {
     listA: [
       {
-        innerList: [1, 2]
-      }
+        innerList: [1, 2],
+      },
     ],
     listB: [
       {
-        innerList: [1, 2]
+        innerList: [1, 2],
       },
       {
-        innerList: [3, 4]
-      }
+        innerList: [3, 4],
+      },
     ],
     listC: [
       {
-        innerList: [1, 2]
-      }
+        innerList: [1, 2],
+      },
     ],
-    listD: []
+    listD: [],
   };
 
   const currentIndices = {
     listA: 0,
     'listA[0].innerList': 0,
-    listC: 0
+    listC: 0,
   };
 
   describe('with no arrays', () => {
@@ -34,10 +34,10 @@ describe('getDependentIndexPermutations', () => {
       const result = getDependentIndexPermutations(
         [
           { type: 'field', name: 'nested' },
-          { type: 'field', name: 'field' }
+          { type: 'field', name: 'field' },
         ],
         mockData,
-        currentIndices
+        currentIndices,
       );
       expect(result).toEqual([currentIndices]);
     });
@@ -51,10 +51,10 @@ describe('getDependentIndexPermutations', () => {
             { type: 'field', name: 'listD' },
             { type: 'array', focus: 'current' },
             { type: 'field', name: 'innerList' },
-            { type: 'array', focus: 'current' }
+            { type: 'array', focus: 'current' },
           ],
           mockData,
-          currentIndices
+          currentIndices,
         );
         expect(mockData.listD).toHaveLength(0);
         expect(result).toEqual([]);
@@ -66,10 +66,10 @@ describe('getDependentIndexPermutations', () => {
             { type: 'field', name: 'listE' },
             { type: 'array', focus: 'current' },
             { type: 'field', name: 'innerList' },
-            { type: 'array', focus: 'current' }
+            { type: 'array', focus: 'current' },
           ],
           mockData,
-          currentIndices
+          currentIndices,
         );
         expect(mockData.listE).toBeUndefined();
         expect(result).toEqual([]);
@@ -83,10 +83,10 @@ describe('getDependentIndexPermutations', () => {
             { type: 'field', name: 'listA' },
             { type: 'array', focus: 'current' },
             { type: 'field', name: 'innerList' },
-            { type: 'array', focus: 'current' }
+            { type: 'array', focus: 'current' },
           ],
           mockData,
-          currentIndices
+          currentIndices,
         );
         expect(result).toEqual([currentIndices]);
       });
@@ -99,16 +99,16 @@ describe('getDependentIndexPermutations', () => {
             { type: 'field', name: 'listB' },
             { type: 'array', focus: 'current' },
             { type: 'field', name: 'innerList' },
-            { type: 'array', focus: 'current' }
+            { type: 'array', focus: 'current' },
           ],
           mockData,
-          currentIndices
+          currentIndices,
         );
         expect(result).toEqual([
           { ...currentIndices, listB: 0, 'listB[0].innerList': 0 },
           { ...currentIndices, listB: 0, 'listB[0].innerList': 1 },
           { ...currentIndices, listB: 1, 'listB[1].innerList': 0 },
-          { ...currentIndices, listB: 1, 'listB[1].innerList': 1 }
+          { ...currentIndices, listB: 1, 'listB[1].innerList': 1 },
         ]);
       });
     });
@@ -120,14 +120,14 @@ describe('getDependentIndexPermutations', () => {
             { type: 'field', name: 'listC' },
             { type: 'array', focus: 'current' },
             { type: 'field', name: 'innerList' },
-            { type: 'array', focus: 'current' }
+            { type: 'array', focus: 'current' },
           ],
           mockData,
-          currentIndices
+          currentIndices,
         );
         expect(result).toEqual([
           { ...currentIndices, 'listC[0].innerList': 0 },
-          { ...currentIndices, 'listC[0].innerList': 1 }
+          { ...currentIndices, 'listC[0].innerList': 1 },
         ]);
       });
     });
@@ -141,18 +141,18 @@ describe('getDependentIndexPermutations', () => {
               type: 'array',
               focus: 'index',
               index: 1,
-              multiToSingleFocus: false
+              multiToSingleFocus: false,
             },
             { type: 'field', name: 'innerList' },
             {
               type: 'array',
               focus: 'index',
               index: 0,
-              multiToSingleFocus: false
-            }
+              multiToSingleFocus: false,
+            },
           ],
           mockData,
-          {}
+          {},
         );
         expect(result).toEqual([{ listB: 1, 'listB[1].innerList': 0 }]);
       });
@@ -165,29 +165,29 @@ describe('getDependentIndexPermutations', () => {
             { type: 'field', name: 'listB' },
             { type: 'array', focus: 'all' },
             { type: 'field', name: 'innerList' },
-            { type: 'array', focus: 'all' }
+            { type: 'array', focus: 'all' },
           ],
           mockData,
           // currentIndices for listB should not affect the output because we have array.all focuses
-          { listB: 0 }
+          { listB: 0 },
         );
         expect(result).toEqual([
           {
             listB: 0,
-            'listB[0].innerList': 0
+            'listB[0].innerList': 0,
           },
           {
             listB: 0,
-            'listB[0].innerList': 1
+            'listB[0].innerList': 1,
           },
           {
             listB: 1,
-            'listB[1].innerList': 0
+            'listB[1].innerList': 0,
           },
           {
             listB: 1,
-            'listB[1].innerList': 1
-          }
+            'listB[1].innerList': 1,
+          },
         ]);
       });
     });

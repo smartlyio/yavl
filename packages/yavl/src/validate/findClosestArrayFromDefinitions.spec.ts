@@ -4,20 +4,16 @@ describe('findClosestArrayFromDefinitions', () => {
   const definitionWithContext: any = {
     type: 'array',
     context: {
-      pathToField: { mock: 'definitionWithContext::pathToField' }
-    }
+      pathToField: { mock: 'definitionWithContext::pathToField' },
+    },
   };
 
   const definitionWithoutContext: any = {
-    type: 'when'
+    type: 'when',
   };
 
   describe('with definition with context in the list', () => {
-    const definitions = [
-      definitionWithoutContext,
-      definitionWithContext,
-      definitionWithoutContext
-    ];
+    const definitions = [definitionWithoutContext, definitionWithContext, definitionWithoutContext];
 
     it('should return the last definition with context in list', () => {
       const result = findClosestArrayFromDefinitions(definitions);

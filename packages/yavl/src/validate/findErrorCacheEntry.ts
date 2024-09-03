@@ -7,7 +7,7 @@ import resolveModelPathStr from './resolveModelPathStr';
 
 export const getOrCreateErrorCacheEntry = <ErrorType>(
   currentCacheEntry: ModelValidationCache<ErrorType>,
-  cacheKey: MutatingErrorCacheKey<ErrorType>
+  cacheKey: MutatingErrorCacheKey<ErrorType>,
 ) => {
   const existingEntry = currentCacheEntry.children.get(cacheKey);
   if (existingEntry !== undefined) {
@@ -28,33 +28,18 @@ const findErrorCacheEntry = <ErrorType>(
   definitions: readonly RecursiveDefinition<ErrorType>[],
   currentIndices: Record<string, number>,
   resolveLastEntryIfArray = true,
-  followInactivePath = true
+  followInactivePath = true,
 ): ModelValidationCache<ErrorType> => {
   const lastItem = R.last(definitions);
-  const cacheEntry = R.reduceWhile<
-    RecursiveDefinition<ErrorType>,
-    ModelValidationCache<ErrorType>
-  >(
-    (currentCache) => currentCache.isPathActive || followInactivePath,
+  const cacheEntry = R.reduceWhile<RecursiveDefinition<ErrorType>, ModelValidationCache<ErrorType>>(
+    currentCache => currentCache.isPathActive || followInactivePath,
     (currentCache, definition) => {
-      const cacheForDefinition = getOrCreateErrorCacheEntry(
-        currentCache,
-        definition
-      );
+      const cacheForDefinition = getOrCreateErrorCacheEntry(currentCache, definition);
 
-      if (
-        definition.type === 'array' &&
-        (resolveLastEntryIfArray || definition !== lastItem)
-      ) {
-        const pathToField = resolveModelPathStr(
-          R.dropLast(1, definition.context.pathToField),
-          currentIndices
-        );
+      if (definition.type === 'array' && (resolveLastEntryIfArray || definition !== lastItem)) {
+        const pathToField = resolveModelPathStr(R.dropLast(1, definition.context.pathToField), currentIndices);
         const index = resolveCurrentIndex(pathToField, currentIndices);
-        const cacheForArrayElem = getOrCreateErrorCacheEntry(
-          cacheForDefinition,
-          index
-        );
+        const cacheForArrayElem = getOrCreateErrorCacheEntry(cacheForDefinition, index);
 
         return cacheForArrayElem;
       } else {
@@ -62,7 +47,7 @@ const findErrorCacheEntry = <ErrorType>(
       }
     },
     validateDiffCache,
-    definitions
+    definitions,
   );
 
   return cacheEntry;

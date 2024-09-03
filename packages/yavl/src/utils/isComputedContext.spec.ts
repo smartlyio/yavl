@@ -6,7 +6,7 @@ describe('isComputedContext', () => {
     const computedContext: ComputedContext<any> = {
       type: 'computed',
       dependencies: {},
-      computeFn: () => {}
+      computeFn: () => {},
     };
 
     expect(isComputedContext(computedContext)).toBe(true);
@@ -16,8 +16,8 @@ describe('isComputedContext', () => {
     expect(
       isComputedContext({
         type: 'internal',
-        pathToField: []
-      })
+        pathToField: [],
+      }),
     ).toBe(false);
   });
 
@@ -25,16 +25,16 @@ describe('isComputedContext', () => {
     expect(
       isComputedContext({
         type: 'external',
-        pathToField: []
-      })
+        pathToField: [],
+      }),
     ).toBe(false);
   });
 
   it('should return false for non-context object', () => {
     expect(
       isComputedContext({
-        type: 'external'
-      })
+        type: 'external',
+      }),
     ).toBe(false);
   });
 });

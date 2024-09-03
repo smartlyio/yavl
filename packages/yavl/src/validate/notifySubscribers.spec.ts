@@ -20,16 +20,14 @@ describe('notifySubscribers', () => {
   const makeTestValidationContext = (
     subscriptions: FieldAnnotationSubscription<any, any>[],
     pendingChangedAnnotations: ChangedAnnotationsCache,
-    inTransaction = false
+    inTransaction = false,
   ) =>
     ({
       subscriptions: {
-        fieldAnnotation: new Map([
-          ['field', new Map([[testAnnotation, new Set(subscriptions)]])]
-        ])
+        fieldAnnotation: new Map([['field', new Map([[testAnnotation, new Set(subscriptions)]])]]),
       },
       pendingChangedAnnotations,
-      transactionCounter: inTransaction ? 1 : 0
+      transactionCounter: inTransaction ? 1 : 0,
     } as ModelValidationContext<any, any, any>);
 
   beforeEach(() => {
@@ -39,7 +37,7 @@ describe('notifySubscribers', () => {
       annotation: testAnnotation,
       previousValue: 'old value',
       defaultValue: 'default value',
-      subscribeFn: subscriberWithOldValue
+      subscribeFn: subscriberWithOldValue,
     };
 
     subscriptionWithNewValue = {
@@ -47,26 +45,24 @@ describe('notifySubscribers', () => {
       annotation: testAnnotation,
       previousValue: 'new value',
       defaultValue: 'default value',
-      subscribeFn: subscriberWithNewValue
+      subscribeFn: subscriberWithNewValue,
     };
 
     jest.mocked(getFieldAnnotations).mockReturnValue({
       [testAnnotation]: 'new value',
-      [anotherAnnotation]: 'new value'
+      [anotherAnnotation]: 'new value',
     });
   });
 
   describe('when there are changed annotations', () => {
     describe('and transaction is active', () => {
       beforeEach(() => {
-        const changedAnnotations = new Map([
-          ['field', new Set([testAnnotation])]
-        ]);
+        const changedAnnotations = new Map([['field', new Set([testAnnotation])]]);
 
         mockValidationContext = makeTestValidationContext(
           [subscriptionWithOldValue, subscriptionWithNewValue],
           changedAnnotations,
-          true
+          true,
         );
 
         notifySubscribers(mockValidationContext);
@@ -85,13 +81,11 @@ describe('notifySubscribers', () => {
     describe('and transaction is not active', () => {
       describe('always', () => {
         it('should clear the pending changed annotations', () => {
-          const changedAnnotations = new Map([
-            ['field', new Set([testAnnotation])]
-          ]);
+          const changedAnnotations = new Map([['field', new Set([testAnnotation])]]);
 
           mockValidationContext = makeTestValidationContext(
             [subscriptionWithOldValue, subscriptionWithNewValue],
-            changedAnnotations
+            changedAnnotations,
           );
 
           expect(mockValidationContext.pendingChangedAnnotations.size).toBe(1);
@@ -103,13 +97,11 @@ describe('notifySubscribers', () => {
       describe('and when path and annotation matches', () => {
         describe('and changed annotation has a value', () => {
           beforeEach(() => {
-            const changedAnnotations = new Map([
-              ['field', new Set([testAnnotation])]
-            ]);
+            const changedAnnotations = new Map([['field', new Set([testAnnotation])]]);
 
             mockValidationContext = makeTestValidationContext(
               [subscriptionWithOldValue, subscriptionWithNewValue],
-              changedAnnotations
+              changedAnnotations,
             );
 
             notifySubscribers(mockValidationContext);
@@ -132,25 +124,17 @@ describe('notifySubscribers', () => {
 
           describe('and subscription has a default value', () => {
             beforeEach(() => {
-              const changedAnnotations = new Map([
-                ['field', new Set([testAnnotation])]
-              ]);
+              const changedAnnotations = new Map([['field', new Set([testAnnotation])]]);
 
-              const subscriptionWithDefaultValue: FieldAnnotationSubscription<
-                any,
-                any
-              > = {
+              const subscriptionWithDefaultValue: FieldAnnotationSubscription<any, any> = {
                 path: 'field',
                 annotation: testAnnotation,
                 previousValue: 'test value',
                 defaultValue: undefined, // test with undefined to make sure we treat is having a default value
-                subscribeFn: subscriberWithNewValue
+                subscribeFn: subscriberWithNewValue,
               };
 
-              mockValidationContext = makeTestValidationContext(
-                [subscriptionWithDefaultValue],
-                changedAnnotations
-              );
+              mockValidationContext = makeTestValidationContext([subscriptionWithDefaultValue], changedAnnotations);
 
               notifySubscribers(mockValidationContext);
             });
@@ -163,30 +147,20 @@ describe('notifySubscribers', () => {
 
           describe('and subscription has no default value', () => {
             it('should throw an error', () => {
-              const subscriptionWithDefaultValue: FieldAnnotationSubscription<
-                any,
-                any
-              > = {
+              const subscriptionWithDefaultValue: FieldAnnotationSubscription<any, any> = {
                 path: 'field',
                 annotation: testAnnotation,
                 previousValue: 'test value',
                 defaultValue: noValue,
-                subscribeFn: subscriberWithNewValue
+                subscribeFn: subscriberWithNewValue,
               };
 
-              const changedAnnotations = new Map([
-                ['field', new Set([testAnnotation])]
-              ]);
+              const changedAnnotations = new Map([['field', new Set([testAnnotation])]]);
 
-              mockValidationContext = makeTestValidationContext(
-                [subscriptionWithDefaultValue],
-                changedAnnotations
-              );
+              mockValidationContext = makeTestValidationContext([subscriptionWithDefaultValue], changedAnnotations);
 
-              expect(() =>
-                notifySubscribers(mockValidationContext)
-              ).toThrowErrorMatchingInlineSnapshot(
-                `"Annotation "test" was removed due to a change in parent condition, and no default value was provided for subscriber"`
+              expect(() => notifySubscribers(mockValidationContext)).toThrowErrorMatchingInlineSnapshot(
+                `"Annotation "test" was removed due to a change in parent condition, and no default value was provided for subscriber"`,
               );
             });
           });
@@ -194,13 +168,11 @@ describe('notifySubscribers', () => {
 
         describe('and when path matches but annotation does not', () => {
           beforeEach(() => {
-            const changedAnnotations = new Map([
-              ['field', new Set([anotherAnnotation])]
-            ]);
+            const changedAnnotations = new Map([['field', new Set([anotherAnnotation])]]);
 
             mockValidationContext = makeTestValidationContext(
               [subscriptionWithOldValue, subscriptionWithNewValue],
-              changedAnnotations
+              changedAnnotations,
             );
 
             notifySubscribers(mockValidationContext);
@@ -214,13 +186,11 @@ describe('notifySubscribers', () => {
 
         describe('and when annotation matches but path does not', () => {
           beforeEach(() => {
-            const changedAnnotations = new Map([
-              ['anotherField', new Set([testAnnotation])]
-            ]);
+            const changedAnnotations = new Map([['anotherField', new Set([testAnnotation])]]);
 
             mockValidationContext = makeTestValidationContext(
               [subscriptionWithOldValue, subscriptionWithNewValue],
-              changedAnnotations
+              changedAnnotations,
             );
 
             notifySubscribers(mockValidationContext);

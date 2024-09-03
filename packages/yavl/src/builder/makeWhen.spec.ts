@@ -10,7 +10,7 @@ describe('when', () => {
 
   const parentContext: ModelContext<any> = {
     type: 'internal',
-    pathToField: [{ type: 'field', name: 'parent' }]
+    pathToField: [{ type: 'field', name: 'parent' }],
   };
 
   let result: any;
@@ -59,10 +59,7 @@ describe('when', () => {
       beforeEach(() => {
         jest.mocked(modelDefinitionFn).mockReturnValue(modelDefinitions);
 
-        result = makeWhen(parentContext, testFn)(
-          modelDefinitionFn,
-          elseModelDefinitionFn
-        );
+        result = makeWhen(parentContext, testFn)(modelDefinitionFn, elseModelDefinitionFn);
       });
 
       it('should call modelDefinitionFn with the correct context', () => {
@@ -124,10 +121,7 @@ describe('when', () => {
       beforeEach(() => {
         jest.mocked(modelDefinitionFn).mockReturnValue(modelDefinitions);
 
-        result = makeWhen(
-          { mock: 'arbitrary data' },
-          testFn
-        )(modelDefinitionFn);
+        result = makeWhen({ mock: 'arbitrary data' }, testFn)(modelDefinitionFn);
       });
 
       it('should return correct field definition', () => {
@@ -155,10 +149,7 @@ describe('when', () => {
       beforeEach(() => {
         jest.mocked(modelDefinitionFn).mockReturnValue(modelDefinitions);
 
-        result = makeWhen({ mock: 'arbitrary data' }, testFn)(
-          modelDefinitionFn,
-          elseModelDefinitionFn
-        );
+        result = makeWhen({ mock: 'arbitrary data' }, testFn)(modelDefinitionFn, elseModelDefinitionFn);
       });
 
       it('should return correct field definition', () => {

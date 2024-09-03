@@ -4,7 +4,7 @@ import createErrorCacheEntry from './createErrorCacheEntry';
 
 const createValidationContext = <FormData, ExternalData, ErrorType>(
   model: Model<FormData, ExternalData, ErrorType>,
-  externalData?: ExternalData
+  externalData?: ExternalData,
 ): ModelValidationContext<FormData, ExternalData, ErrorType> => {
   return {
     model,
@@ -15,10 +15,10 @@ const createValidationContext = <FormData, ExternalData, ErrorType>(
     resolvedValidations: { current: {} },
     subscriptions: {
       fieldAnnotation: new Map(),
-      annotations: new Set()
+      annotations: new Set(),
     },
     pendingChangedAnnotations: new Map(),
-    transactionCounter: 0
+    transactionCounter: 0,
   };
 };
 

@@ -11,7 +11,7 @@ describe('resolveDependencies', () => {
 
   const testContext: AnyModelContext<any> = {
     type: 'internal',
-    pathToField: []
+    pathToField: [],
   };
 
   const computedContext: ComputedContext<any> = {
@@ -19,8 +19,8 @@ describe('resolveDependencies', () => {
     dependencies: { numbers: [1, 2, 3], str: testContext },
     computeFn: ({ numbers, str }: { numbers: number[]; str: string }) => ({
       sum: numbers.reduce((acc, num) => acc + num, 0),
-      str: str.toUpperCase()
-    })
+      str: str.toUpperCase(),
+    }),
   };
 
   const testFn = () => {};
@@ -29,11 +29,11 @@ describe('resolveDependencies', () => {
   let mockProcessingContext: ProcessingContext<any, any, any>;
 
   const previousDataAtStartOfUpdate: any = {
-    mock: 'previousDataAtStartOfUpdate'
+    mock: 'previousDataAtStartOfUpdate',
   };
 
   const previousExternalDataAtStartOfUpdate: any = {
-    mock: 'previousExternalDataAtStartOfUpdate'
+    mock: 'previousExternalDataAtStartOfUpdate',
   };
 
   beforeEach(() => {
@@ -41,17 +41,12 @@ describe('resolveDependencies', () => {
 
     mockProcessingContext = getMockProcessingContext({
       previousDataAtStartOfUpdate,
-      previousExternalDataAtStartOfUpdate
+      previousExternalDataAtStartOfUpdate,
     });
   });
 
   const testResolveDependencies = (value: any) =>
-    resolveDependencies(
-      mockProcessingContext,
-      value,
-      currentIndices,
-      undefined
-    );
+    resolveDependencies(mockProcessingContext, value, currentIndices, undefined);
 
   describe('with no dependencies', () => {
     beforeEach(() => {
@@ -85,7 +80,7 @@ describe('resolveDependencies', () => {
     it('should resolve the dependencies with previous data', () => {
       const previousContext: PreviousContext<any> = {
         type: 'previous',
-        dependencies: testContext
+        dependencies: testContext,
       };
       const result = testResolveDependencies(previousContext);
       expect(resolveDependency).toHaveBeenCalledTimes(1);
@@ -93,12 +88,12 @@ describe('resolveDependencies', () => {
         {
           ...mockProcessingContext,
           data: previousDataAtStartOfUpdate,
-          externalData: previousExternalDataAtStartOfUpdate
+          externalData: previousExternalDataAtStartOfUpdate,
         },
         testContext.type,
         testContext.pathToField,
         currentIndices,
-        undefined
+        undefined,
       );
       expect(result).toEqual('resolved');
     });
@@ -108,22 +103,22 @@ describe('resolveDependencies', () => {
     it('should resolve dependencies inside the object', () => {
       const result = testResolveDependencies({
         depA: testContext,
-        depB: computedContext
+        depB: computedContext,
       });
       expect(result).toEqual({
         depA: 'resolved',
-        depB: { sum: 6, str: 'RESOLVED' }
+        depB: { sum: 6, str: 'RESOLVED' },
       });
     });
 
     it('should resolve non-dependencies as they are', () => {
       const result = testResolveDependencies({
         depA: testContext,
-        depB: 'plain value'
+        depB: 'plain value',
       });
       expect(result).toEqual({
         depA: 'resolved',
-        depB: 'plain value'
+        depB: 'plain value',
       });
     });
   });
@@ -153,20 +148,17 @@ describe('resolveDependencies', () => {
         depA: {
           innerDepA: testContext,
           list: [{ value: 'plain value' }, { value: computedContext }],
-          fn: testFn
+          fn: testFn,
         },
-        depB: 'plain value'
+        depB: 'plain value',
       });
       expect(result).toEqual({
         depA: {
           innerDepA: 'resolved',
-          list: [
-            { value: 'plain value' },
-            { value: { sum: 6, str: 'RESOLVED' } }
-          ],
-          fn: testFn
+          list: [{ value: 'plain value' }, { value: { sum: 6, str: 'RESOLVED' } }],
+          fn: testFn,
         },
-        depB: 'plain value'
+        depB: 'plain value',
       });
     });
   });

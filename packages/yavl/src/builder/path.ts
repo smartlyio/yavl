@@ -1,12 +1,10 @@
-import {
-  AnyExtensibleSingleModelContext,
-  SameNonExtensibleModelContextOfType
-} from '../types';
+import { AnyExtensibleSingleModelContext, SameNonExtensibleModelContextOfType } from '../types';
 
 export interface PathFn {
-  <Context extends AnyExtensibleSingleModelContext<any>>(
-    context: Context
-  ): SameNonExtensibleModelContextOfType<Context, string>;
+  <Context extends AnyExtensibleSingleModelContext<any>>(context: Context): SameNonExtensibleModelContextOfType<
+    Context,
+    string
+  >;
 }
 
 // TODO: update signature to support dealing with array contexts,
@@ -18,7 +16,7 @@ const path: PathFn = (context: AnyExtensibleSingleModelContext<any>): any => {
     // the index can never change, so we can treat this as a passive dep
     isPassive: true,
     // disables from using this with dependency() etc.
-    nonExtensible: true
+    nonExtensible: true,
   };
 };
 
