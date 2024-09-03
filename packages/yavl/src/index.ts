@@ -17,9 +17,9 @@ export { getModelData } from './validate/getModelData';
 export { getExternalData } from './validate/getExternalData';
 export { transaction } from './transaction';
 export { getAnnotationValue } from './getAnnotationValue';
+export { subscribeToAnnotations } from './subscribeToAnnotations';
 export { default as isModelContext } from './utils/isModelContext';
-
-export * from './hooks';
+export { noValue } from './types';
 
 export type WhenFn<If = never, Else = never, ErrorType = string> = (
   ifFn: [If] extends [never] ? ModelDefinitionFnWithNoArg<ErrorType> : ModelDefinitionFn<If, ErrorType>,
@@ -47,8 +47,11 @@ export type {
   ContextType,
   SameContextOfType,
   AnnotationData,
+  AnnotationsSubscriptionFilters,
+  AnnotationsSubscriptionValue,
+  NoValue,
 } from './types';
-export type { ModelValidationContext, ModelValidationErrors } from './validate/types';
+export type { ModelValidationContext, ModelValidationErrors, CompareFn } from './validate/types';
 export type { FieldFn } from './builder/field';
 export type { ArrayFn } from './builder/array';
 export type { RequiredFn } from './builder/required';
