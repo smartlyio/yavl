@@ -1,6 +1,6 @@
 {
   "name": "@smartlyio/yavl-hooks",
-  "version": "6.0.8",
+  "version": "7.0.0",
   "license": "MIT",
   "description": "Collection of React hooks for YAVL",
   "author": "Smartly.io",
@@ -19,7 +19,7 @@
     "typescript": ">=4 <6"
   },
   "dependencies": {
-    "@smartlyio/yavl": "^6.0.8"
+    "@smartlyio/yavl": "^7.0.0"
   },
   "keywords": [
     "typescript",
