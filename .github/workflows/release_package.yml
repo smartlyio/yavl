@@ -39,7 +39,7 @@ jobs:
 
       # Publish version to public repository
       - name: Publish
-        run: lerna publish ${{ github.event.inputs.release-type }} --include-private --force-publish --loglevel verbose --yes
+        run: lerna publish ${{ github.event.inputs.release-type }} --loglevel verbose --yes
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPMJS_ACCESS_TOKEN }}
 
