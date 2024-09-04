@@ -15,6 +15,9 @@
     "url": "https://github.com/smartlyio/yavl.git",
     "directory": "packages/yavl"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "peerDependencies": {
     "typescript": ">=4 <6"
   },
