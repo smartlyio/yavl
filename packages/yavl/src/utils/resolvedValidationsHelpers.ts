@@ -17,10 +17,11 @@ export const updateResolvedValidationErrors = <ErrorType>(
   field: string,
   errors: ErrorType[] | undefined,
 ): void => {
+  resolvedValidations.current = { ...resolvedValidations.current };
   if (errors !== undefined) {
-    resolvedValidations.current = R.assoc(field, R.uniq(errors), resolvedValidations.current);
+    resolvedValidations.current[field] = R.uniq(errors);
   } else {
     // delete errors from field
-    resolvedValidations.current = R.dissoc(field, resolvedValidations.current);
+    delete resolvedValidations.current[field];
   }
 };
