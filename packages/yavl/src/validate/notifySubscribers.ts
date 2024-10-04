@@ -61,16 +61,18 @@ const getNextValueForAnnotationsSubscription = (
   value: unknown,
 ): AnnotationsSubscriptionValue => {
   if (value === noValue) {
-    const nextValue = R.dissocPath<AnnotationsSubscriptionValue>([path, annotation], subscription.previousValue);
+    const nextValue = { ...subscription.previousValue };
+    const keys = Object.keys(nextValue[path]);
 
-    if (R.isEmpty(R.path([path], nextValue))) {
-      return R.dissocPath([path], subscription.previousValue);
+    if ((keys.length === 1 && keys[0] === annotation) || keys.length === 0) {
+      delete nextValue[path];
+      return nextValue;
     }
 
     return nextValue;
   }
 
-  return R.assocPath([path, annotation], value, subscription.previousValue);
+  return { ...subscription.previousValue, [path]: { ...subscription.previousValue[path], [annotation]: value } };
 };
 
 const updateAndNotifyAnnotationSubscribers = (
