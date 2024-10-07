@@ -62,9 +62,9 @@ const getNextValueForAnnotationsSubscription = (
 ): AnnotationsSubscriptionValue => {
   if (value === noValue) {
     const nextValue = { ...subscription.previousValue };
-    const keys = Object.keys(nextValue[path]);
+    const keys = nextValue[path] == null ? null : Object.keys(nextValue[path]);
 
-    if ((keys.length === 1 && keys[0] === annotation) || keys.length === 0) {
+    if ((keys == null || keys.length === 1 && keys[0] === annotation) || keys.length === 0) {
       delete nextValue[path];
       return nextValue;
     }
