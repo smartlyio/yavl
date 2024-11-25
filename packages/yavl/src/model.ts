@@ -73,7 +73,7 @@ export type ModelOptions = {
   testRequiredFn: (value: any) => boolean;
 };
 
-export const defaultTestRequiredFn = (value: any) => !R.isNil(value) && !R.isEmpty(value);
+export const defaultTestRequiredFn = (value: any) => value != null && !R.isEmpty(value);
 
 export interface ModelFn {
   <FormData, ExternalData = undefined, ErrorType = string>(
