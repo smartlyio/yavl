@@ -5,6 +5,7 @@ import { getResolvedAnnotation } from '../utils/resolvedAnnotationsHelpers';
 import { assertUnreachable } from '../utils/typeUtils';
 import resolveDependencies from './resolveDependencies';
 import { MutatingFieldProcessingCacheEntry, ProcessingContext } from './types';
+import { pick } from '../utils/pick';
 
 type DependencyReducerContext = {
   data: any;
@@ -241,7 +242,7 @@ const resolveDependency = <Data, ExternalData, ErrorType>(
          * If we are dealing with an array, we want to pick the keys
          * from every array element, otherwise pick from the object
          */
-        const narrowFn = Array.isArray(data) ? R.project(pathPart.keys) : R.pick(pathPart.keys);
+        const narrowFn = Array.isArray(data) ? R.project(pathPart.keys) : pick.bind(null, pathPart.keys);
 
         return {
           ...acc,
@@ -253,7 +254,7 @@ const resolveDependency = <Data, ExternalData, ErrorType>(
         }
 
         const filteredDataWithIndices = data.flatMap((value, index) => {
-          const pickedKeys = R.pick(pathPart.keys, value);
+          const pickedKeys = pick(pathPart.keys, value);
           let isFiltered: boolean;
 
           if ('dependencies' in pathPart) {

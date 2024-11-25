@@ -1,4 +1,3 @@
-import * as R from 'ramda';
 import {
   AnyArrayModelContext,
   ContextType,
@@ -16,6 +15,7 @@ import compute from './compute';
 import isComputedContext from '../utils/isComputedContext';
 import { ExtractDependencies } from './dependency';
 import isAnyArrayModelContext from '../utils/isAnyArrayModelContext';
+import { pick } from '../utils/pick';
 
 /**
  * TODO:
@@ -91,7 +91,7 @@ const filter: FilterBuilderFn = (
       },
       ({ array, deps }) =>
         array.filter((value, index) =>
-          hasDependencies ? filterFn(R.pick(keys, value), deps, index) : filterFn(R.pick(keys, value), index),
+          hasDependencies ? filterFn(pick(keys, value), deps, index) : filterFn(pick(keys, value), index),
         ),
     );
   }
