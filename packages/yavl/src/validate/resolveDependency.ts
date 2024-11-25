@@ -32,7 +32,7 @@ const resolveDependency = <Data, ExternalData, ErrorType>(
         if (isFocusedOnSinglePath) {
           return {
             ...acc,
-            data: R.prop(pathPart.name, data),
+            data: data?.[pathPart.name],
             paths: paths.map(path => path.concat(pathPart.name)),
           };
         } else {
@@ -78,7 +78,7 @@ const resolveDependency = <Data, ExternalData, ErrorType>(
           if (isSingleFocus) {
             return {
               ...acc,
-              data: R.prop(pathPart.index, data),
+              data: data?.[pathPart.index],
               paths: indexedPaths,
               isFocusedOnSinglePath: true,
             };
@@ -128,7 +128,7 @@ const resolveDependency = <Data, ExternalData, ErrorType>(
 
           return {
             ...acc,
-            data: isFocusedOnSinglePath ? R.prop(currentIndex, data) : R.pluck(currentIndex, data as any[]),
+            data: isFocusedOnSinglePath ? data?.[currentIndex] : R.pluck(currentIndex, data as any[]),
             paths: paths.map(path => path.concat(currentIndex)),
           };
         } else {
