@@ -1,4 +1,3 @@
-import * as R from 'ramda';
 import {
   Annotation,
   AnnotationsSubscription,
@@ -8,6 +7,8 @@ import {
   UnsubscribeFn,
 } from './types';
 import { ModelValidationContext } from './validate/types';
+import { isEmpty } from './utils/isEmpty';
+import { pick } from './utils/pick';
 
 interface SubscribeToAnnotations {
   // subscribes to all annotations
@@ -34,9 +35,9 @@ const getInitialValue = (
         return acc;
       }
 
-      const filteredAnnotationData = annotations ? R.pick(annotations, annotationData) : annotationData;
+      const filteredAnnotationData = annotations ? pick(annotations, annotationData) : annotationData;
 
-      if (R.isEmpty(filteredAnnotationData)) {
+      if (isEmpty(filteredAnnotationData)) {
         return acc;
       }
 

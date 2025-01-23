@@ -1,4 +1,3 @@
-import * as R from 'ramda';
 import as, { AsFn } from './builder/as';
 import nthFocus, { NthFocusFn } from './builder/nthFocus';
 import field, { FieldFn } from './builder/field';
@@ -30,6 +29,7 @@ import log, { LogFn } from './builder/log';
 import { getFieldsWithDependencies } from './getFieldsWithDependencies';
 import { PassiveFn, passive } from './builder/passive';
 import { PreviousBuilderFn, previous } from './builder/previous';
+import { isEmpty } from './utils/isEmpty';
 
 export type ModelBuilder<FormData, ExternalData = undefined, ErrorType = string> = {
   as: AsFn;
@@ -73,7 +73,7 @@ export type ModelOptions = {
   testRequiredFn: (value: any) => boolean;
 };
 
-export const defaultTestRequiredFn = (value: any) => !R.isNil(value) && !R.isEmpty(value);
+export const defaultTestRequiredFn = (value: any) => value != null && !isEmpty(value);
 
 export interface ModelFn {
   <FormData, ExternalData = undefined, ErrorType = string>(

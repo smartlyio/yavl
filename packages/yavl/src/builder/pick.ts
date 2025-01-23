@@ -1,8 +1,8 @@
-import * as R from 'ramda';
 import { AnyContext, ContextType, KeysOfUnion, SameContextOfType } from '../types';
 import compute from './compute';
 import isComputedContext from '../utils/isComputedContext';
 import { isPreviousContext } from '../utils/isPreviousContext';
+import { pick as utilPick } from '../utils/pick';
 
 export interface PickBuilderFn {
   <
@@ -21,7 +21,7 @@ export interface PickBuilderFn {
 const pick: PickBuilderFn = (context: AnyContext<any>, keys: readonly string[]): any => {
   if (isComputedContext(context) || isPreviousContext(context)) {
     // we can't use dependsOn on for computed data, we must depend on the whole computed data
-    return compute(context, R.pick(keys));
+    return compute(context, utilPick.bind(null, keys));
   } else {
     return {
       ...context,
