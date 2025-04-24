@@ -1,6 +1,7 @@
 import * as R from 'ramda';
 
-const getIndicesFromStrPath = (path: string): Record<string, number> => {
+// Original implementation
+export const getIndicesFromStrPath_original = (path: string): Record<string, number> => {
   const indices: Record<string, number> = {};
   let searchFrom = 0;
 
@@ -24,4 +25,41 @@ const getIndicesFromStrPath = (path: string): Record<string, number> => {
   return indices;
 };
 
-export default getIndicesFromStrPath;
+// Optimized implementation
+export const getIndicesFromStrPath_optimized = (path: string): Record<string, number> => {
+  const indices: Record<string, number> = {};
+  let currentPath = '';
+  let inBracket = false;
+  let bracketContent = '';
+
+  for (let i = 0; i < path.length; i++) {
+    const char = path[i];
+
+    if (char === '[' && !inBracket) {
+      inBracket = true;
+      bracketContent = '';
+    } else if (char === ']' && inBracket) {
+      // Only store numeric indices, skip property access
+      const num = parseInt(bracketContent, 10);
+      if (!Number.isNaN(num)) {
+        indices[currentPath] = num;
+      }
+      inBracket = false;
+      // Add the array access to the current path
+      currentPath += `[${bracketContent}]`;
+    } else if (inBracket) {
+      bracketContent += char;
+    } else {
+      currentPath += char;
+    }
+  }
+
+  if (inBracket) {
+    throw new Error('Invalid path, unmatched bracket');
+  }
+
+  return indices;
+};
+
+// Export the optimized version as default
+export default getIndicesFromStrPath_optimized;
