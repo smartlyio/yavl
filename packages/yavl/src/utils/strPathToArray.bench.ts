@@ -9,6 +9,7 @@ const testCases = [
   'array[0].nested[1].path',
   'deeply.nested.path.with.many.segments',
   'mixed[0].path[1].with[2].arrays[3]',
+  'a[0].b[1].c[2].d.e[3]',
   'single',
   'array[123456789]',
   'a.b.c.d.e.f.g.h.i.j.k.l.m.n.o.p.q.r.s.t.u.v.w.x.y.z',

@@ -6,16 +6,16 @@ export const strPathToArray_stack = (path: string): Array<string | number> => {
     return [];
   }
 
+  const pathLength = path.length;
   const result: Array<string | number> = [];
   let currentPart = '';
   let inBracket = false;
 
-  for (let i = 0; i < path.length; i++) {
+  for (let i = 0; i < pathLength; i++) {
     const char = path[i];
 
     if (char === '.' && !inBracket) {
       if (currentPart) {
-        // Convert to number if it's a numeric string
         result.push(isNumber(currentPart) ? Number(currentPart) : currentPart);
         currentPart = '';
       }
