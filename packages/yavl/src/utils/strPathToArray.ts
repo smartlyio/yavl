@@ -1,6 +1,10 @@
 const NUMBER_REGEX = /^\d+$/;
 const isNumber = (value: string): boolean => NUMBER_REGEX.test(value);
 
+const OPENING_BRACKET = '[';
+const CLOSING_BRACKET = ']';
+const DOT = '.';
+
 export const strPathToArray_stack = (path: string): Array<string | number> => {
   if (!path) {
     return [];
@@ -14,18 +18,18 @@ export const strPathToArray_stack = (path: string): Array<string | number> => {
   for (let i = 0; i < pathLength; i++) {
     const char = path[i];
 
-    if (char === '.' && !inBracket) {
+    if (char === DOT && !inBracket) {
       if (currentPart) {
         result.push(isNumber(currentPart) ? Number(currentPart) : currentPart);
         currentPart = '';
       }
-    } else if (char === '[') {
+    } else if (char === OPENING_BRACKET) {
       if (currentPart) {
         result.push(currentPart);
         currentPart = '';
       }
       inBracket = true;
-    } else if (char === ']' && inBracket) {
+    } else if (char === CLOSING_BRACKET && inBracket) {
       if (currentPart && isNumber(currentPart)) {
         result.push(Number(currentPart));
       } else if (currentPart) {
