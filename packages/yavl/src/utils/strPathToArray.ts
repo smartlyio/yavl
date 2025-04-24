@@ -5,7 +5,7 @@ const OPENING_BRACKET = '[';
 const CLOSING_BRACKET = ']';
 const DOT = '.';
 
-export const strPathToArray_stack = (path: string): Array<string | number> => {
+export const strPathToArray = (path: string): Array<string | number> => {
   if (!path) {
     return [];
   }
@@ -49,9 +49,3 @@ export const strPathToArray_stack = (path: string): Array<string | number> => {
 
   return result;
 };
-
-const integerStringsToNumber = (arr: string[]): Array<string | number> =>
-  arr.map(it => (isNumber(it) ? Number(it) : it));
-
-export const strPathToArray = (path: string): Array<string | number> =>
-  integerStringsToNumber(path.split(/\.|\[(\d+)\]/).filter(Boolean));
