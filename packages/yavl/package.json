@@ -8,7 +8,8 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "yarn clean && yarn tsc -p tsconfig.dist.json",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "ts-node": "ts-node"
   },
   "repository": {
     "type": "git",
