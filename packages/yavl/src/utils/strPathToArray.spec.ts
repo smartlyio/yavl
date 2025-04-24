@@ -1,23 +1,23 @@
-import { strPathToArray } from './strPathToArray';
+import { strPathToArray, strPathToArray_stack } from './strPathToArray';
 
-describe('strPathToArray', () => {
+describe.each([strPathToArray, strPathToArray_stack])('%p', fn => {
   it('should support dot syntax', () => {
     const stringPath = 'a.b.c';
-    const result = strPathToArray(stringPath);
+    const result = fn(stringPath);
 
     expect(result).toEqual(['a', 'b', 'c']);
   });
 
   it('should support array syntax', () => {
     const stringPath = '[0][1]';
-    const result = strPathToArray(stringPath);
+    const result = fn(stringPath);
 
     expect(result).toEqual([0, 1]);
   });
 
   it('should support array and dot syntax together', () => {
     const stringPath = 'a[0].b.c[1]';
-    const result = strPathToArray(stringPath);
+    const result = fn(stringPath);
 
     expect(result).toEqual(['a', 0, 'b', 'c', 1]);
   });
