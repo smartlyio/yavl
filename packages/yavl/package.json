@@ -24,6 +24,9 @@
   "dependencies": {
     "ramda": "^0.28.0"
   },
+  "devDependencies": {
+    "ts-node": "^10.9.2"
+  },
   "keywords": [
     "typescript",
     "server",

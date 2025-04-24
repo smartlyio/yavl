@@ -21,4 +21,18 @@ describe('strPathToArray', () => {
 
     expect(result).toEqual(['a', 0, 'b', 'c', 1]);
   });
+
+  it('should support nested arrays', () => {
+    const stringPath = 'a[0].b[1].c[2]';
+    const result = strPathToArray(stringPath);
+
+    expect(result).toEqual(['a', 0, 'b', 1, 'c', 2]);
+  });
+
+  it('should support nested arrays with dot syntax', () => {
+    const stringPath = 'a[0].b[1].c[2].d.e[3]';
+    const result = strPathToArray(stringPath);
+
+    expect(result).toEqual(['a', 0, 'b', 1, 'c', 2, 'd', 'e', 3]);
+  });
 });
