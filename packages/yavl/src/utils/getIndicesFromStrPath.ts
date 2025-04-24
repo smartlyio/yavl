@@ -1,6 +1,5 @@
 import * as R from 'ramda';
 
-// Original implementation
 export const getIndicesFromStrPath_original = (path: string): Record<string, number> => {
   const indices: Record<string, number> = {};
   let searchFrom = 0;
@@ -25,7 +24,6 @@ export const getIndicesFromStrPath_original = (path: string): Record<string, num
   return indices;
 };
 
-// Optimized implementation
 export const getIndicesFromStrPath_optimized = (path: string): Record<string, number> => {
   const indices: Record<string, number> = {};
   let currentPath = '';
@@ -55,11 +53,10 @@ export const getIndicesFromStrPath_optimized = (path: string): Record<string, nu
   }
 
   if (inBracket) {
-    throw new Error('Invalid path, unmatched bracket');
+    throw new Error('Invalid path, array not in correct format');
   }
 
   return indices;
 };
 
-// Export the optimized version as default
 export default getIndicesFromStrPath_optimized;
