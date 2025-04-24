@@ -1,30 +1,4 @@
-import * as R from 'ramda';
-
-export const getIndicesFromStrPath_original = (path: string): Record<string, number> => {
-  const indices: Record<string, number> = {};
-  let searchFrom = 0;
-
-  while (true) {
-    const searchIndex = path.indexOf('[', searchFrom);
-    if (searchIndex === -1) {
-      break;
-    }
-
-    const [pathToArray, restOfThePath] = R.splitAt(searchIndex, path);
-    const match = restOfThePath.match(/^\[(\d+)\]/);
-
-    if (!match) {
-      throw new Error('Invalid path, array not in correct format');
-    }
-
-    indices[pathToArray] = parseInt(match[1]);
-    searchFrom = searchIndex + 1;
-  }
-
-  return indices;
-};
-
-export const getIndicesFromStrPath_optimized = (path: string): Record<string, number> => {
+export const getIndicesFromStrPath = (path: string): Record<string, number> => {
   const indices: Record<string, number> = {};
   let currentPath = '';
   let inBracket = false;
@@ -58,5 +32,3 @@ export const getIndicesFromStrPath_optimized = (path: string): Record<string, nu
 
   return indices;
 };
-
-export default getIndicesFromStrPath_optimized;
