@@ -1,6 +1,6 @@
 {
   "name": "@smartlyio/yavl",
-  "version": "7.1.0",
+  "version": "7.1.1",
   "license": "MIT",
   "description": "Declarative and type-safe model & validation library",
   "author": "Smartly.io",
