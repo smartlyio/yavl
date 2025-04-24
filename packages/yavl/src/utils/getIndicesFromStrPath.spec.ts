@@ -1,4 +1,4 @@
-import { getIndicesFromStrPath } from './getIndicesFromStrPath';
+import getIndicesFromStrPath from './getIndicesFromStrPath';
 
 describe('getIndicesFromStrPath', () => {
   it('should return correct indices for path', () => {

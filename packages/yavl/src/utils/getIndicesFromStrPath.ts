@@ -1,4 +1,4 @@
-export const getIndicesFromStrPath = (path: string): Record<string, number> => {
+const getIndicesFromStrPath = (path: string): Record<string, number> => {
   const indices: Record<string, number> = {};
   let currentPath = '';
   let inBracket = false;
@@ -32,3 +32,5 @@ export const getIndicesFromStrPath = (path: string): Record<string, number> => {
 
   return indices;
 };
+
+export default getIndicesFromStrPath;
