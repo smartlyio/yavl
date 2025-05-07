@@ -28,24 +28,22 @@ interface SubscribeToAnnotations {
 const getInitialValue = (
   context: ModelValidationContext<any, any, any>,
   { pathPrefix, annotations }: AnnotationsSubscriptionFilters,
-): AnnotationsSubscriptionValue => {
-  return Object.entries(context.resolvedAnnotations.current).reduce(
-    (acc: AnnotationsSubscriptionValue, [path, annotationData]) => {
+): AnnotationsSubscriptionValue =>
+  Object.fromEntries(
+    Object.entries(context.resolvedAnnotations.current).flatMap(([path, annotationData]) => {
       if (pathPrefix !== undefined && !path.startsWith(pathPrefix)) {
-        return acc;
+        return [];
       }
 
       const filteredAnnotationData = annotations ? pick(annotations, annotationData) : annotationData;
 
       if (isEmpty(filteredAnnotationData)) {
-        return acc;
+        return [];
       }
 
-      return { ...acc, [path]: filteredAnnotationData };
-    },
-    {},
+      return [[path, filteredAnnotationData]];
+    }),
   );
-};
 
 export const subscribeToAnnotations: SubscribeToAnnotations = (
   context: ModelValidationContext<any, any, any>,
