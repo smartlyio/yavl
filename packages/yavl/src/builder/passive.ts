@@ -22,13 +22,7 @@ export const passive = <T>(dependencies: T): T => {
     return dependencies.map(dependency => passive(dependency)) as T;
   }
   if (typeof dependencies === 'object' && dependencies !== null) {
-    return Object.entries(dependencies).reduce(
-      (acc, [key, value]) => ({
-        ...acc,
-        [key]: passive(value),
-      }),
-      {} as T,
-    );
+    return Object.fromEntries(Object.entries(dependencies).map(([key, value]) => [key, passive(value)])) as T;
   }
   return dependencies;
 };
