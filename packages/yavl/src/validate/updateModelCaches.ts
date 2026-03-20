@@ -1,4 +1,3 @@
-import * as R from 'ramda';
 import { Annotation, RecursiveDefinition } from '../types';
 import { ModelValidationCache, NewDefinition, ProcessingContext } from './types';
 import resolveDependency from './resolveDependency';
@@ -77,7 +76,7 @@ export const updateModelCaches = <Data, ExternalData, ErrorType>(
   collectNewDefinitions: boolean,
   newDefinitions: NewDefinition<ErrorType>[] = [],
 ): void => {
-  const currentDefinition = R.last(pathToCurrentDefinition)!;
+  const currentDefinition = pathToCurrentDefinition[pathToCurrentDefinition.length - 1]!;
 
   currentDefinition.children.forEach(childDefinition => {
     // We always need to recurse for conditions, because they might have nested array definitions.
@@ -100,7 +99,7 @@ export const updateModelCaches = <Data, ExternalData, ErrorType>(
     // for incremental updates.
     if (childDefinition.type === 'array') {
       const parentPath = childDefinition.context.pathToField.slice(0, -1);
-      const pathToArrayStr = resolveModelPathStr(R.dropLast(1, childDefinition.context.pathToField), currentIndices);
+      const pathToArrayStr = resolveModelPathStr(parentPath, currentIndices);
       const runCacheForField = getProcessingCacheForField(processingContext.fieldProcessingCache, pathToArrayStr);
 
       const newParentArray: any[] | undefined = resolveDependency(

@@ -1,4 +1,3 @@
-import * as R from 'ramda';
 import { Annotation, noValue } from '../types';
 import getIndicesFromStrPath from '../utils/getIndicesFromStrPath';
 import checkParentConditions from './checkParentConditions';
@@ -54,13 +53,12 @@ export const getFieldResolvedAnnotation = (
      * as that is considered to be the active one.
      */
 
-    const indexPermutation = R.last(
-      getDependentIndexPermutations(
-        findClosestArrayFromDefinitions(parentDefinitions),
-        processingContext.data,
-        indices,
-      ),
+    const permutations = getDependentIndexPermutations(
+      findClosestArrayFromDefinitions(parentDefinitions),
+      processingContext.data,
+      indices,
     );
+    const indexPermutation = permutations[permutations.length - 1];
 
     if (!indexPermutation) {
       throw new Error('Missing indexPermutation, should never happen');

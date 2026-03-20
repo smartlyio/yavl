@@ -1,4 +1,3 @@
-import * as R from 'ramda';
 import { ProcessingContext } from './types';
 import { ValidateDefinition, RecursiveDefinition } from '../types';
 import resolveDependencies from './resolveDependencies';
@@ -38,22 +37,20 @@ const processValidation = <Data, ExternalData, ErrorType>(
     validation.dependencies &&
     resolveDependencies(processingContext, validation.dependencies, currentIndices, runCacheForField);
 
-  const errors = R.unnest(
-    rejectUndefinedValues(
-      validation.validators.map(validator => {
-        const errorOrErrors = validation.dependencies
-          ? validator(resolvedValue, resolvedDependencies, data, externalData)
-          : validator(resolvedValue, data, externalData);
-        if (Array.isArray(errorOrErrors)) {
-          return errorOrErrors;
-        } else if (errorOrErrors !== undefined) {
-          return [errorOrErrors];
-        } else {
-          return undefined;
-        }
-      }),
-    ),
-  );
+  const errors = rejectUndefinedValues(
+    validation.validators.map(validator => {
+      const errorOrErrors = validation.dependencies
+        ? validator(resolvedValue, resolvedDependencies, data, externalData)
+        : validator(resolvedValue, data, externalData);
+      if (Array.isArray(errorOrErrors)) {
+        return errorOrErrors;
+      } else if (errorOrErrors !== undefined) {
+        return [errorOrErrors];
+      } else {
+        return undefined;
+      }
+    }),
+  ).flat();
 
   const cacheEntry = findErrorCacheEntry(validateDiffCache, parentDefinitions, currentIndices);
 

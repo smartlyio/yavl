@@ -1,5 +1,5 @@
-import * as R from 'ramda';
 import { AnnotateDefinition, RecursiveDefinition, noValue } from '../types';
+import { deepEqual } from '../utils/deepEqual';
 import checkParentConditions from './checkParentConditions';
 import findErrorCacheEntry from './findErrorCacheEntry';
 import getProcessingCacheForField from './getProcessingCacheForField';
@@ -75,7 +75,7 @@ const processAnnotation = <Data, ExternalData, ErrorType>(
   const cacheForAnnoation = fieldAnnotationCache.get(annotateDefinition);
   const hasPreviousValue = cacheForAnnoation && annotateDefinition.annotation in cacheForAnnoation;
   const previousValue = hasPreviousValue ? cacheForAnnoation[annotateDefinition.annotation] : noValue;
-  const hasAnnotationChanged = !R.equals(resolvedValue, previousValue);
+  const hasAnnotationChanged = !deepEqual(resolvedValue, previousValue);
 
   // Only update the annotation cache if the value has changed, stops infinite recursion
   // when the annotation value is an object, but the data does not actually change

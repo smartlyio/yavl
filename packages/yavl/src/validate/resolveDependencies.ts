@@ -1,4 +1,3 @@
-import * as R from 'ramda';
 import resolveDependency from './resolveDependency';
 import isAnyModelContext from '../utils/isAnyModelContext';
 import isComputedContext from '../utils/isComputedContext';
@@ -57,10 +56,12 @@ const resolveDependencies = <Data, ExternalData, ErrorType>(
     return dependencies.map(dependency =>
       resolveDependencies(processingContext, dependency, currentIndices, runCacheForField),
     );
-  } else if (R.is(Object, dependencies) && typeof dependencies !== 'function') {
-    return R.mapObjIndexed(
-      dependency => resolveDependencies(processingContext, dependency, currentIndices, runCacheForField),
-      dependencies,
+  } else if (typeof dependencies === 'object' && dependencies !== null && typeof dependencies !== 'function') {
+    return Object.fromEntries(
+      Object.entries(dependencies).map(([key, dependency]) => [
+        key,
+        resolveDependencies(processingContext, dependency, currentIndices, runCacheForField),
+      ]),
     );
   } else {
     return dependencies;

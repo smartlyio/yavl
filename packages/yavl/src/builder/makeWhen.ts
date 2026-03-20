@@ -1,4 +1,3 @@
-import * as R from 'ramda';
 import { WhenDefinitionInput, ModelDefinitionFn, ModelDefinitionFnWithNoArg, WhenTestFn } from '../types';
 import { ExtractDependencies } from './dependency';
 import { IsTypeNarrowed, WhenModelDefinitionFn } from './types';
@@ -43,7 +42,8 @@ const makeWhen: MakeWhenFn<any, any, any> = (data: any, testFn: WhenTestFn<any, 
       const elseDefinition: WhenDefinitionInput<any> = {
         type: 'when',
         dependencies: data,
-        testFn: R.complement(testFn),
+        testFn: ((...args: any[]) =>
+          !(testFn as (...a: any[]) => boolean)(...(args as [any, any?, any?]))) as WhenTestFn<any, any, any, any>,
         children: [elseDefinitions],
       };
 

@@ -1,9 +1,9 @@
-import * as R from 'ramda';
 import { AnyModelContext } from '../types';
 
 const isAnyModelContext = (data: any): data is AnyModelContext<any> => {
   return (
-    R.is(Object, data) &&
+    typeof data === 'object' &&
+    data !== null &&
     'type' in data &&
     ['internal', 'external'].includes(data.type) &&
     'pathToField' in data &&

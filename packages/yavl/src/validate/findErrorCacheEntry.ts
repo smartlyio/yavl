@@ -1,4 +1,3 @@
-import * as R from 'ramda';
 import { ModelValidationCache, MutatingErrorCacheKey } from './types';
 import createErrorCacheEntry from './createErrorCacheEntry';
 import { RecursiveDefinition } from '../types';
@@ -30,25 +29,21 @@ const findErrorCacheEntry = <ErrorType>(
   resolveLastEntryIfArray = true,
   followInactivePath = true,
 ): ModelValidationCache<ErrorType> => {
-  const lastItem = R.last(definitions);
-  const cacheEntry = R.reduceWhile<RecursiveDefinition<ErrorType>, ModelValidationCache<ErrorType>>(
-    currentCache => currentCache.isPathActive || followInactivePath,
-    (currentCache, definition) => {
-      const cacheForDefinition = getOrCreateErrorCacheEntry(currentCache, definition);
-
-      if (definition.type === 'array' && (resolveLastEntryIfArray || definition !== lastItem)) {
-        const pathToField = resolveModelPathStr(R.dropLast(1, definition.context.pathToField), currentIndices);
-        const index = resolveCurrentIndex(pathToField, currentIndices);
-        const cacheForArrayElem = getOrCreateErrorCacheEntry(cacheForDefinition, index);
-
-        return cacheForArrayElem;
-      } else {
-        return cacheForDefinition;
-      }
-    },
-    validateDiffCache,
-    definitions,
-  );
+  const lastItem = definitions[definitions.length - 1];
+  let cacheEntry = validateDiffCache;
+  for (const definition of definitions) {
+    if (!(cacheEntry.isPathActive || followInactivePath)) {
+      break;
+    }
+    const cacheForDefinition = getOrCreateErrorCacheEntry(cacheEntry, definition);
+    if (definition.type === 'array' && (resolveLastEntryIfArray || definition !== lastItem)) {
+      const pathToField = resolveModelPathStr(definition.context.pathToField.slice(0, -1), currentIndices);
+      const index = resolveCurrentIndex(pathToField, currentIndices);
+      cacheEntry = getOrCreateErrorCacheEntry(cacheForDefinition, index);
+    } else {
+      cacheEntry = cacheForDefinition;
+    }
+  }
 
   return cacheEntry;
 };

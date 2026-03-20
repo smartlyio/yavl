@@ -1,4 +1,3 @@
-import * as R from 'ramda';
 import { ResolvedValidations } from '../validate/types';
 
 export const getResolvedValidationErrors = <ErrorType>(
@@ -19,7 +18,7 @@ export const updateResolvedValidationErrors = <ErrorType>(
 ): void => {
   resolvedValidations.current = { ...resolvedValidations.current };
   if (errors !== undefined) {
-    resolvedValidations.current[field] = R.uniq(errors);
+    resolvedValidations.current[field] = [...new Set(errors)];
   } else {
     // delete errors from field
     delete resolvedValidations.current[field];

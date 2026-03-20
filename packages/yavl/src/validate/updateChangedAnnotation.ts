@@ -1,4 +1,3 @@
-import * as R from 'ramda';
 import { Annotation, noValue } from '../types';
 import { getResolvedAnnotation, updateResolvedAnnotation } from '../utils/resolvedAnnotationsHelpers';
 import { getChangedAnnotationsCacheForPath } from './getChangedAnnotationsCacheForPath';
@@ -6,6 +5,42 @@ import { getFieldResolvedAnnotation } from './getFieldResolvedAnnotation';
 import { ProcessingContext } from './types';
 import { valueAnnotation } from '../annotations';
 import { strPathToArray } from '../utils/strPathToArray';
+import { deepEqual } from '../utils/deepEqual';
+
+const hasPath = (path: (string | number)[], obj: any): boolean => {
+  let current = obj;
+  for (const key of path) {
+    if (current == null || typeof current !== 'object') {
+      return false;
+    }
+    if (!(key in current)) {
+      return false;
+    }
+    current = current[key];
+  }
+  return true;
+};
+
+const getPath = (path: (string | number)[], obj: any): any => {
+  let current = obj;
+  for (const key of path) {
+    if (current == null) {
+      return undefined;
+    }
+    current = current[key];
+  }
+  return current;
+};
+
+const setPath = (path: (string | number)[], value: any, obj: any): any => {
+  if (path.length === 0) {
+    return value;
+  }
+  const [head, ...rest] = path;
+  const current = obj == null ? (typeof head === 'number' ? [] : {}) : Array.isArray(obj) ? [...obj] : { ...obj };
+  current[head] = setPath(rest, value, current[head]);
+  return current;
+};
 
 const markFieldAnnotationAsChanged = <Data, ExternalData, ErrorType>(
   processingContext: ProcessingContext<Data, ExternalData, ErrorType>,
@@ -25,12 +60,11 @@ const processComputedValueAnnotation = <Data, ExternalData, ErrorType>(
 
   const path = strPathToArray(pathToFieldStr);
 
-  // @ts-ignore - hasPath supports numbers in path, the typings are wrong
-  const previousValue = R.hasPath(path, processingContext.data) ? R.path(path, processingContext.data) : noValue;
+  const previousValue = hasPath(path, processingContext.data) ? getPath(path, processingContext.data) : noValue;
 
   // update processingContext data if the value has changed
   if (value !== noValue && value !== previousValue) {
-    processingContext.data = R.assocPath(path, value, processingContext.data);
+    processingContext.data = setPath(path, value, processingContext.data);
   }
 };
 
@@ -57,7 +91,7 @@ export const updateChangedAnnotation = <Data, ExternalData, ErrorType>(
 
   const nextResolvedAnnotation = getFieldResolvedAnnotation(processingContext, pathToFieldStr, annotation);
 
-  const hasAnnotationChanged = !R.equals(nextResolvedAnnotation, previousResolvedAnnotation);
+  const hasAnnotationChanged = !deepEqual(nextResolvedAnnotation, previousResolvedAnnotation);
 
   if (hasAnnotationChanged) {
     updateResolvedAnnotation(processingContext, pathToFieldStr, annotation, nextResolvedAnnotation);

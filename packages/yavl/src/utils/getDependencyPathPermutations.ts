@@ -1,10 +1,10 @@
-import * as R from 'ramda';
-
 type StringOrNumber = string | number;
 
 const splitPathByArray = (path: readonly StringOrNumber[]): [string[], StringOrNumber[]] => {
-  const [head, tail] = R.splitWhen(R.is(Number), path);
-  return [head as string[], tail];
+  const splitIndex = path.findIndex(p => typeof p === 'number');
+  const head = splitIndex === -1 ? (path.slice() as string[]) : (path.slice(0, splitIndex) as string[]);
+  const tail = splitIndex === -1 ? ([] as StringOrNumber[]) : (path.slice(splitIndex) as StringOrNumber[]);
+  return [head, tail];
 };
 
 const calculatePermutationsRecursively = (
@@ -27,7 +27,7 @@ const calculatePermutationsRecursively = (
   }
 
   const index = tail[0];
-  const tailWithoutArray = R.drop(1, tail);
+  const tailWithoutArray = tail.slice(1);
 
   const indexAndAllPermutations = calculatePermutationsRecursively(
     `${headPathStr}[${index}]`,

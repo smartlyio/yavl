@@ -1,7 +1,7 @@
-import * as R from 'ramda';
 import { getResolvedValidationErrors, updateResolvedValidationErrors } from '../utils/resolvedValidationsHelpers';
 import { getFieldValidationErrors } from './getFieldValidationErrors';
 import { ProcessingContext } from './types';
+import { deepEqual } from '../utils/deepEqual';
 
 export const updateChangedValidation = <Data, ExternalData, ErrorType>(
   processingContext: ProcessingContext<Data, ExternalData, ErrorType>,
@@ -11,7 +11,7 @@ export const updateChangedValidation = <Data, ExternalData, ErrorType>(
 
   const nextErrors = getFieldValidationErrors(processingContext, pathToFieldStr);
 
-  if (!R.equals(nextErrors, previousErrors)) {
+  if (!deepEqual(nextErrors, previousErrors)) {
     updateResolvedValidationErrors(processingContext.resolvedValidations, pathToFieldStr, nextErrors);
   }
 };
