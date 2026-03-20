@@ -1,0 +1,33 @@
+# Release label check — the primary gate for the release process.
+#
+# Every PR to master must have exactly one release label:
+#   - patch  → bug fixes, small non-breaking changes
+#   - minor  → new features, non-breaking additions
+#   - major  → breaking changes
+#   - no-release → changes that should not trigger a release (docs, CI, etc.)
+#
+# This label drives the entire release automation. After merge, the Publish
+# workflow reads the label to determine the version bump type and generates
+# the CHANGELOG entry from the PR title. No other action is required from
+# contributors.
+#
+# The check re-runs on label changes (labeled/unlabeled) so contributors
+# get immediate feedback when they add or remove labels.
+
+name: Release Label Check
+
+on:
+  pull_request:
+    types: [opened, labeled, unlabeled, synchronize]
+    branches: [master]
+
+jobs:
+  check-label:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify release label
+        env:
+          LABELS: ${{ toJSON(github.event.pull_request.labels.*.name) }}
+        run: ./.github/scripts/check-label.sh
