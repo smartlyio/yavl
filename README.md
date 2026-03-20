@@ -1,6 +1,15 @@
 # Yet Another Validation Library (YAVL)
 
-See [YAVL](packages/yavl/README.md) for the core library documentation.
+A declarative and type-safe model & validation library for TypeScript. YAVL lets you define field dependencies, conditional validations, default values, and metadata annotations in a single model definition — with full compile-time type safety.
+
+Key features include incremental validation (only re-validates changed data), support for complex nested and array structures, conditional logic via `when`, a powerful annotation system, and default value resolution with circular dependency detection. YAVL is framework-agnostic and works on both client and server.
+
+## Packages
+
+| Package | npm | Description |
+|---------|-----|-------------|
+| [`@smartlyio/yavl`](packages/yavl) | [![npm](https://img.shields.io/npm/v/@smartlyio/yavl)](https://www.npmjs.com/package/@smartlyio/yavl) | Core model & validation library |
+| [`@smartlyio/yavl-hooks`](packages/yavl-hooks) | [![npm](https://img.shields.io/npm/v/@smartlyio/yavl-hooks)](https://www.npmjs.com/package/@smartlyio/yavl-hooks) | React hooks for YAVL |
 
 ## Releasing
 
@@ -21,10 +30,10 @@ The release process is driven entirely by PR labels. Contributors do not need to
 
 1. **Open a pull request** with your changes against `master`.
 2. **Add a release label** to the PR: `patch`, `minor`, or `major`.
-    - `patch` — bug fixes, small non-breaking changes
-    - `minor` — new features, non-breaking additions
-    - `major` — breaking changes
-    - `no-release` — changes that should not trigger a release (docs, CI, refactors)
+   - `patch` — bug fixes, small non-breaking changes
+   - `minor` — new features, non-breaking additions
+   - `major` — breaking changes
+   - `no-release` — changes that should not trigger a release (docs, CI, refactors)
 3. **The label is required.** A CI check will block merging if no release label is set.
 4. **Merge the PR.** That's it — the rest is fully automated.
 
