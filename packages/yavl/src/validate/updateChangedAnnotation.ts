@@ -6,20 +6,7 @@ import { ProcessingContext } from './types';
 import { valueAnnotation } from '../annotations';
 import { strPathToArray } from '../utils/strPathToArray';
 import { deepEqual } from '../utils/deepEqual';
-
-const hasPath = (path: (string | number)[], obj: any): boolean => {
-  let current = obj;
-  for (const key of path) {
-    if (current == null || typeof current !== 'object') {
-      return false;
-    }
-    if (!(key in current)) {
-      return false;
-    }
-    current = current[key];
-  }
-  return true;
-};
+import hasPath from '../utils/hasPath';
 
 const getPath = (path: (string | number)[], obj: any): any => {
   let current = obj;
