@@ -2,9 +2,9 @@ type StringOrNumber = string | number;
 
 const splitPathByArray = (path: readonly StringOrNumber[]): [string[], StringOrNumber[]] => {
   const splitIndex = path.findIndex(p => typeof p === 'number');
-  const head = splitIndex === -1 ? (path.slice() as string[]) : (path.slice(0, splitIndex) as string[]);
-  const tail = splitIndex === -1 ? ([] as StringOrNumber[]) : (path.slice(splitIndex) as StringOrNumber[]);
-  return [head, tail];
+  const head = splitIndex === -1 ? path.slice() : path.slice(0, splitIndex);
+  const tail = splitIndex === -1 ? [] : path.slice(splitIndex);
+  return [head as string[], tail];
 };
 
 const calculatePermutationsRecursively = (

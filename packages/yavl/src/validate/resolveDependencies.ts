@@ -2,6 +2,7 @@ import resolveDependency from './resolveDependency';
 import isAnyModelContext from '../utils/isAnyModelContext';
 import isComputedContext from '../utils/isComputedContext';
 import { MutatingFieldProcessingCacheEntry, ProcessingContext } from './types';
+import isObject from '../utils/isObject';
 import { isPreviousContext } from '../utils/isPreviousContext';
 
 const resolveDependencies = <Data, ExternalData, ErrorType>(
@@ -56,13 +57,14 @@ const resolveDependencies = <Data, ExternalData, ErrorType>(
     return dependencies.map(dependency =>
       resolveDependencies(processingContext, dependency, currentIndices, runCacheForField),
     );
-  } else if (typeof dependencies === 'object' && dependencies !== null && typeof dependencies !== 'function') {
-    return Object.fromEntries(
-      Object.entries(dependencies).map(([key, dependency]) => [
-        key,
-        resolveDependencies(processingContext, dependency, currentIndices, runCacheForField),
-      ]),
-    );
+  } else if (isObject(dependencies) && typeof dependencies !== 'function') {
+    const result: any = {};
+    for (const key in dependencies) {
+      if (dependencies.hasOwnProperty(key)) {
+        result[key] = resolveDependencies(processingContext, dependencies[key], currentIndices, runCacheForField);
+      }
+    }
+    return result;
   } else {
     return dependencies;
   }

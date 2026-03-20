@@ -1,4 +1,4 @@
-export const deepEqual = (a: any, b: any): boolean => {
+export const deepEqual = (a: unknown, b: unknown): boolean => {
   if (Object.is(a, b)) {
     return true;
   }
@@ -13,6 +13,7 @@ export const deepEqual = (a: any, b: any): boolean => {
       return false;
     }
     for (let i = 0; i < a.length; i++) {
+      // Treating empty elements as undefined for performance reasons.
       if (!deepEqual(a[i], b[i])) {
         return false;
       }
@@ -26,7 +27,10 @@ export const deepEqual = (a: any, b: any): boolean => {
       return false;
     }
     for (const key of keysA) {
-      if (!Object.prototype.hasOwnProperty.call(b, key) || !deepEqual(a[key], b[key])) {
+      if (
+        !b.hasOwnProperty(key) ||
+        !deepEqual((a as Record<string, unknown>)[key], (b as Record<string, unknown>)[key])
+      ) {
         return false;
       }
     }

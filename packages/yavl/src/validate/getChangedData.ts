@@ -1,5 +1,6 @@
 import { FieldsWithDependencies, HasDependenciesInfo } from '../types';
 import dataPathToStr from '../utils/dataPathToStr';
+import isObject from '../utils/isObject';
 import { assertUnreachable } from '../utils/typeUtils';
 import { getPathWithoutIndices } from '../utils/getPathWithoutIndices';
 
@@ -92,12 +93,9 @@ const getChangedDataRecursively = (
         );
       }
     });
-  } else if (
-    (typeof currentNewData === 'object' && currentNewData !== null) ||
-    (typeof currentOldData === 'object' && currentOldData !== null)
-  ) {
-    const isNewDataObject = typeof currentNewData === 'object' && currentNewData !== null;
-    const isOldDataObject = typeof currentOldData === 'object' && currentOldData !== null;
+  } else if (isObject(currentNewData) || isObject(currentOldData)) {
+    const isNewDataObject = isObject(currentNewData);
+    const isOldDataObject = isObject(currentOldData);
 
     const allKeys = [
       ...new Set(

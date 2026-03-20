@@ -15,12 +15,9 @@ const getDependentIndexPermutationsRecursively = (
     return [currentIndices];
   }
 
-  const [fieldParts, restOfThePathIncludingArray] = [
-    remainingPathToField.slice(0, arrayIndex),
-    remainingPathToField.slice(arrayIndex),
-  ];
-
-  const [[arrayPart], restOfThePath] = [restOfThePathIncludingArray.slice(0, 1), restOfThePathIncludingArray.slice(1)];
+  const fieldParts = remainingPathToField.slice(0, arrayIndex);
+  const arrayPart = remainingPathToField[arrayIndex];
+  const restOfThePath = remainingPathToField.slice(arrayIndex + 1);
 
   if (arrayPart.type !== 'array') {
     throw new Error('never happens, done to type-narrow arrayPart');
