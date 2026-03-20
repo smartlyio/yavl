@@ -55,7 +55,7 @@ describe('deepEqual', () => {
   });
 
   describe('special numeric values', () => {
-    it('returns true for NaN === NaN (via Object.is)', () => {
+    it('returns true for NaN === NaN', () => {
       expect(deepEqual(NaN, NaN)).toBe(true);
     });
 
@@ -64,8 +64,8 @@ describe('deepEqual', () => {
       expect(deepEqual(-Infinity, -Infinity)).toBe(true);
     });
 
-    it('distinguishes +0 and -0 (via Object.is)', () => {
-      expect(deepEqual(0, -0)).toBe(false);
+    it('treats +0 and -0 as equal', () => {
+      expect(deepEqual(0, -0)).toBe(true);
     });
   });
 
@@ -97,14 +97,9 @@ describe('deepEqual', () => {
       expect(deepEqual(arr, arr)).toBe(true);
     });
 
-    it('returns false when array is first argument and non-array is second', () => {
+    it('returns false when comparing array to non-array regardless of order', () => {
       expect(deepEqual([1, 2], { 0: 1, 1: 2 })).toBe(false);
-    });
-
-    it('treats array as object when object is first argument (asymmetric)', () => {
-      // When a plain object is compared first, arrays fall into the object
-      // branch and are compared by keys — this is intentional for performance.
-      expect(deepEqual({ 0: 1, 1: 2 }, [1, 2])).toBe(true);
+      expect(deepEqual({ 0: 1, 1: 2 }, [1, 2])).toBe(false);
     });
 
     it('handles nested arrays', () => {
