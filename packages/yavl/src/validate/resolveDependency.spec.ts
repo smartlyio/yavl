@@ -1,3 +1,4 @@
+import { createValidationContext, Model, model, ModelValidationContext, updateModel } from '../../src';
 import { getMockProcessingContext } from '../../tests/helpers/getMockProcessingContext';
 import resolveDependency from './resolveDependency';
 
@@ -309,6 +310,94 @@ describe('resolveDependency', () => {
       ).toThrowErrorMatchingInlineSnapshot(
         `"Trying to focus current path of array failed; current focus is not supported for external data"`,
       );
+    });
+  });
+
+  /**
+   * These tests were AI gen but tried to keep them as human friendly as possible
+   */
+  describe('when array contains null or undefined items', () => {
+    let validationContext: ModelValidationContext<any> | undefined;
+
+    const testIncrementalValidate = <T>(testModel: Model<T>, data: T) => {
+      if (!validationContext) {
+        validationContext = createValidationContext(testModel);
+      }
+      updateModel(validationContext, data);
+    };
+
+    beforeEach(() => {
+      validationContext = undefined;
+    });
+
+    type TestModel = {
+      list: ({ name: string } | null | undefined)[];
+    };
+
+    it('should resolve array.all field dependency without crashing', () => {
+      const validator = jest.fn();
+
+      const testModel = model<TestModel>((root, model) => [
+        model.field(root, 'list', _list => [
+          model.validate(model.passive(root), model.dep(root, 'list', model.array.all, 'name'), validator),
+        ]),
+      ]);
+
+      const data: TestModel = {
+        list: [{ name: 'Alice' }, null, undefined, { name: 'Diana' }],
+      };
+
+      testIncrementalValidate(testModel, data);
+
+      expect(validator).toHaveBeenCalledWith(data, ['Alice', undefined, undefined, 'Diana'], data, undefined);
+    });
+
+    it('should resolve nested array.all dependency with null items', () => {
+      type NestedModel = {
+        groups: ({ values: ({ score: number } | null | undefined)[] } | null)[];
+      };
+
+      const validator = jest.fn();
+
+      const testModel = model<NestedModel>((root, model) => [
+        model.validate(
+          model.passive(root),
+          model.dep(root, 'groups', model.array.all, 'values', model.array.all, 'score'),
+          validator,
+        ),
+      ]);
+
+      const data: NestedModel = {
+        groups: [{ values: [{ score: 10 }, null] }, null, { values: [undefined, { score: 40 }] }],
+      };
+
+      testIncrementalValidate(testModel, data);
+
+      expect(validator).toHaveBeenCalledWith(data, [10, undefined, undefined, undefined, 40], data, undefined);
+    });
+
+    it('should validate correctly after removing null items from the array', () => {
+      const validator = jest.fn();
+
+      const testModel = model<TestModel>((root, model) => [
+        model.field(root, 'list', _list => [
+          model.validate(model.passive(root), model.dep(root, 'list', model.array.all, 'name'), validator),
+        ]),
+      ]);
+
+      const initialData: TestModel = {
+        list: [{ name: 'Alice' }, null, { name: 'Charlie' }],
+      };
+      testIncrementalValidate(testModel, initialData);
+
+      jest.clearAllMocks();
+
+      const updatedData: TestModel = {
+        list: [{ name: 'Alice' }, { name: 'Charlie' }],
+      };
+      testIncrementalValidate(testModel, updatedData);
+
+      expect(validator).toHaveBeenCalledWith(updatedData, ['Alice', 'Charlie'], updatedData, undefined);
     });
   });
 });
