@@ -50,7 +50,7 @@ const resolveDependency = <Data, ExternalData, ErrorType>(
 
           return {
             ...acc,
-            data: data.map((item: any) => item[pathPart.name]),
+            data: data.map((item: any) => item?.[pathPart.name]),
             paths: paths.map(path => path.concat(pathPart.name)),
           };
         }
@@ -99,7 +99,7 @@ const resolveDependency = <Data, ExternalData, ErrorType>(
             return {
               ...acc,
               // the data we pick from is already filtered, so here we use the index as is, not the original one
-              data: data.map((item: any) => item[pathPart.index]),
+              data: data.map((item: any) => item?.[pathPart.index]),
               paths: indexedPaths,
               isFocusedOnSinglePath: false,
             };
@@ -128,7 +128,9 @@ const resolveDependency = <Data, ExternalData, ErrorType>(
 
           return {
             ...acc,
-            data: isFocusedOnSinglePath ? data?.[currentIndex] : (data as any[]).map((item: any) => item[currentIndex]),
+            data: isFocusedOnSinglePath
+              ? data?.[currentIndex]
+              : (data as any[]).map((item: any) => item?.[currentIndex]),
             paths: paths.map(path => path.concat(currentIndex)),
           };
         } else {
