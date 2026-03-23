@@ -1,9 +1,9 @@
-import * as R from 'ramda';
-
 type StringOrNumber = string | number;
 
 const splitPathByArray = (path: readonly StringOrNumber[]): [string[], StringOrNumber[]] => {
-  const [head, tail] = R.splitWhen(R.is(Number), path);
+  const splitIndex = path.findIndex(p => typeof p === 'number');
+  const head = splitIndex === -1 ? path.slice() : path.slice(0, splitIndex);
+  const tail = splitIndex === -1 ? [] : path.slice(splitIndex);
   return [head as string[], tail];
 };
 
@@ -27,7 +27,7 @@ const calculatePermutationsRecursively = (
   }
 
   const index = tail[0];
-  const tailWithoutArray = R.drop(1, tail);
+  const tailWithoutArray = tail.slice(1);
 
   const indexAndAllPermutations = calculatePermutationsRecursively(
     `${headPathStr}[${index}]`,

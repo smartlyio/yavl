@@ -1,4 +1,3 @@
-import * as R from 'ramda';
 import { noValue, PathToField } from '../types';
 import dataPathToStr from '../utils/dataPathToStr';
 import { getResolvedAnnotation } from '../utils/resolvedAnnotationsHelpers';
@@ -24,7 +23,7 @@ const resolveDependency = <Data, ExternalData, ErrorType>(
 
   const formOrExternalData = dependencyType === 'internal' ? rootData : externalData;
 
-  const lastPart = R.last(pathToDependency);
+  const lastPart = pathToDependency[pathToDependency.length - 1];
   const result = pathToDependency.reduce<DependencyReducerContext>(
     (acc, pathPart): DependencyReducerContext => {
       const { data, paths, isFocusedOnSinglePath } = acc;
@@ -51,7 +50,7 @@ const resolveDependency = <Data, ExternalData, ErrorType>(
 
           return {
             ...acc,
-            data: R.pluck(pathPart.name, data),
+            data: data.map((item: any) => item[pathPart.name]),
             paths: paths.map(path => path.concat(pathPart.name)),
           };
         }
@@ -100,7 +99,7 @@ const resolveDependency = <Data, ExternalData, ErrorType>(
             return {
               ...acc,
               // the data we pick from is already filtered, so here we use the index as is, not the original one
-              data: R.pluck(pathPart.index, data),
+              data: data.map((item: any) => item[pathPart.index]),
               paths: indexedPaths,
               isFocusedOnSinglePath: false,
             };
@@ -129,7 +128,7 @@ const resolveDependency = <Data, ExternalData, ErrorType>(
 
           return {
             ...acc,
-            data: isFocusedOnSinglePath ? data?.[currentIndex] : R.pluck(currentIndex, data as any[]),
+            data: isFocusedOnSinglePath ? data?.[currentIndex] : (data as any[]).map((item: any) => item[currentIndex]),
             paths: paths.map(path => path.concat(currentIndex)),
           };
         } else {
@@ -147,7 +146,7 @@ const resolveDependency = <Data, ExternalData, ErrorType>(
             throw new Error('data should be array');
           }
 
-          const arrayData = isFocusedOnSinglePath ? data : R.unnest(data);
+          const arrayData = isFocusedOnSinglePath ? data : data.flat();
           const nextPaths = isFocusedOnSinglePath
             ? data.map((_, idx) => paths[0].concat(idx))
             : paths.flatMap((path, pathIndex) => {
@@ -242,7 +241,9 @@ const resolveDependency = <Data, ExternalData, ErrorType>(
          * If we are dealing with an array, we want to pick the keys
          * from every array element, otherwise pick from the object
          */
-        const narrowFn = Array.isArray(data) ? R.project(pathPart.keys) : pick.bind(null, pathPart.keys);
+        const narrowFn = Array.isArray(data)
+          ? (arr: any[]) => arr.map((obj: any) => pick(pathPart.keys, obj))
+          : pick.bind(null, pathPart.keys);
 
         return {
           ...acc,
@@ -302,7 +303,7 @@ const resolveDependency = <Data, ExternalData, ErrorType>(
         }
       } else if (pathPart.type === 'index') {
         const getIndexOfPath = (path: Array<string | number>) => {
-          const lastPathPart = R.last(path);
+          const lastPathPart = path[path.length - 1];
           if (typeof lastPathPart !== 'number') {
             throw new Error('index() cannot be used on non-arrays');
           }

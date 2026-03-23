@@ -1,4 +1,3 @@
-import * as R from 'ramda';
 import {
   DefinitionListInput,
   DefinitionList,
@@ -12,7 +11,7 @@ const processDefinitionList = (
   currentContexts: ModelContext<any>[],
   definitions: DefinitionListInput<any>,
 ): DefinitionList<any> => {
-  const flattenedDefinitions = R.flatten(definitions) as FlattenedDefinitionListInput<any>;
+  const flattenedDefinitions = (definitions as any[]).flat(Infinity) as FlattenedDefinitionListInput<any>;
 
   const processedDefinitions = flattenedDefinitions.flatMap(
     (definition): OptionallyArray<ProcessedDefinition<any>> => {

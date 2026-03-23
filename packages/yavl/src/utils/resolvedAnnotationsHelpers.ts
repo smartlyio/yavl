@@ -1,4 +1,3 @@
-import * as R from 'ramda';
 import { Annotation, AnnotationData, noValue } from '../types';
 import { ProcessingContext, ResolvedAnnotations } from '../validate/types';
 

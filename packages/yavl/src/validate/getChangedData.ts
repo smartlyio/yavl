@@ -1,6 +1,6 @@
-import * as R from 'ramda';
 import { FieldsWithDependencies, HasDependenciesInfo } from '../types';
 import dataPathToStr from '../utils/dataPathToStr';
+import isObject from '../utils/isObject';
 import { assertUnreachable } from '../utils/typeUtils';
 import { getPathWithoutIndices } from '../utils/getPathWithoutIndices';
 
@@ -93,13 +93,15 @@ const getChangedDataRecursively = (
         );
       }
     });
-  } else if (R.is(Object, currentNewData) || R.is(Object, currentOldData)) {
-    const isNewDataObject = R.is(Object, currentNewData);
-    const isOldDataObject = R.is(Object, currentOldData);
+  } else if (isObject(currentNewData) || isObject(currentOldData)) {
+    const isNewDataObject = isObject(currentNewData);
+    const isOldDataObject = isObject(currentOldData);
 
-    const allKeys = R.uniq(
-      (isNewDataObject ? Object.keys(currentNewData) : []).concat(isOldDataObject ? Object.keys(currentOldData) : []),
-    );
+    const allKeys = [
+      ...new Set(
+        (isNewDataObject ? Object.keys(currentNewData) : []).concat(isOldDataObject ? Object.keys(currentOldData) : []),
+      ),
+    ];
 
     allKeys.forEach(fieldName => {
       const nextPath = currentPath.concat(fieldName);

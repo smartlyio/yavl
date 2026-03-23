@@ -1,10 +1,11 @@
-import * as R from 'ramda';
 import { AnyModelContext } from '../types';
+import isObject from './isObject';
 
-const isAnyModelContext = (data: any): data is AnyModelContext<any> => {
+const isAnyModelContext = (data: unknown): data is AnyModelContext<any> => {
   return (
-    R.is(Object, data) &&
+    isObject(data) &&
     'type' in data &&
+    typeof data.type === 'string' &&
     ['internal', 'external'].includes(data.type) &&
     'pathToField' in data &&
     Array.isArray(data.pathToField)

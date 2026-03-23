@@ -1,4 +1,3 @@
-import * as R from 'ramda';
 import { CurrentIndices } from './types';
 import { PathToField, FieldFocus } from '../types';
 import dataPathToStr from '../utils/dataPathToStr';
@@ -16,9 +15,9 @@ const getDependentIndexPermutationsRecursively = (
     return [currentIndices];
   }
 
-  const [fieldParts, restOfThePathIncludingArray] = R.splitAt(arrayIndex, remainingPathToField);
-
-  const [[arrayPart], restOfThePath] = R.splitAt(1, restOfThePathIncludingArray);
+  const fieldParts = remainingPathToField.slice(0, arrayIndex);
+  const arrayPart = remainingPathToField[arrayIndex];
+  const restOfThePath = remainingPathToField.slice(arrayIndex + 1);
 
   if (arrayPart.type !== 'array') {
     throw new Error('never happens, done to type-narrow arrayPart');
@@ -51,7 +50,13 @@ const getDependentIndexPermutationsRecursively = (
 
   // we're missing index information for an array, calculate all different
   // permutations based on how many elements are in the actual form data
-  const arrayData = R.view(R.lensPath(pathToArray), data);
+  let arrayData: any = data;
+  for (const key of pathToArray) {
+    if (arrayData == null) {
+      break;
+    }
+    arrayData = arrayData[key];
+  }
 
   if (!Array.isArray(arrayData) || arrayData.length === 0) {
     // if an array has no items at any part of the path, that means there

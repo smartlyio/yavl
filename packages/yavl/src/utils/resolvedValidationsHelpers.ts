@@ -1,5 +1,15 @@
-import * as R from 'ramda';
+import { deepEqual } from './deepEqual';
 import { ResolvedValidations } from '../validate/types';
+
+const uniqDeep = <T>(items: T[]): T[] => {
+  const result: T[] = [];
+  for (const item of items) {
+    if (!result.some(existing => deepEqual(existing, item))) {
+      result.push(item);
+    }
+  }
+  return result;
+};
 
 export const getResolvedValidationErrors = <ErrorType>(
   resolvedValidations: ResolvedValidations<ErrorType>['current'],
@@ -19,7 +29,7 @@ export const updateResolvedValidationErrors = <ErrorType>(
 ): void => {
   resolvedValidations.current = { ...resolvedValidations.current };
   if (errors !== undefined) {
-    resolvedValidations.current[field] = R.uniq(errors);
+    resolvedValidations.current[field] = uniqDeep(errors);
   } else {
     // delete errors from field
     delete resolvedValidations.current[field];

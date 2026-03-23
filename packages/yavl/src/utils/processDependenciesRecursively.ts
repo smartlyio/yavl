@@ -1,7 +1,7 @@
-import * as R from 'ramda';
 import isAnyModelContext from './isAnyModelContext';
 import { AnyModelContext, PathToField } from '../types';
 import isComputedContext from './isComputedContext';
+import isObject from './isObject';
 
 const processDependenciesRecursively = (
   dependencies: any,
@@ -27,7 +27,7 @@ const processDependenciesRecursively = (
   };
 
   const processContextPath = (context: AnyModelContext<any>) => {
-    const lastPathPart = R.last(context.pathToField);
+    const lastPathPart = context.pathToField[context.pathToField.length - 1];
 
     /**
      * In case the last part of the path is from pick(), we only
@@ -82,7 +82,7 @@ const processDependenciesRecursively = (
       // create a cache entry for each dependency
       processDependenciesRecursively(dependency, processFn, options);
     });
-  } else if (R.is(Object, dependencies)) {
+  } else if (isObject(dependencies)) {
     Object.values(dependencies).forEach(dependency => {
       // create a cache entry for each dependency
       processDependenciesRecursively(dependency, processFn, options);

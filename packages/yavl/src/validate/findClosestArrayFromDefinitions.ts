@@ -1,8 +1,7 @@
-import * as R from 'ramda';
 import { RecursiveDefinition, DefinitionWithContext, PathToField } from '../types';
 
 const findClosestArrayFromDefinitions = (definitions: readonly RecursiveDefinition<any>[]): PathToField => {
-  const closestArray = R.findLast(definition => definition.type === 'array', definitions) as
+  const closestArray = definitions.findLast(definition => definition.type === 'array') as
     | DefinitionWithContext<any>
     | undefined;
 

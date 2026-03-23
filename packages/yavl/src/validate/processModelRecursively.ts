@@ -1,4 +1,3 @@
-import * as R from 'ramda';
 import { RecursiveDefinition } from '../types';
 import { ProcessingContext } from './types';
 import resolveDependency from './resolveDependency';
@@ -15,7 +14,7 @@ export const processModelRecursively = <Data, ExternalData, ErrorType>(
   pathToCurrentDefinition: RecursiveDefinition<ErrorType>[],
   currentIndices: Record<string, number>,
 ): void => {
-  const currentDefinition = R.last(pathToCurrentDefinition)!;
+  const currentDefinition = pathToCurrentDefinition[pathToCurrentDefinition.length - 1]!;
 
   currentDefinition.children.forEach(childDefinition => {
     if (childDefinition.type === 'annotation' && pass === 'annotations') {
@@ -66,7 +65,7 @@ export const processModelRecursively = <Data, ExternalData, ErrorType>(
 
     if (childDefinition.type === 'array') {
       const parentPath = childDefinition.context.pathToField.slice(0, -1);
-      const pathToArrayStr = resolveModelPathStr(R.dropLast(1, childDefinition.context.pathToField), currentIndices);
+      const pathToArrayStr = resolveModelPathStr(parentPath, currentIndices);
       const runCacheForField = getProcessingCacheForField(processingContext.fieldProcessingCache, pathToArrayStr);
 
       const newParentArray: any[] | undefined = resolveDependency(

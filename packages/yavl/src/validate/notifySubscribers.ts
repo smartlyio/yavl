@@ -1,5 +1,5 @@
-import * as R from 'ramda';
 import getFieldAnnotations from '../getFieldAnnotations';
+import { deepEqual } from '../utils/deepEqual';
 import {
   Annotation,
   AnnotationsSubscription,
@@ -47,7 +47,7 @@ const notifyFieldAnnotationSubscribers = (
   subscriptions?.forEach(subscription => {
     const valueForSubscription = getValueForSubscription(value, subscription);
 
-    if (!R.equals(valueForSubscription, subscription.previousValue)) {
+    if (!deepEqual(valueForSubscription, subscription.previousValue)) {
       subscription.subscribeFn(valueForSubscription);
       subscription.previousValue = valueForSubscription;
     }
@@ -64,7 +64,7 @@ const getNextValueForAnnotationsSubscription = (
     const nextValue = { ...subscription.previousValue };
     const keys = nextValue[path] == null ? null : Object.keys(nextValue[path]);
 
-    if ((keys == null || keys.length === 1 && keys[0] === annotation) || keys.length === 0) {
+    if (keys == null || (keys.length === 1 && keys[0] === annotation) || keys.length === 0) {
       delete nextValue[path];
       return nextValue;
     }

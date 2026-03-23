@@ -1,5 +1,6 @@
 import isAnyModelContext from '../utils/isAnyModelContext';
 import isComputedContext from '../utils/isComputedContext';
+import isObject from '../utils/isObject';
 
 export interface PassiveFn {
   <T>(dependencies: T): T;
@@ -21,7 +22,7 @@ export const passive = <T>(dependencies: T): T => {
   if (Array.isArray(dependencies)) {
     return dependencies.map(dependency => passive(dependency)) as T;
   }
-  if (typeof dependencies === 'object' && dependencies !== null) {
+  if (isObject(dependencies)) {
     return Object.fromEntries(Object.entries(dependencies).map(([key, value]) => [key, passive(value)])) as T;
   }
   return dependencies;
