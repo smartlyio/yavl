@@ -85,14 +85,19 @@ export const updateModelCaches = <Data, ExternalData, ErrorType>(
     // that are inside conditions. In case the data has not changed for this branch, we can skip
     // the recursion as there's nothing to do in that case.
     if (childDefinition.type === 'when' && !processingContext.isEqualFn(processingContext.data, previousData)) {
-      updateModelCaches(
-        processingContext,
-        pathToCurrentDefinition.concat(childDefinition),
-        previousData,
-        currentIndices,
-        collectNewDefinitions,
-        newDefinitions,
-      );
+      pathToCurrentDefinition.push(childDefinition);
+      try {
+        updateModelCaches(
+          processingContext,
+          pathToCurrentDefinition,
+          previousData,
+          currentIndices,
+          collectNewDefinitions,
+          newDefinitions,
+        );
+      } finally {
+        pathToCurrentDefinition.pop();
+      }
     }
 
     // TODO: process new array items/deleted items separately for diffed data?
@@ -111,82 +116,93 @@ export const updateModelCaches = <Data, ExternalData, ErrorType>(
         runCacheForField,
       );
 
-      const oldParentArray: any[] | undefined = resolveDependency(
-        { ...processingContext, data: previousData },
-        'internal',
-        parentPath,
-        currentIndices,
-        runCacheForField,
-      );
+      // Temporarily swap data to resolve against previousData, avoiding a full ProcessingContext spread.
+      const savedData = processingContext.data;
+      processingContext.data = previousData as Data;
+      let oldParentArray: any[] | undefined;
+      try {
+        oldParentArray = resolveDependency(processingContext, 'internal', parentPath, currentIndices, runCacheForField);
+      } finally {
+        processingContext.data = savedData;
+      }
 
       if (deepEqual(newParentArray, oldParentArray)) {
         return;
       }
 
-      const pathToArrayDef = pathToCurrentDefinition.concat(childDefinition);
-      const arrayCache = findErrorCacheEntry(
-        processingContext.validateDiffCache,
-        pathToArrayDef,
-        currentIndices,
-        false,
-      );
+      // Mutate pathToCurrentDefinition and currentIndices in place to avoid per-iteration
+      // allocations. try/finally guarantees cleanup on early returns or exceptions.
+      pathToCurrentDefinition.push(childDefinition);
+      try {
+        const arrayCache = findErrorCacheEntry(
+          processingContext.validateDiffCache,
+          pathToCurrentDefinition,
+          currentIndices,
+          false,
+        );
 
-      if (!Array.isArray(newParentArray) || newParentArray.length === 0) {
-        const deletedDefinitions = getDeletedDefinitions(processingContext, [arrayCache]);
-        arrayCache.children.clear();
-        handleDeletedChildDefinitions(processingContext, deletedDefinitions);
-        return;
-      }
-
-      if (Array.isArray(oldParentArray) && oldParentArray.length > newParentArray.length) {
-        /**
-         * When items are removed from an array we need to update any affected resolved annotations and validation
-         * errors. We do this in two passes, first we gather all the affected caches (before removing them), we then
-         * find all affected definitinos from those caches.
-         *
-         * After that we remove the caches which will remove all the annotations and validation errors, and finally
-         * we will update all the resolved annotations and validations based on the deleted definitions we gathered
-         * before.
-         */
-        const cachesToCheck: ModelValidationCache<any>[] = [];
-
-        for (let idx = newParentArray.length; idx < oldParentArray.length; idx += 1) {
-          cachesToCheck.push(getOrCreateErrorCacheEntry(arrayCache, idx));
-        }
-
-        const deletedDefinitions = getDeletedDefinitions(processingContext, cachesToCheck);
-
-        for (let idx = newParentArray.length; idx < oldParentArray.length; idx += 1) {
-          arrayCache.children.delete(idx);
-        }
-
-        handleDeletedChildDefinitions(processingContext, deletedDefinitions);
-      }
-
-      newParentArray.forEach((_, idx) => {
-        const isNewArrayElem = !Array.isArray(oldParentArray) || idx >= oldParentArray.length;
-
-        if (!isNewArrayElem && processingContext.isEqualFn(newParentArray[idx], oldParentArray?.[idx])) {
+        if (!Array.isArray(newParentArray) || newParentArray.length === 0) {
+          const deletedDefinitions = getDeletedDefinitions(processingContext, [arrayCache]);
+          arrayCache.children.clear();
+          handleDeletedChildDefinitions(processingContext, deletedDefinitions);
           return;
         }
-        const nextIndices = { ...currentIndices, [pathToArrayStr]: idx };
 
-        if (isNewArrayElem && collectNewDefinitions) {
-          newDefinitions.push({
-            pathToDefinition: pathToArrayDef,
-            indices: nextIndices,
-          });
+        if (Array.isArray(oldParentArray) && oldParentArray.length > newParentArray.length) {
+          /**
+           * When items are removed from an array we need to update any affected resolved annotations and validation
+           * errors. We do this in two passes, first we gather all the affected caches (before removing them), we then
+           * find all affected definitinos from those caches.
+           *
+           * After that we remove the caches which will remove all the annotations and validation errors, and finally
+           * we will update all the resolved annotations and validations based on the deleted definitions we gathered
+           * before.
+           */
+          const cachesToCheck: ModelValidationCache<any>[] = [];
+
+          for (let idx = newParentArray.length; idx < oldParentArray.length; idx += 1) {
+            cachesToCheck.push(getOrCreateErrorCacheEntry(arrayCache, idx));
+          }
+
+          const deletedDefinitions = getDeletedDefinitions(processingContext, cachesToCheck);
+
+          for (let idx = newParentArray.length; idx < oldParentArray.length; idx += 1) {
+            arrayCache.children.delete(idx);
+          }
+
+          handleDeletedChildDefinitions(processingContext, deletedDefinitions);
         }
 
-        updateModelCaches(
-          processingContext,
-          pathToArrayDef,
-          previousData,
-          nextIndices,
-          collectNewDefinitions && !isNewArrayElem, // only collect definitions for existing paths
-          newDefinitions,
-        );
-      });
+        newParentArray.forEach((_, idx) => {
+          const isNewArrayElem = !Array.isArray(oldParentArray) || idx >= oldParentArray.length;
+
+          if (!isNewArrayElem && processingContext.isEqualFn(newParentArray[idx], oldParentArray?.[idx])) {
+            return;
+          }
+
+          currentIndices[pathToArrayStr] = idx;
+
+          if (isNewArrayElem && collectNewDefinitions) {
+            // Snapshot both mutable structures since newDefinitions escapes this call stack
+            newDefinitions.push({
+              pathToDefinition: pathToCurrentDefinition.slice(),
+              indices: { ...currentIndices },
+            });
+          }
+
+          updateModelCaches(
+            processingContext,
+            pathToCurrentDefinition,
+            previousData,
+            currentIndices,
+            collectNewDefinitions && !isNewArrayElem, // only collect definitions for existing paths
+            newDefinitions,
+          );
+        });
+      } finally {
+        delete currentIndices[pathToArrayStr];
+        pathToCurrentDefinition.pop();
+      }
     }
   });
 };

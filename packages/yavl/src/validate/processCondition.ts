@@ -135,7 +135,7 @@ const processCondition = <Data, ExternalData, ErrorType>(
        */
       processingContext.unprocessedValidationsForConditons.push({
         pathToCondition: parentDefinitions.concat(condition),
-        indices: currentIndices,
+        indices: { ...currentIndices },
       });
     }
   } else if (conditionChangedToFalse) {

@@ -362,6 +362,10 @@ export const processModelChanges = <Data, ExternalData, ErrorType>(
   // after we have copied changed annotations from initial processing context, create a new one
   processingContext = resetProcessingContext();
 
+  if (!isInitialValidation) {
+    context.resolvedAnnotations.current = { ...context.resolvedAnnotations.current };
+  }
+
   const unprocessedValidationsForConditons: UnprocessedValidationsForCondition[] = [];
 
   let pass = 0;
