@@ -6,6 +6,7 @@ import resolveModelPathStr from './resolveModelPathStr';
 import { removeValidationsForField } from './updateChangedValidation';
 import { removeAnnotationForField } from './updateChangedAnnotation';
 import getProcessingCacheForField from './getProcessingCacheForField';
+import { deepEqual } from '../utils/deepEqual';
 
 type DeletedChildDefinitions = {
   fieldsWithValidations: readonly string[];
@@ -118,6 +119,10 @@ export const updateModelCaches = <Data, ExternalData, ErrorType>(
         runCacheForField,
       );
 
+      if (deepEqual(newParentArray, oldParentArray)) {
+        return;
+      }
+
       const pathToArrayDef = pathToCurrentDefinition.concat(childDefinition);
       const arrayCache = findErrorCacheEntry(
         processingContext.validateDiffCache,
@@ -159,13 +164,12 @@ export const updateModelCaches = <Data, ExternalData, ErrorType>(
       }
 
       newParentArray.forEach((_, idx) => {
-        const nextIndices = { ...currentIndices, [pathToArrayStr]: idx };
-
         const isNewArrayElem = !Array.isArray(oldParentArray) || idx >= oldParentArray.length;
 
         if (!isNewArrayElem && processingContext.isEqualFn(newParentArray[idx], oldParentArray?.[idx])) {
           return;
         }
+        const nextIndices = { ...currentIndices, [pathToArrayStr]: idx };
 
         if (isNewArrayElem && collectNewDefinitions) {
           newDefinitions.push({
