@@ -34,26 +34,20 @@ export const processModelRecursively = <Data, ExternalData, ErrorType>(
         );
       } else if (pass === 'annotations') {
         pathToCurrentDefinition.push(childDefinition);
-        try {
-          processModelRecursively(processingContext, pass, pathToCurrentDefinition, currentIndices);
-        } finally {
-          pathToCurrentDefinition.pop();
-        }
+        processModelRecursively(processingContext, pass, pathToCurrentDefinition, currentIndices);
+        pathToCurrentDefinition.pop();
       } else if (pass === 'validations') {
         pathToCurrentDefinition.push(childDefinition);
-        try {
-          const isPathActive = getIsPathActive(
-            processingContext.validateDiffCache,
-            pathToCurrentDefinition,
-            currentIndices,
-          );
+        const isPathActive = getIsPathActive(
+          processingContext.validateDiffCache,
+          pathToCurrentDefinition,
+          currentIndices,
+        );
 
-          if (isPathActive) {
-            processModelRecursively(processingContext, pass, pathToCurrentDefinition, currentIndices);
-          }
-        } finally {
-          pathToCurrentDefinition.pop();
+        if (isPathActive) {
+          processModelRecursively(processingContext, pass, pathToCurrentDefinition, currentIndices);
         }
+        pathToCurrentDefinition.pop();
       }
     }
 

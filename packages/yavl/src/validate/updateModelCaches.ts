@@ -86,18 +86,15 @@ export const updateModelCaches = <Data, ExternalData, ErrorType>(
     // the recursion as there's nothing to do in that case.
     if (childDefinition.type === 'when' && !processingContext.isEqualFn(processingContext.data, previousData)) {
       pathToCurrentDefinition.push(childDefinition);
-      try {
-        updateModelCaches(
-          processingContext,
-          pathToCurrentDefinition,
-          previousData,
-          currentIndices,
-          collectNewDefinitions,
-          newDefinitions,
-        );
-      } finally {
-        pathToCurrentDefinition.pop();
-      }
+      updateModelCaches(
+        processingContext,
+        pathToCurrentDefinition,
+        previousData,
+        currentIndices,
+        collectNewDefinitions,
+        newDefinitions,
+      );
+      pathToCurrentDefinition.pop();
     }
 
     // TODO: process new array items/deleted items separately for diffed data?
