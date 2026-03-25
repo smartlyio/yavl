@@ -1,4 +1,3 @@
-import * as R from 'ramda';
 import { ModelValidationContext, Annotation, getAnnotationValue } from '@smartlyio/yavl';
 import { useAnnotations } from './useAnnotations';
 import { useMemo } from 'react';
@@ -33,7 +32,12 @@ export const useFieldsAnnotation: UseFieldsAnnotation = <T>(
     ),
   );
 
-  const fieldAnnotations = R.mapObjIndexed(data => getAnnotationValue(data, annotation), annotations);
+  const fieldAnnotations: Record<string, T> = {};
+  for (const key in annotations) {
+    if (Object.prototype.hasOwnProperty.call(annotations, key)) {
+      fieldAnnotations[key] = getAnnotationValue(annotations[key], annotation);
+    }
+  }
 
   return fieldAnnotations;
 };

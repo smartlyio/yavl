@@ -22,8 +22,7 @@
     "typescript": ">=4 <6"
   },
   "dependencies": {
-    "@smartlyio/yavl": "^7.2.2",
-    "ramda": "^0.28.0"
+    "@smartlyio/yavl": "^7.2.2"
   },
   "keywords": [
     "typescript",
