@@ -362,6 +362,9 @@ export const processModelChanges = <Data, ExternalData, ErrorType>(
   // after we have copied changed annotations from initial processing context, create a new one
   processingContext = resetProcessingContext();
 
+  // Clone the top-level annotations object once per pass so external consumers can detect
+  // changes via reference equality. Individual field entries are cloned on write in
+  // updateResolvedAnnotation, avoiding a full clone on every annotation update.
   if (!isInitialValidation) {
     context.resolvedAnnotations.current = { ...context.resolvedAnnotations.current };
   }

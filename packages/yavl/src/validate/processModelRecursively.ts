@@ -73,7 +73,7 @@ export const processModelRecursively = <Data, ExternalData, ErrorType>(
       }
 
       // Mutate pathToCurrentDefinition and currentIndices in place to avoid per-iteration
-      // allocations. try/finally guarantees cleanup on early returns or exceptions.
+      // allocations. try/finally guarantees cleanup after the loop.
       pathToCurrentDefinition.push(childDefinition);
       try {
         newParentArray.forEach((_, idx) => {

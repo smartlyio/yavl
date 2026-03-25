@@ -130,7 +130,7 @@ export const updateModelCaches = <Data, ExternalData, ErrorType>(
       }
 
       // Mutate pathToCurrentDefinition and currentIndices in place to avoid per-iteration
-      // allocations. try/finally guarantees cleanup on early returns or exceptions.
+      // allocations. try/finally guarantees cleanup on early returns.
       pathToCurrentDefinition.push(childDefinition);
       try {
         const arrayCache = findErrorCacheEntry(
