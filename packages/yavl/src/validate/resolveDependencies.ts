@@ -44,17 +44,20 @@ const resolveDependencies = <Data, ExternalData, ErrorType>(
       return undefined;
     }
     // Temporarily swap data/externalData to resolve against previous state,
-    // avoiding a full ProcessingContext spread. try/finally guarantees restoration.
+    // avoiding a full ProcessingContext spread.
     const savedData = processingContext.data;
     const savedExternalData = processingContext.externalData;
     processingContext.data = previousData;
     processingContext.externalData = processingContext.previousExternalDataAtStartOfUpdate as ExternalData;
-    try {
-      return resolveDependencies(processingContext, previousContext.dependencies, currentIndices, runCacheForField);
-    } finally {
-      processingContext.data = savedData;
-      processingContext.externalData = savedExternalData;
-    }
+    const result = resolveDependencies(
+      processingContext,
+      previousContext.dependencies,
+      currentIndices,
+      runCacheForField,
+    );
+    processingContext.data = savedData;
+    processingContext.externalData = savedExternalData;
+    return result;
   } else if (Array.isArray(dependencies)) {
     return dependencies.map(dependency =>
       resolveDependencies(processingContext, dependency, currentIndices, runCacheForField),

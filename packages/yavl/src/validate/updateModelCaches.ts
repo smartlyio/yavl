@@ -119,12 +119,14 @@ export const updateModelCaches = <Data, ExternalData, ErrorType>(
       // Temporarily swap data to resolve against previousData, avoiding a full ProcessingContext spread.
       const savedData = processingContext.data;
       processingContext.data = previousData as Data;
-      let oldParentArray: any[] | undefined;
-      try {
-        oldParentArray = resolveDependency(processingContext, 'internal', parentPath, currentIndices, runCacheForField);
-      } finally {
-        processingContext.data = savedData;
-      }
+      const oldParentArray: any[] | undefined = resolveDependency(
+        processingContext,
+        'internal',
+        parentPath,
+        currentIndices,
+        runCacheForField,
+      );
+      processingContext.data = savedData;
 
       if (deepEqual(newParentArray, oldParentArray)) {
         return;
