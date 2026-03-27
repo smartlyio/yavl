@@ -19,6 +19,13 @@ export type FieldErrorTuple<ErrorType> = [string, ErrorType];
  * Keys are field names eg. "list[0].field.name"
  */
 export type ProcessedComputations = Map<ComputedContext<any>, unknown>;
+
+/**
+ * Two-level cache for computed context results:
+ * - First level: keyed by ComputedContext identity
+ * - Second level: keyed by serialized currentIndices (handles array iteration)
+ */
+export type GlobalProcessedComputations = Map<ComputedContext<any>, Map<string, unknown>>;
 export type MutatingFieldProcessingCacheEntry<ErrorType> = {
   ranValidations: Map<ValidateDefinition<ErrorType>, boolean>;
   conditionTestFnResults: Map<WhenDefinition<ErrorType>, boolean>;
@@ -117,6 +124,8 @@ export type ProcessingContext<Data, ExternalData, ErrorType> = {
   fieldDependencyCache: FieldDependencyCache<ErrorType>;
   // a temporary cache for single process step for optimization purposes
   fieldProcessingCache: MutatingFieldProcessingCache<ErrorType>;
+  // global cache for ComputedContext results, shared across all field processing within one update cycle
+  globalProcessedComputations: GlobalProcessedComputations;
   // a temporary cache to keep track of changed annotations so we can notify subscribers
   changedAnnotationsCache: ChangedAnnotationsCache;
   // pending validations that we have to run

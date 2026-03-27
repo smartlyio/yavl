@@ -162,4 +162,65 @@ describe('resolveDependencies', () => {
       });
     });
   });
+
+  describe('global computed context caching', () => {
+    it('should cache computed results globally and reuse across multiple resolutions with same indices', () => {
+      const computeFn = jest.fn(({ value }: { value: string }) => value.toUpperCase());
+      const cachedComputedContext: ComputedContext<any> = {
+        type: 'computed',
+        dependencies: { value: testContext },
+        computeFn,
+      };
+
+      const indices = { list: 0 };
+
+      // First resolution
+      const result1 = resolveDependencies(mockProcessingContext, cachedComputedContext, indices, undefined);
+      expect(result1).toEqual('RESOLVED');
+      expect(computeFn).toHaveBeenCalledTimes(1);
+
+      // Second resolution with same indices should use cached value
+      const result2 = resolveDependencies(mockProcessingContext, cachedComputedContext, indices, undefined);
+      expect(result2).toEqual('RESOLVED');
+      expect(computeFn).toHaveBeenCalledTimes(1);
+
+      // Third resolution with same indices should still use cached value
+      const result3 = resolveDependencies(mockProcessingContext, cachedComputedContext, indices, undefined);
+      expect(result3).toEqual('RESOLVED');
+      expect(computeFn).toHaveBeenCalledTimes(1);
+    });
+
+    it('should compute separately for different indices', () => {
+      let callCount = 0;
+      const computeFn = jest.fn(({ value }: { value: string }) => {
+        callCount++;
+        return `${value.toUpperCase()}_${callCount}`;
+      });
+      const cachedComputedContext: ComputedContext<any> = {
+        type: 'computed',
+        dependencies: { value: testContext },
+        computeFn,
+      };
+
+      // Resolution with indices { list: 0 }
+      const result1 = resolveDependencies(mockProcessingContext, cachedComputedContext, { list: 0 }, undefined);
+      expect(result1).toEqual('RESOLVED_1');
+      expect(computeFn).toHaveBeenCalledTimes(1);
+
+      // Resolution with different indices { list: 1 } should compute again
+      const result2 = resolveDependencies(mockProcessingContext, cachedComputedContext, { list: 1 }, undefined);
+      expect(result2).toEqual('RESOLVED_2');
+      expect(computeFn).toHaveBeenCalledTimes(2);
+
+      // Resolution with indices { list: 0 } again should use cached value
+      const result3 = resolveDependencies(mockProcessingContext, cachedComputedContext, { list: 0 }, undefined);
+      expect(result3).toEqual('RESOLVED_1');
+      expect(computeFn).toHaveBeenCalledTimes(2);
+
+      // Resolution with indices { list: 1 } again should use cached value
+      const result4 = resolveDependencies(mockProcessingContext, cachedComputedContext, { list: 1 }, undefined);
+      expect(result4).toEqual('RESOLVED_2');
+      expect(computeFn).toHaveBeenCalledTimes(2);
+    });
+  });
 });

@@ -30,6 +30,7 @@ export const createProcessingContext = <Data, ExternalData, ErrorType>({
   annotationBeingResolved: undefined,
   fieldDependencyCache: context.model.fieldDependencyCache,
   fieldProcessingCache: {},
+  globalProcessedComputations: new Map(),
   changedAnnotationsCache: new Map(),
   unprocessedValidationsForConditons: [],
   isEqualFn,

@@ -16,6 +16,7 @@ export const getMockProcessingContext = (
   annotationBeingResolved: undefined,
   fieldDependencyCache: {},
   fieldProcessingCache: {},
+  globalProcessedComputations: new Map(),
   changedAnnotationsCache: new Map(),
   unprocessedValidationsForConditons: [],
   isEqualFn: Object.is,
