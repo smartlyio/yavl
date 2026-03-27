@@ -1,5 +1,4 @@
-import * as R from 'ramda';
-import { ModelValidationContext, Annotation, getAnnotationValue } from '@smartlyio/yavl';
+import { ModelValidationContext, Annotation, getAnnotationValue, deepEqual } from '@smartlyio/yavl';
 import { useAnnotations } from './useAnnotations';
 import { useMemo } from 'react';
 import { useMemoizedValue } from './useMemoizedValue';
@@ -49,7 +48,7 @@ export const useFieldsWithAnnotation: UseFieldsWithAnnotation = <T>(
          */
         memoizedFilters === undefined ||
         !('value' in memoizedFilters) ||
-        R.equals(memoizedFilters.value, getAnnotationValue(fieldAnnotations, annotation))
+        deepEqual(memoizedFilters.value, getAnnotationValue(fieldAnnotations, annotation))
           ? [field]
           : [],
       ),

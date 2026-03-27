@@ -20,6 +20,7 @@ export { getAnnotationValue } from './getAnnotationValue';
 export { subscribeToAnnotations } from './subscribeToAnnotations';
 export { default as isModelContext } from './utils/isModelContext';
 export { noValue } from './types';
+export { deepEqual } from './utils/deepEqual';
 
 export type WhenFn<If = never, Else = never, ErrorType = string> = (
   ifFn: [If] extends [never] ? ModelDefinitionFnWithNoArg<ErrorType> : ModelDefinitionFn<If, ErrorType>,
