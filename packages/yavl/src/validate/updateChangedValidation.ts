@@ -1,7 +1,7 @@
 import { getResolvedValidationErrors, updateResolvedValidationErrors } from '../utils/resolvedValidationsHelpers';
 import { getFieldValidationErrors } from './getFieldValidationErrors';
 import { ProcessingContext } from './types';
-import { deepEqual } from '../utils/deepEqual';
+import { deepEqual } from 'fast-equals';
 
 export const updateChangedValidation = <Data, ExternalData, ErrorType>(
   processingContext: ProcessingContext<Data, ExternalData, ErrorType>,

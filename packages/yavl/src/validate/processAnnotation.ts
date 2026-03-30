@@ -1,5 +1,5 @@
 import { AnnotateDefinition, RecursiveDefinition, noValue } from '../types';
-import { deepEqual } from '../utils/deepEqual';
+import { deepEqual } from 'fast-equals';
 import checkParentConditions from './checkParentConditions';
 import findErrorCacheEntry from './findErrorCacheEntry';
 import getProcessingCacheForField from './getProcessingCacheForField';

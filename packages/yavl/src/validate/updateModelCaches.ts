@@ -6,7 +6,7 @@ import resolveModelPathStr from './resolveModelPathStr';
 import { removeValidationsForField } from './updateChangedValidation';
 import { removeAnnotationForField } from './updateChangedAnnotation';
 import getProcessingCacheForField from './getProcessingCacheForField';
-import { deepEqual } from '../utils/deepEqual';
+import { deepEqual } from 'fast-equals';
 
 type DeletedChildDefinitions = {
   fieldsWithValidations: readonly string[];

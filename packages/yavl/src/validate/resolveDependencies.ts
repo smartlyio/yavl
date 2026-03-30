@@ -1,3 +1,4 @@
+import { shallowEqual } from 'fast-equals';
 import resolveDependency from './resolveDependency';
 import isAnyModelContext from '../utils/isAnyModelContext';
 import isComputedContext from '../utils/isComputedContext';
@@ -25,14 +26,14 @@ const resolveDependencies = <Data, ExternalData, ErrorType>(
     // for computed context simply resolve the dependencies and pass to the computeFn
     const computedContext = dependencies;
 
-    // create a cache key that includes currentIndices (for array iteration scenarios)
-    const indicesKey = JSON.stringify(currentIndices);
-
     // check global cache first - this cache is shared across all field processing within one update cycle
     const { globalProcessedComputations } = processingContext;
-    const cachedForContext = globalProcessedComputations.get(computedContext);
-    if (cachedForContext?.has(indicesKey)) {
-      return cachedForContext.get(indicesKey);
+    const cachedEntries = globalProcessedComputations.get(computedContext);
+    if (cachedEntries) {
+      const match = cachedEntries.find(entry => shallowEqual(entry.indices, currentIndices));
+      if (match) {
+        return match.result;
+      }
     }
 
     // fall back to per-field cache for backward compatibility
@@ -49,10 +50,10 @@ const resolveDependencies = <Data, ExternalData, ErrorType>(
     const result = computedContext.computeFn(computeInput);
 
     // store in global cache for reuse across different annotations
-    if (!cachedForContext) {
-      globalProcessedComputations.set(computedContext, new Map([[indicesKey, result]]));
+    if (!cachedEntries) {
+      globalProcessedComputations.set(computedContext, [{ indices: currentIndices, result }]);
     } else {
-      cachedForContext.set(indicesKey, result);
+      cachedEntries.push({ indices: currentIndices, result });
     }
 
     // also store in per-field cache for existing behavior

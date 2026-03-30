@@ -1,5 +1,5 @@
 import getFieldAnnotations from '../getFieldAnnotations';
-import { deepEqual } from '../utils/deepEqual';
+import { deepEqual } from 'fast-equals';
 import {
   Annotation,
   AnnotationsSubscription,

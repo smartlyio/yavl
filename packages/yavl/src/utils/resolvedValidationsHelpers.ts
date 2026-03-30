@@ -1,4 +1,4 @@
-import { deepEqual } from './deepEqual';
+import { deepEqual } from 'fast-equals';
 import { ResolvedValidations } from '../validate/types';
 
 const uniqDeep = <T>(items: T[]): T[] => {

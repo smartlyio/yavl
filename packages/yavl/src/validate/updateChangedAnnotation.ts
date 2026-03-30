@@ -5,7 +5,7 @@ import { getFieldResolvedAnnotation } from './getFieldResolvedAnnotation';
 import { ProcessingContext } from './types';
 import { valueAnnotation } from '../annotations';
 import { strPathToArray } from '../utils/strPathToArray';
-import { deepEqual } from '../utils/deepEqual';
+import { deepEqual } from 'fast-equals';
 import hasPath from '../utils/hasPath';
 
 const getPath = (path: (string | number)[], obj: any): any => {

@@ -21,11 +21,19 @@ export type FieldErrorTuple<ErrorType> = [string, ErrorType];
 export type ProcessedComputations = Map<ComputedContext<any>, unknown>;
 
 /**
+ * Cache entry for a computed context result at specific indices.
+ */
+export type GlobalComputedCacheEntry = {
+  indices: CurrentIndices;
+  result: unknown;
+};
+
+/**
  * Two-level cache for computed context results:
  * - First level: keyed by ComputedContext identity
- * - Second level: keyed by serialized currentIndices (handles array iteration)
+ * - Second level: array of entries with indices compared via shallow equality
  */
-export type GlobalProcessedComputations = Map<ComputedContext<any>, Map<string, unknown>>;
+export type GlobalProcessedComputations = Map<ComputedContext<any>, GlobalComputedCacheEntry[]>;
 export type MutatingFieldProcessingCacheEntry<ErrorType> = {
   ranValidations: Map<ValidateDefinition<ErrorType>, boolean>;
   conditionTestFnResults: Map<WhenDefinition<ErrorType>, boolean>;
