@@ -26,15 +26,23 @@ export const deepEqual = (a: unknown, b: unknown): boolean => {
         return false;
       }
       for (const value of a) {
-        let found = false;
-        for (const otherValue of setB) {
-          if (deepEqual(value, otherValue)) {
-            found = true;
-            break;
+        if (typeof value !== 'object' || value === null) {
+          // Primitives: O(1) lookup
+          if (!setB.has(value)) {
+            return false;
           }
-        }
-        if (!found) {
-          return false;
+        } else {
+          // Objects: O(n) search with deep comparison
+          let found = false;
+          for (const otherValue of setB) {
+            if (deepEqual(value, otherValue)) {
+              found = true;
+              break;
+            }
+          }
+          if (!found) {
+            return false;
+          }
         }
       }
       return true;
