@@ -219,4 +219,121 @@ describe('deepEqual', () => {
       expect(deepEqual({ a: false }, { a: 0 })).toBe(false);
     });
   });
+
+  describe('Set', () => {
+    it('returns true for empty sets', () => {
+      expect(deepEqual(new Set(), new Set())).toBe(true);
+    });
+
+    it('returns true for sets with identical primitive values', () => {
+      expect(deepEqual(new Set([1, 2, 3]), new Set([1, 2, 3]))).toBe(true);
+      expect(deepEqual(new Set(['a', 'b']), new Set(['a', 'b']))).toBe(true);
+    });
+
+    it('returns true for sets with same values in different order', () => {
+      expect(deepEqual(new Set([1, 2, 3]), new Set([3, 1, 2]))).toBe(true);
+    });
+
+    it('returns false for sets with different sizes', () => {
+      expect(deepEqual(new Set([1, 2]), new Set([1, 2, 3]))).toBe(false);
+      expect(deepEqual(new Set([1, 2, 3]), new Set([1, 2]))).toBe(false);
+    });
+
+    it('returns false for sets with different values', () => {
+      expect(deepEqual(new Set([1, 2, 3]), new Set([1, 2, 4]))).toBe(false);
+      expect(deepEqual(new Set(['a', 'b']), new Set(['a', 'c']))).toBe(false);
+    });
+
+    it('returns true for the same set reference', () => {
+      const set = new Set([1, 2, 3]);
+      expect(deepEqual(set, set)).toBe(true);
+    });
+
+    it('returns false when comparing set to array', () => {
+      expect(deepEqual(new Set([1, 2, 3]), [1, 2, 3])).toBe(false);
+      expect(deepEqual([1, 2, 3], new Set([1, 2, 3]))).toBe(false);
+    });
+
+    it('handles sets with object values using deep comparison', () => {
+      expect(deepEqual(new Set([{ a: 1 }, { b: 2 }]), new Set([{ a: 1 }, { b: 2 }]))).toBe(true);
+      expect(deepEqual(new Set([{ a: 1 }, { b: 2 }]), new Set([{ a: 1 }, { b: 3 }]))).toBe(false);
+    });
+
+    it('handles nested sets', () => {
+      expect(deepEqual(new Set([new Set([1, 2])]), new Set([new Set([1, 2])]))).toBe(true);
+      expect(deepEqual(new Set([new Set([1, 2])]), new Set([new Set([1, 3])]))).toBe(false);
+    });
+  });
+
+  describe('Map', () => {
+    it('returns true for empty maps', () => {
+      expect(deepEqual(new Map(), new Map())).toBe(true);
+    });
+
+    it('returns true for maps with identical entries', () => {
+      expect(
+        deepEqual(
+          new Map([
+            ['a', 1],
+            ['b', 2],
+          ]),
+          new Map([
+            ['a', 1],
+            ['b', 2],
+          ]),
+        ),
+      ).toBe(true);
+    });
+
+    it('returns true for maps with same entries in different order', () => {
+      expect(
+        deepEqual(
+          new Map([
+            ['a', 1],
+            ['b', 2],
+          ]),
+          new Map([
+            ['b', 2],
+            ['a', 1],
+          ]),
+        ),
+      ).toBe(true);
+    });
+
+    it('returns false for maps with different sizes', () => {
+      expect(
+        deepEqual(
+          new Map([['a', 1]]),
+          new Map([
+            ['a', 1],
+            ['b', 2],
+          ]),
+        ),
+      ).toBe(false);
+    });
+
+    it('returns false for maps with different keys', () => {
+      expect(deepEqual(new Map([['a', 1]]), new Map([['b', 1]]))).toBe(false);
+    });
+
+    it('returns false for maps with different values', () => {
+      expect(deepEqual(new Map([['a', 1]]), new Map([['a', 2]]))).toBe(false);
+    });
+
+    it('returns true for the same map reference', () => {
+      const map = new Map([['a', 1]]);
+      expect(deepEqual(map, map)).toBe(true);
+    });
+
+    it('returns false when comparing map to object', () => {
+      expect(deepEqual(new Map([['a', 1]]), { a: 1 })).toBe(false);
+      expect(deepEqual({ a: 1 }, new Map([['a', 1]]))).toBe(false);
+    });
+
+    it('handles maps with object values using deep comparison', () => {
+      expect(deepEqual(new Map([['key', { nested: true }]]), new Map([['key', { nested: true }]]))).toBe(true);
+      expect(deepEqual(new Map([['key', { nested: true }]]), new Map([['key', { nested: false }]]))).toBe(false);
+    });
+  });
+
 });

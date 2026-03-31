@@ -20,6 +20,39 @@ export const deepEqual = (a: unknown, b: unknown): boolean => {
       return true;
     }
 
+    if (a instanceof Set) {
+      const setB = b as Set<unknown>;
+      if (a.size !== setB.size) {
+        return false;
+      }
+      for (const value of a) {
+        let found = false;
+        for (const otherValue of setB) {
+          if (deepEqual(value, otherValue)) {
+            found = true;
+            break;
+          }
+        }
+        if (!found) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    if (a instanceof Map) {
+      const mapB = b as Map<unknown, unknown>;
+      if (a.size !== mapB.size) {
+        return false;
+      }
+      for (const [key, value] of a) {
+        if (!mapB.has(key) || !deepEqual(value, mapB.get(key))) {
+          return false;
+        }
+      }
+      return true;
+    }
+
     const keysA = Object.keys(a);
     const keysB = Object.keys(b);
     if (keysA.length !== keysB.length) {
