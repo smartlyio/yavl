@@ -63,5 +63,8 @@
     "resetMocks": false,
     "clearMocks": true,
     "testTimeout": 1000
+  },
+  "dependencies": {
+    "fast-equals": "^6.0.0"
   }
 }
