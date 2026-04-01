@@ -50,7 +50,7 @@ const processComputedValueAnnotation = <Data, ExternalData, ErrorType>(
   const previousValue = hasPath(path, processingContext.data) ? getPath(path, processingContext.data) : noValue;
 
   // update processingContext data if the value has changed
-  if (value !== noValue && value !== previousValue) {
+  if (value !== noValue && !deepEqual(value, previousValue)) {
     processingContext.data = setPath(path, value, processingContext.data);
   }
 };

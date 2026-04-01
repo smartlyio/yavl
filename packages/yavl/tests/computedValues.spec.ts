@@ -878,6 +878,158 @@ describe('computed values', () => {
     });
   });
 
+  describe('with computed value returning structurally equal object', () => {
+    it('should not cause unnecessary cascading passes when computed returns a new object with same structure', () => {
+      type TestModel = {
+        input: string;
+        computed?: { label: string };
+      };
+
+      let computeCallCount = 0;
+
+      const testModel = model<TestModel>((root, builder) => [
+        builder.withFields(root, ['input', 'computed'], ({ input, computed }) => [
+          builder.value(
+            computed,
+            builder.compute(input, () => {
+              computeCallCount++;
+              return { label: 'static' };
+            }),
+          ),
+        ]),
+      ]);
+
+      testIncrementalValidate(testModel, { input: 'a' });
+      expect(getModelData(validationContext!)).toEqual({
+        input: 'a',
+        computed: { label: 'static' },
+      });
+
+      computeCallCount = 0;
+      testIncrementalValidate(testModel, { input: 'b' });
+
+      expect(computeCallCount).toBe(1);
+      expect(getModelData(validationContext!)).toEqual({
+        input: 'b',
+        computed: { label: 'static' },
+      });
+    });
+
+    it('should still update when computed value actually changes', () => {
+      type TestModel = {
+        input: string;
+        computed?: { derived: string };
+      };
+
+      const testModel = model<TestModel>((root, builder) => [
+        builder.withFields(root, ['input', 'computed'], ({ input, computed }) => [
+          builder.value(
+            computed,
+            builder.compute(input, input => ({ derived: input.toUpperCase() })),
+          ),
+        ]),
+      ]);
+
+      testIncrementalValidate(testModel, { input: 'hello' });
+      expect(getModelData(validationContext!)).toEqual({
+        input: 'hello',
+        computed: { derived: 'HELLO' },
+      });
+
+      testIncrementalValidate(testModel, { input: 'world' });
+      expect(getModelData(validationContext!)).toEqual({
+        input: 'world',
+        computed: { derived: 'WORLD' },
+      });
+    });
+
+    it('should not cause unnecessary cascading passes when computed returns a new array with same contents', () => {
+      type TestModel = {
+        input: string;
+        computed?: string[];
+      };
+
+      let computeCallCount = 0;
+
+      const testModel = model<TestModel>((root, builder) => [
+        builder.withFields(root, ['input', 'computed'], ({ input, computed }) => [
+          builder.value(
+            computed,
+            builder.compute(input, () => {
+              computeCallCount++;
+              return ['a', 'b', 'c'];
+            }),
+          ),
+        ]),
+      ]);
+
+      testIncrementalValidate(testModel, { input: 'first' });
+      expect(getModelData(validationContext!)).toEqual({
+        input: 'first',
+        computed: ['a', 'b', 'c'],
+      });
+
+      computeCallCount = 0;
+      testIncrementalValidate(testModel, { input: 'second' });
+
+      expect(computeCallCount).toBe(1);
+      expect(getModelData(validationContext!)).toEqual({
+        input: 'second',
+        computed: ['a', 'b', 'c'],
+      });
+    });
+
+    it('should not cascade when computed value depends on another computed that returns same structure', () => {
+      type TestModel = {
+        input: string;
+        intermediate?: { value: string };
+        final?: string;
+      };
+
+      let intermediateCallCount = 0;
+      let finalCallCount = 0;
+
+      const testModel = model<TestModel>((root, builder) => [
+        builder.withFields(root, ['input', 'intermediate', 'final'], ({ input, intermediate, final }) => [
+          builder.value(
+            intermediate,
+            builder.compute(input, () => {
+              intermediateCallCount++;
+              return { value: 'constant' };
+            }),
+          ),
+          builder.value(
+            final,
+            builder.compute(intermediate, intermediate => {
+              finalCallCount++;
+              return intermediate?.value ?? '';
+            }),
+          ),
+        ]),
+      ]);
+
+      testIncrementalValidate(testModel, { input: 'a' });
+      expect(getModelData(validationContext!)).toEqual({
+        input: 'a',
+        intermediate: { value: 'constant' },
+        final: 'constant',
+      });
+
+      intermediateCallCount = 0;
+      finalCallCount = 0;
+      testIncrementalValidate(testModel, { input: 'b' });
+
+      expect(intermediateCallCount).toBe(1);
+      // intermediate didn't change structurally, so final should not be re-evaluated
+      expect(finalCallCount).toBe(0);
+      expect(getModelData(validationContext!)).toEqual({
+        input: 'b',
+        intermediate: { value: 'constant' },
+        final: 'constant',
+      });
+    });
+  });
+
   describe('with undefined values', () => {
     it('should create object with nested undefined computed value', () => {
       type TestModel = {
