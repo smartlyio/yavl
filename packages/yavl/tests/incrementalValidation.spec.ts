@@ -1,4 +1,4 @@
-import { setPath, over, remove, omit, update, append, pick } from './testHelpers';
+import * as R from 'ramda';
 import model from '../src/model';
 import validateModel from '../src/validate/validateModel';
 import { ModelValidationContext, ModelValidationErrors } from '../src/validate/types';
@@ -150,7 +150,7 @@ describe('model incremental validation', () => {
     });
 
     describe('when value changes to invalid', () => {
-      const changedData = setPath(['simpleValue'], 'invalid', initialData);
+      const changedData = R.set(R.lensPath(['simpleValue']), 'invalid', initialData);
 
       beforeEach(() => {
         jest.clearAllMocks();
@@ -171,7 +171,7 @@ describe('model incremental validation', () => {
     });
 
     describe('when value changes back to valid', () => {
-      const changedData = setPath(['simpleValue'], 'valid', initialData);
+      const changedData = R.set(R.lensPath(['simpleValue']), 'valid', initialData);
 
       beforeEach(() => {
         jest.clearAllMocks();
@@ -210,7 +210,7 @@ describe('model incremental validation', () => {
     });
 
     describe('when value changes to string', () => {
-      const changedData = setPath(['optionalValue'], 'changed', initialData);
+      const changedData = R.set(R.lensPath(['optionalValue']), 'changed', initialData);
 
       beforeEach(() => {
         jest.clearAllMocks();
@@ -228,7 +228,7 @@ describe('model incremental validation', () => {
       });
 
       describe('when value changes back to undefined', () => {
-        const nextChangedData = setPath(['optionalValue'], undefined, changedData);
+        const nextChangedData = R.set(R.lensPath(['optionalValue']), undefined, changedData);
 
         beforeEach(() => {
           jest.clearAllMocks();
@@ -247,7 +247,7 @@ describe('model incremental validation', () => {
       });
 
       describe('when value is deleted from object', () => {
-        const nextChangedData = omit(['optionalValue'], changedData);
+        const nextChangedData = R.omit(['optionalValue'], changedData);
 
         beforeEach(() => {
           jest.clearAllMocks();
@@ -288,7 +288,7 @@ describe('model incremental validation', () => {
     });
 
     describe('when value changes that validation depends on', () => {
-      const changedData = setPath(['simpleValue'], 'changed', initialData);
+      const changedData = R.set(R.lensPath(['simpleValue']), 'changed', initialData);
 
       beforeEach(() => {
         jest.clearAllMocks();
@@ -336,7 +336,7 @@ describe('model incremental validation', () => {
     });
 
     describe('when value of deeply nested value changes', () => {
-      const changedData = setPath(['very', 'deeply', 'nested', 'value'], 'changed', initialData);
+      const changedData = R.set(R.lensPath(['very', 'deeply', 'nested', 'value']), 'changed', initialData);
 
       beforeEach(() => {
         jest.clearAllMocks();
@@ -429,7 +429,7 @@ describe('model incremental validation', () => {
       });
 
       describe('when validation for one item passes', () => {
-        const changedData = setPath(['list', 1, 'value'], 'changed', initialData);
+        const changedData = R.set(R.lensPath(['list', 1, 'value']), 'changed', initialData);
 
         beforeEach(() => {
           jest.clearAllMocks();
@@ -452,7 +452,7 @@ describe('model incremental validation', () => {
       });
 
       describe('when removing item from end of array', () => {
-        const changedData = over(['list'], remove(-1, 1), initialData);
+        const changedData = R.over(R.lensPath(['list']), R.remove(-1, 1), initialData);
 
         beforeEach(() => {
           jest.clearAllMocks();
@@ -484,7 +484,7 @@ describe('model incremental validation', () => {
       });
 
       describe('when removing item from middle of array', () => {
-        const changedData = over(['list'], remove(1, 1), initialData);
+        const changedData = R.over(R.lensPath(['list']), R.remove(1, 1), initialData);
 
         beforeEach(() => {
           jest.clearAllMocks();
@@ -518,7 +518,7 @@ describe('model incremental validation', () => {
       });
 
       describe('when removing all items from array', () => {
-        const changedData = setPath(['list'], [], initialData);
+        const changedData = R.set(R.lensPath(['list']), [], initialData);
 
         beforeEach(() => {
           jest.clearAllMocks();
@@ -601,7 +601,7 @@ describe('model incremental validation', () => {
       });
 
       describe('when validation for one item passes', () => {
-        const changedData = setPath(['outerList', 1, 'innerList', 0], 'changed', initialData);
+        const changedData = R.set(R.lensPath(['outerList', 1, 'innerList', 0]), 'changed', initialData);
 
         beforeEach(() => {
           jest.clearAllMocks();
@@ -625,7 +625,7 @@ describe('model incremental validation', () => {
       });
 
       describe('when removing item from end of nested array', () => {
-        const changedData = over(['outerList', 1, 'innerList'], remove(-1, 1), initialData);
+        const changedData = R.over(R.lensPath(['outerList', 1, 'innerList']), R.remove(-1, 1), initialData);
 
         beforeEach(() => {
           jest.clearAllMocks();
@@ -647,7 +647,7 @@ describe('model incremental validation', () => {
       });
 
       describe('when removing item from beginning nested of array', () => {
-        const changedData = over(['outerList', 1, 'innerList'], remove(0, 1), initialData);
+        const changedData = R.over(R.lensPath(['outerList', 1, 'innerList']), R.remove(0, 1), initialData);
 
         beforeEach(() => {
           jest.clearAllMocks();
@@ -671,7 +671,7 @@ describe('model incremental validation', () => {
       });
 
       describe('when removing all items from nested array', () => {
-        const changedData = setPath(['outerList', 1, 'innerList'], [], initialData);
+        const changedData = R.set(R.lensPath(['outerList', 1, 'innerList']), [], initialData);
 
         beforeEach(() => {
           jest.clearAllMocks();
@@ -691,7 +691,7 @@ describe('model incremental validation', () => {
       });
 
       describe('when removing item from outer array', () => {
-        const changedData = over(['outerList'], remove(-1, 1), initialData);
+        const changedData = R.over(R.lensPath(['outerList']), R.remove(-1, 1), initialData);
 
         beforeEach(() => {
           jest.clearAllMocks();
@@ -708,7 +708,7 @@ describe('model incremental validation', () => {
       });
 
       describe('when removing all items from outer array', () => {
-        const changedData = setPath(['outerList'], [], initialData);
+        const changedData = R.set(R.lensPath(['outerList']), [], initialData);
 
         beforeEach(() => {
           jest.clearAllMocks();
@@ -752,7 +752,7 @@ describe('model incremental validation', () => {
     });
 
     describe('when removing items from array', () => {
-      const changedData = setPath(['list'], [], initialData);
+      const changedData = R.set(R.lensPath(['list']), [], initialData);
 
       beforeEach(() => {
         jest.clearAllMocks();
@@ -799,7 +799,7 @@ describe('model incremental validation', () => {
     });
 
     describe('when removing item', () => {
-      const changedData = over(['list'], remove(-1, 1), initialData);
+      const changedData = R.over(R.lensPath(['list']), R.remove(-1, 1), initialData);
 
       beforeEach(() => {
         jest.clearAllMocks();
@@ -816,7 +816,7 @@ describe('model incremental validation', () => {
     });
 
     describe('when removing all items from array', () => {
-      const changedData = setPath(['list'], [], initialData);
+      const changedData = R.set(R.lensPath(['list']), [], initialData);
 
       beforeEach(() => {
         jest.clearAllMocks();
@@ -858,7 +858,7 @@ describe('model incremental validation', () => {
     });
 
     describe('when dependency of validation changes', () => {
-      const changedData = setPath(['simpleValue'], 'changed', initialData);
+      const changedData = R.set(R.lensPath(['simpleValue']), 'changed', initialData);
 
       beforeEach(() => {
         jest.clearAllMocks();
@@ -907,7 +907,7 @@ describe('model incremental validation', () => {
     });
 
     describe('when dependent data changes', () => {
-      const changedData = setPath(['simpleValue'], 'changed', initialData);
+      const changedData = R.set(R.lensPath(['simpleValue']), 'changed', initialData);
 
       beforeEach(() => {
         jest.clearAllMocks();
@@ -957,7 +957,7 @@ describe('model incremental validation', () => {
     });
 
     describe('when dependent data changes', () => {
-      const changedData = setPath(['simpleValue'], 'changed', initialData);
+      const changedData = R.set(R.lensPath(['simpleValue']), 'changed', initialData);
 
       beforeEach(() => {
         jest.clearAllMocks();
@@ -1005,7 +1005,7 @@ describe('model incremental validation', () => {
     });
 
     describe('when the dependency of when changes', () => {
-      const changedData = setPath(['simpleValue'], 'changed', initialData);
+      const changedData = R.set(R.lensPath(['simpleValue']), 'changed', initialData);
 
       beforeEach(() => {
         validateA.mockReturnValue('second error');
@@ -1079,7 +1079,7 @@ describe('model incremental validation', () => {
     });
 
     describe('when the dependency of when changes', () => {
-      const changedData = setPath(['simpleGroup', 'valueC'], 'changed', initialData);
+      const changedData = R.set(R.lensPath(['simpleGroup', 'valueC']), 'changed', initialData);
 
       beforeEach(() => {
         jest.clearAllMocks();
@@ -1152,7 +1152,7 @@ describe('model incremental validation', () => {
     });
 
     describe('when the dependency of condition changes', () => {
-      const changedData = setPath(['simpleValue'], 'changed', initialData);
+      const changedData = R.set(R.lensPath(['simpleValue']), 'changed', initialData);
 
       beforeEach(() => {
         jest.clearAllMocks();
@@ -1216,7 +1216,7 @@ describe('model incremental validation', () => {
     });
 
     describe('when the dependency of condition changes', () => {
-      const changedData = setPath(['simpleValue'], 'changed', initialData);
+      const changedData = R.set(R.lensPath(['simpleValue']), 'changed', initialData);
 
       beforeEach(() => {
         jest.clearAllMocks();
@@ -1273,7 +1273,7 @@ describe('model incremental validation', () => {
     });
 
     describe('when condition changes to true', () => {
-      const changedData = setPath(['pathB', 'otherValue'], 'changed', initialData);
+      const changedData = R.set(R.lensPath(['pathB', 'otherValue']), 'changed', initialData);
 
       beforeEach(() => {
         jest.clearAllMocks();
@@ -1311,7 +1311,7 @@ describe('model incremental validation', () => {
     });
 
     describe('when condition changes to false', () => {
-      const changedData = setPath(['pathA', 'otherValue'], 'changed', initialData);
+      const changedData = R.set(R.lensPath(['pathA', 'otherValue']), 'changed', initialData);
 
       beforeEach(() => {
         jest.clearAllMocks();
@@ -1377,7 +1377,7 @@ describe('model incremental validation', () => {
     });
 
     describe('when external data changes', () => {
-      const changedExternalData = setPath(['extSimpleValue'], 'changed', initialExternalData);
+      const changedExternalData = R.set(R.lensPath(['extSimpleValue']), 'changed', initialExternalData);
 
       beforeEach(() => {
         jest.clearAllMocks();
@@ -1443,7 +1443,7 @@ describe('model incremental validation', () => {
     });
 
     describe('when any of the dependencies changes', () => {
-      const changedData = setPath(['simpleGroup', 'valueC'], 'changed', initialData);
+      const changedData = R.set(R.lensPath(['simpleGroup', 'valueC']), 'changed', initialData);
 
       beforeEach(() => {
         jest.clearAllMocks();
@@ -1492,7 +1492,7 @@ describe('model incremental validation', () => {
     });
 
     describe('when the field changes', () => {
-      const changedData = setPath(['simpleValue'], 'changed', initialData);
+      const changedData = R.set(R.lensPath(['simpleValue']), 'changed', initialData);
 
       beforeEach(() => {
         jest.clearAllMocks();
@@ -1508,7 +1508,7 @@ describe('model incremental validation', () => {
     });
 
     describe('when the dependency changes', () => {
-      const changedData = setPath(['pathA', 'value'], 'changed', initialData);
+      const changedData = R.set(R.lensPath(['pathA', 'value']), 'changed', initialData);
 
       beforeEach(() => {
         jest.clearAllMocks();
@@ -1572,7 +1572,7 @@ describe('model incremental validation', () => {
     });
 
     describe('when the dependency changes', () => {
-      const changedData = setPath(['pathA', 'value'], 'changed', initialData);
+      const changedData = R.set(R.lensPath(['pathA', 'value']), 'changed', initialData);
 
       beforeEach(() => {
         jest.clearAllMocks();
@@ -1605,7 +1605,7 @@ describe('model incremental validation', () => {
       ]),
     ]);
 
-    const changedData = setPath(['pathB', 'value'], 'changed', initialData);
+    const changedData = R.set(R.lensPath(['pathB', 'value']), 'changed', initialData);
 
     beforeEach(() => {
       // initial validation
@@ -1687,7 +1687,11 @@ describe('model incremental validation', () => {
     });
 
     describe('when value changes in innerListB', () => {
-      const changedData = setPath(['complex', 'outerList', 0, 'innerListB', 0, 'value'], 'changed', initialData);
+      const changedData = R.set(
+        R.lensPath(['complex', 'outerList', 0, 'innerListB', 0, 'value']),
+        'changed',
+        initialData,
+      );
 
       beforeEach(() => {
         jest.clearAllMocks();
@@ -1749,7 +1753,7 @@ describe('model incremental validation', () => {
     });
 
     describe('when value changes', () => {
-      const changedData = setPath(['simpleValue'], 'changed', initialData);
+      const changedData = R.set(R.lensPath(['simpleValue']), 'changed', initialData);
 
       beforeEach(() => {
         jest.clearAllMocks();
@@ -1784,7 +1788,7 @@ describe('model incremental validation', () => {
     });
 
     describe('when value changes', () => {
-      const changedData = update(1, 'changed', testArray);
+      const changedData = R.update(1, 'changed', testArray);
 
       beforeEach(() => {
         jest.clearAllMocks();
@@ -1822,7 +1826,7 @@ describe('model incremental validation', () => {
       });
 
       describe('when field listed in dependsOn changes', () => {
-        const changedData = setPath(['simpleGroup', 'valueC'], 'changed', initialData);
+        const changedData = R.set(R.lensPath(['simpleGroup', 'valueC']), 'changed', initialData);
 
         beforeEach(() => {
           jest.clearAllMocks();
@@ -1842,7 +1846,7 @@ describe('model incremental validation', () => {
       });
 
       describe('when field not listed in dependsOn changes', () => {
-        const changedData = setPath(['simpleGroup', 'valueB'], 'changed', initialData);
+        const changedData = R.set(R.lensPath(['simpleGroup', 'valueB']), 'changed', initialData);
 
         beforeEach(() => {
           jest.clearAllMocks();
@@ -1863,7 +1867,7 @@ describe('model incremental validation', () => {
       });
 
       describe('when field listed in dependsOn changes', () => {
-        const changedData = setPath(['simpleGroup', 'valueC'], 'changed', initialData);
+        const changedData = R.set(R.lensPath(['simpleGroup', 'valueC']), 'changed', initialData);
 
         beforeEach(() => {
           jest.clearAllMocks();
@@ -1878,7 +1882,7 @@ describe('model incremental validation', () => {
       });
 
       describe('when field not listed in dependsOn changes', () => {
-        const changedData = setPath(['simpleGroup', 'valueB'], 'changed', initialData);
+        const changedData = R.set(R.lensPath(['simpleGroup', 'valueB']), 'changed', initialData);
 
         beforeEach(() => {
           jest.clearAllMocks();
@@ -1915,7 +1919,7 @@ describe('model incremental validation', () => {
     });
 
     describe('when element with a dependency changes', () => {
-      const changedData = setPath(['simpleList', 0], 'changed', initialData);
+      const changedData = R.set(R.lensPath(['simpleList', 0]), 'changed', initialData);
 
       beforeEach(() => {
         jest.clearAllMocks();
@@ -1935,7 +1939,7 @@ describe('model incremental validation', () => {
     });
 
     describe('when element without a dependency changes', () => {
-      const changedData = setPath(['simpleList', 1], 'changed', initialData);
+      const changedData = R.set(R.lensPath(['simpleList', 1]), 'changed', initialData);
 
       beforeEach(() => {
         jest.clearAllMocks();
@@ -2055,7 +2059,7 @@ describe('model incremental validation', () => {
     });
 
     describe('when a computed dependency changes', () => {
-      const changedData = setPath(['computedTest', 'numB'], 3, initialData);
+      const changedData = R.set(R.lensPath(['computedTest', 'numB']), 3, initialData);
 
       beforeEach(() => {
         jest.clearAllMocks();
@@ -2091,7 +2095,7 @@ describe('model incremental validation', () => {
       });
 
       it('should re-run validations and conditions with updated compuation when new item is added', () => {
-        const changedData = over(['computedTest', 'arrayOfNums'], append(4), initialData);
+        const changedData = R.over(R.lensPath(['computedTest', 'arrayOfNums']), R.append(4), initialData);
 
         const expectedComputed = changedData.computedTest.arrayOfNums.reduce((acc, num) => acc + num, 0);
 
@@ -2103,7 +2107,7 @@ describe('model incremental validation', () => {
       });
 
       it('should re-run validations and conditions with updated compuation when item is removed', () => {
-        const changedData = over(['computedTest', 'arrayOfNums'], remove(0, 1), initialData);
+        const changedData = R.over(R.lensPath(['computedTest', 'arrayOfNums']), R.remove(0, 1), initialData);
 
         const expectedComputed = changedData.computedTest.arrayOfNums.reduce((acc, num) => acc + num, 0);
 
@@ -2115,7 +2119,7 @@ describe('model incremental validation', () => {
       });
 
       it('should re-run validations and conditions with updated compuation when whole array is replaced', () => {
-        const changedData = setPath(['computedTest', 'arrayOfNums'], [4, 5, 6], initialData);
+        const changedData = R.set(R.lensPath(['computedTest', 'arrayOfNums']), [4, 5, 6], initialData);
 
         const expectedComputed = changedData.computedTest.arrayOfNums.reduce((acc, num) => acc + num, 0);
 
@@ -2185,7 +2189,7 @@ describe('model incremental validation', () => {
         it('should re-run when picked property changes', () => {
           jest.clearAllMocks();
 
-          const changedData = setPath(['simpleGroup', 'valueA'], 'changed', initialData);
+          const changedData = R.set(R.lensPath(['simpleGroup', 'valueA']), 'changed', initialData);
 
           testIncrementalValidate(testModel, changedData);
 
@@ -2205,7 +2209,7 @@ describe('model incremental validation', () => {
         it('should not re-run when non-picked property changes', () => {
           jest.clearAllMocks();
 
-          const changedData = setPath(['simpleGroup', 'valueB'], 'changed', initialData);
+          const changedData = R.set(R.lensPath(['simpleGroup', 'valueB']), 'changed', initialData);
 
           testIncrementalValidate(testModel, changedData);
 
@@ -2218,7 +2222,7 @@ describe('model incremental validation', () => {
           expect(conditionB).toHaveBeenCalledTimes(1);
           expect(conditionB).toHaveBeenCalledWith(
             {
-              picked: initialData.list.map(pick(['value'])),
+              picked: initialData.list.map(R.pick(['value'])),
             },
             initialData,
             undefined,
@@ -2228,14 +2232,14 @@ describe('model incremental validation', () => {
         it('should re-run when picked property changes', () => {
           jest.clearAllMocks();
 
-          const changedData = setPath(['list', 0, 'value'], 'changed', initialData);
+          const changedData = R.set(R.lensPath(['list', 0, 'value']), 'changed', initialData);
 
           testIncrementalValidate(testModel, changedData);
 
           expect(conditionB).toHaveBeenCalledTimes(1);
           expect(conditionB).toHaveBeenCalledWith(
             {
-              picked: changedData.list.map(pick(['value'])),
+              picked: changedData.list.map(R.pick(['value'])),
             },
             changedData,
             undefined,
@@ -2245,7 +2249,7 @@ describe('model incremental validation', () => {
         it('should not re-run when non-picked property changes', () => {
           jest.clearAllMocks();
 
-          const changedData = setPath(['list', 0, 'otherValue'], 'changed', initialData);
+          const changedData = R.set(R.lensPath(['list', 0, 'otherValue']), 'changed', initialData);
 
           testIncrementalValidate(testModel, changedData);
 
@@ -2270,7 +2274,7 @@ describe('model incremental validation', () => {
         it('should re-run when inputs for computed data changes', () => {
           jest.clearAllMocks();
 
-          const changedData = setPath(['computedTest', 'numA'], 2, initialData);
+          const changedData = R.set(R.lensPath(['computedTest', 'numA']), 2, initialData);
 
           testIncrementalValidate(testModel, changedData);
 
@@ -2305,7 +2309,7 @@ describe('model incremental validation', () => {
     });
 
     describe('when a duplicate error changes to unique error', () => {
-      const changedData = setPath(['simpleValue'], 'changed', initialData);
+      const changedData = R.set(R.lensPath(['simpleValue']), 'changed', initialData);
 
       beforeEach(() => {
         jest.clearAllMocks();
@@ -2321,7 +2325,7 @@ describe('model incremental validation', () => {
       });
 
       describe('when unique errors changes to duplicate error', () => {
-        const changedData = setPath(['simpleValue'], 'changed again', initialData);
+        const changedData = R.set(R.lensPath(['simpleValue']), 'changed again', initialData);
 
         beforeEach(() => {
           jest.clearAllMocks();

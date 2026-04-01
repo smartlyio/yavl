@@ -1,4 +1,4 @@
-import { pick } from './testHelpers';
+import * as R from 'ramda';
 import {
   createAnnotation,
   createValidationContext,
@@ -65,7 +65,7 @@ describe('computed values', () => {
 
       it('should run when() with correct inputs', () => {
         expect(testWhen).toHaveBeenLastCalledWith(
-          pick(['a', 'b', 'c'], expectedInitialModelData),
+          R.pick(['a', 'b', 'c'], expectedInitialModelData),
           expectedInitialModelData,
           undefined,
         );
@@ -74,7 +74,7 @@ describe('computed values', () => {
       it('should run validate() with correct inputs', () => {
         expect(testValidate).toHaveBeenLastCalledWith(
           expectedInitialModelData.a,
-          pick(['b', 'c'], expectedInitialModelData),
+          R.pick(['b', 'c'], expectedInitialModelData),
           expectedInitialModelData,
           undefined,
         );
@@ -83,7 +83,7 @@ describe('computed values', () => {
       it('should run when() only after all computed values have been updated', () => {
         expect(testWhen).toHaveBeenCalledTimes(1);
         expect(testWhen).toHaveBeenLastCalledWith(
-          pick(['a', 'b', 'c'], expectedInitialModelData),
+          R.pick(['a', 'b', 'c'], expectedInitialModelData),
           expectedInitialModelData,
           undefined,
         );
@@ -93,7 +93,7 @@ describe('computed values', () => {
         expect(testValidate).toHaveBeenCalledTimes(1);
         expect(testValidate).toHaveBeenLastCalledWith(
           expectedInitialModelData.a,
-          pick(['b', 'c'], expectedInitialModelData),
+          R.pick(['b', 'c'], expectedInitialModelData),
           expectedInitialModelData,
           undefined,
         );
@@ -116,7 +116,7 @@ describe('computed values', () => {
 
         it('should run when() with correct inputs', () => {
           expect(testWhen).toHaveBeenLastCalledWith(
-            pick(['a', 'b', 'c'], expectedUpdatedModelData),
+            R.pick(['a', 'b', 'c'], expectedUpdatedModelData),
             expectedUpdatedModelData,
             undefined,
           );
@@ -125,7 +125,7 @@ describe('computed values', () => {
         it('should run validate() with correct inputs', () => {
           expect(testValidate).toHaveBeenLastCalledWith(
             expectedUpdatedModelData.a,
-            pick(['b', 'c'], expectedUpdatedModelData),
+            R.pick(['b', 'c'], expectedUpdatedModelData),
             expectedUpdatedModelData,
             undefined,
           );
@@ -134,7 +134,7 @@ describe('computed values', () => {
         it('should run when() only after all computed values have been updated', () => {
           expect(testWhen).toHaveBeenCalledTimes(1);
           expect(testWhen).toHaveBeenLastCalledWith(
-            pick(['a', 'b', 'c'], expectedUpdatedModelData),
+            R.pick(['a', 'b', 'c'], expectedUpdatedModelData),
             expectedUpdatedModelData,
             undefined,
           );
@@ -144,7 +144,7 @@ describe('computed values', () => {
           expect(testValidate).toHaveBeenCalledTimes(1);
           expect(testValidate).toHaveBeenLastCalledWith(
             expectedUpdatedModelData.a,
-            pick(['b', 'c'], expectedUpdatedModelData),
+            R.pick(['b', 'c'], expectedUpdatedModelData),
             expectedUpdatedModelData,
             undefined,
           );
@@ -182,7 +182,7 @@ describe('computed values', () => {
         it('should run validate() with correct inputs', () => {
           expect(testValidate).toHaveBeenLastCalledWith(
             expectedInitialModelData.a,
-            pick(['b', 'c'], expectedInitialModelData),
+            R.pick(['b', 'c'], expectedInitialModelData),
             expectedInitialModelData,
             undefined,
           );
@@ -192,7 +192,7 @@ describe('computed values', () => {
           expect(testValidate).toHaveBeenCalledTimes(1);
           expect(testValidate).toHaveBeenLastCalledWith(
             expectedInitialModelData.a,
-            pick(['b', 'c'], expectedInitialModelData),
+            R.pick(['b', 'c'], expectedInitialModelData),
             expectedInitialModelData,
             undefined,
           );
@@ -216,7 +216,7 @@ describe('computed values', () => {
           it('should run validate() with correct inputs', () => {
             expect(testValidate).toHaveBeenLastCalledWith(
               expectedUpdatedModelData.a,
-              pick(['b', 'c'], expectedUpdatedModelData),
+              R.pick(['b', 'c'], expectedUpdatedModelData),
               expectedUpdatedModelData,
               undefined,
             );
@@ -226,7 +226,7 @@ describe('computed values', () => {
             expect(testValidate).toHaveBeenCalledTimes(1);
             expect(testValidate).toHaveBeenLastCalledWith(
               expectedUpdatedModelData.a,
-              pick(['b', 'c'], expectedUpdatedModelData),
+              R.pick(['b', 'c'], expectedUpdatedModelData),
               expectedUpdatedModelData,
               undefined,
             );
@@ -267,7 +267,7 @@ describe('computed values', () => {
         it('should run validate() with correct inputs', () => {
           expect(testValidate).toHaveBeenLastCalledWith(
             expectedUpdatedModelData.a,
-            pick(['b', 'c'], expectedUpdatedModelData),
+            R.pick(['b', 'c'], expectedUpdatedModelData),
             expectedUpdatedModelData,
             undefined,
           );
@@ -277,7 +277,7 @@ describe('computed values', () => {
           expect(testValidate).toHaveBeenCalledTimes(1);
           expect(testValidate).toHaveBeenLastCalledWith(
             expectedUpdatedModelData.a,
-            pick(['b', 'c'], expectedUpdatedModelData),
+            R.pick(['b', 'c'], expectedUpdatedModelData),
             expectedUpdatedModelData,
             undefined,
           );
@@ -318,7 +318,7 @@ describe('computed values', () => {
         it('should run validate() with correct inputs', () => {
           expect(testValidate).toHaveBeenLastCalledWith(
             expectedUpdatedModelData.a,
-            pick(['b', 'c'], expectedUpdatedModelData),
+            R.pick(['b', 'c'], expectedUpdatedModelData),
             expectedUpdatedModelData,
             undefined,
           );
@@ -328,7 +328,7 @@ describe('computed values', () => {
           expect(testValidate).toHaveBeenCalledTimes(1);
           expect(testValidate).toHaveBeenLastCalledWith(
             expectedUpdatedModelData.a,
-            pick(['b', 'c'], expectedUpdatedModelData),
+            R.pick(['b', 'c'], expectedUpdatedModelData),
             expectedUpdatedModelData,
             undefined,
           );
@@ -368,7 +368,7 @@ describe('computed values', () => {
           expect(testValidate).toHaveBeenCalledTimes(2);
           expect(testValidate).toHaveBeenLastCalledWith(
             expectedUpdatedModelData.a,
-            pick(['b', 'c'], expectedUpdatedModelData),
+            R.pick(['b', 'c'], expectedUpdatedModelData),
             expectedUpdatedModelData,
             undefined,
           );
@@ -427,7 +427,7 @@ describe('computed values', () => {
           it('should run validate() with correct inputs', () => {
             expect(testValidate).toHaveBeenLastCalledWith(
               expectedUpdatedModelData.a,
-              pick(['b', 'c'], expectedUpdatedModelData),
+              R.pick(['b', 'c'], expectedUpdatedModelData),
               expectedUpdatedModelData,
               undefined,
             );
@@ -437,7 +437,7 @@ describe('computed values', () => {
             expect(testValidate).toHaveBeenCalledTimes(1);
             expect(testValidate).toHaveBeenLastCalledWith(
               expectedUpdatedModelData.a,
-              pick(['b', 'c'], expectedUpdatedModelData),
+              R.pick(['b', 'c'], expectedUpdatedModelData),
               expectedUpdatedModelData,
               undefined,
             );
@@ -456,7 +456,7 @@ describe('computed values', () => {
           it('should run validate() with correct inputs', () => {
             expect(testValidate).toHaveBeenLastCalledWith(
               expectedUpdatedModelData.a,
-              pick(['b', 'c'], expectedUpdatedModelData),
+              R.pick(['b', 'c'], expectedUpdatedModelData),
               expectedUpdatedModelData,
               undefined,
             );
@@ -466,7 +466,7 @@ describe('computed values', () => {
             expect(testValidate).toHaveBeenCalledTimes(1);
             expect(testValidate).toHaveBeenLastCalledWith(
               expectedUpdatedModelData.a,
-              pick(['b', 'c'], expectedUpdatedModelData),
+              R.pick(['b', 'c'], expectedUpdatedModelData),
               expectedUpdatedModelData,
               undefined,
             );

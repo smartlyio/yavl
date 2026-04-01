@@ -1,4 +1,4 @@
-import { identity } from './testHelpers';
+import * as R from 'ramda';
 import { createValidationContext, getModelData, Model, model, ModelValidationContext, updateModel } from '../src';
 
 describe('optimizations', () => {
@@ -23,8 +23,8 @@ describe('optimizations', () => {
       c?: string;
     };
 
-    const outerWhen = jest.fn(identity);
-    const innerWhen = jest.fn(identity);
+    const outerWhen = jest.fn(R.identity);
+    const innerWhen = jest.fn(R.identity);
     const validator = jest.fn();
 
     const testModel = model<TestModel>((root, model) => [
@@ -70,7 +70,7 @@ describe('optimizations', () => {
     };
 
     const alwaysFalse = jest.fn(() => false);
-    const innerWhen = jest.fn(identity);
+    const innerWhen = jest.fn(R.identity);
 
     const testModel = model<TestModel>((root, model) => [
       model.field(root, 'cond', cond => [model.when({}, alwaysFalse, () => [model.when(cond, innerWhen, () => [])])]),
