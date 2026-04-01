@@ -1,4 +1,4 @@
-import * as R from 'ramda';
+import { assocPath } from './testHelpers';
 import {
   createAnnotation,
   createValidationContext,
@@ -59,7 +59,7 @@ describe('filter', () => {
 
       jest.clearAllMocks();
 
-      const updatedData = R.assocPath(['list', 1, 'value'], 'changed', initialData);
+      const updatedData = assocPath(['list', 1, 'value'], 'changed', initialData);
       testIncrementalValidate(testModel, updatedData);
 
       expect(validateFn).toHaveBeenCalledTimes(1);
@@ -71,7 +71,7 @@ describe('filter', () => {
 
       jest.clearAllMocks();
 
-      const updatedData = R.assocPath(['list', 1, 'filter'], 'changed', initialData);
+      const updatedData = assocPath(['list', 1, 'filter'], 'changed', initialData);
       testIncrementalValidate(testModel, updatedData);
 
       // filter fn gets called for every item of the array when something changes
@@ -85,7 +85,7 @@ describe('filter', () => {
 
       jest.clearAllMocks();
 
-      const updatedData = R.assocPath(['list', 1, 'unused'], 'changed', initialData);
+      const updatedData = assocPath(['list', 1, 'unused'], 'changed', initialData);
       testIncrementalValidate(testModel, updatedData);
 
       expect(filterFn).toHaveBeenCalledTimes(0);

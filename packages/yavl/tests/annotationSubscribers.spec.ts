@@ -8,7 +8,7 @@ import {
   validateModel,
 } from '../src';
 import { NoValue, noValue, SubscribeToFieldAnnotationFn, UnsubscribeFn } from '../src/types';
-import * as R from 'ramda';
+import { identity, assocPath } from './testHelpers';
 
 type TestModel = {
   field1: {
@@ -52,18 +52,18 @@ const testModel = model<TestModel>((root, model) => [
         field1,
         ['firstConditionForA', 'lastConditionForA', 'conditionForB'],
         ({ firstConditionForA, lastConditionForA, conditionForB }) => [
-          model.when(firstConditionForA, R.identity, () => [
+          model.when(firstConditionForA, identity, () => [
             // this annotation should never be reported, because the "outside condition" always has priority over it
             model.annotate(field1, testAnnotationA, 'inside first condition'),
           ]),
           model.annotate(field1, testAnnotationA, 'outside condition'),
-          model.when(lastConditionForA, R.identity, () => [
+          model.when(lastConditionForA, identity, () => [
             model.annotate(field1, testAnnotationA, 'inside last condition'),
           ]),
 
           model.when(
             conditionForB,
-            R.identity,
+            identity,
             () => [model.annotate(field1, testAnnotationB, 'true branch')],
             () => [model.annotate(field1, testAnnotationB, 'false branch')],
           ),
@@ -72,18 +72,18 @@ const testModel = model<TestModel>((root, model) => [
       model.field(field2, 'condition', condition => [
         model.when(
           condition,
-          R.identity,
+          identity,
           () => [model.annotate(field2, testAnnotationA, 'true branch')],
           () => [model.annotate(field2, testAnnotationA, 'false branch')],
         ),
       ]),
       model.field(fieldWithOnlyConditionalAnnotation, 'condition', condition => [
-        model.when(condition, R.identity, () => [
+        model.when(condition, identity, () => [
           model.annotate(fieldWithOnlyConditionalAnnotation, testAnnotationA, 'true branch'),
         ]),
       ]),
       model.withFields(arrayWithCondition, ['condition', 'array'], ({ condition, array }) => [
-        model.when(condition, R.identity, () => [
+        model.when(condition, identity, () => [
           model.array(array, item => [
             model.field(item, 'value', value => [
               // simulates some other nested condition
@@ -182,7 +182,7 @@ describe('annotation subscribers', () => {
 
       describe('when the changed annotation has priority', () => {
         beforeEach(() => {
-          validateModel(validationContext, R.assocPath(['field1', 'conditionForB'], true, initialData));
+          validateModel(validationContext, assocPath(['field1', 'conditionForB'], true, initialData));
         });
 
         it('should notify the subscriber with updated value', () => {
@@ -201,7 +201,7 @@ describe('annotation subscribers', () => {
           // clear current mock calls so we can assert the subscriber does not get called
           subscribers.field1AnnotationA.subscriber.mockClear();
 
-          validateModel(validationContext, R.assocPath(['field1', 'firstConditionForA'], true, initialData));
+          validateModel(validationContext, assocPath(['field1', 'firstConditionForA'], true, initialData));
         });
 
         it('should not notify the subscriber with updated value', () => {
@@ -335,7 +335,7 @@ describe('annotation subscribers', () => {
           expect(subscriber.currentValue).toEqual('true branch');
 
           // change condition to false, after which field has no annotation at all
-          validateModel(validationContext, R.assocPath(['arrayWithCondition', 'condition'], false, initialData));
+          validateModel(validationContext, assocPath(['arrayWithCondition', 'condition'], false, initialData));
 
           expect(subscriber.currentValue).toEqual('default');
         });

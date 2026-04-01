@@ -1,4 +1,4 @@
-import * as R from 'ramda';
+import { dissocPath } from './testHelpers';
 import {
   createValidationContext,
   getValidationErrors,
@@ -86,7 +86,7 @@ describe('arrays', () => {
 
       jest.clearAllMocks();
 
-      const updatedFormData = R.dissocPath(['list', 2], initialData);
+      const updatedFormData = dissocPath(['list', 2], initialData);
       testIncrementalValidate(testModel, updatedFormData);
 
       expect(validator).toHaveBeenCalledTimes(2);
