@@ -33,29 +33,21 @@ export const processModelRecursively = <Data, ExternalData, ErrorType>(
           currentIndices,
         );
       } else if (pass === 'annotations') {
-        // for annotations pass we want to always recurse to the child definitions
-        // this allows us to process all annotations no matter how deep they are
-        processModelRecursively(
-          processingContext,
-          pass,
-          pathToCurrentDefinition.concat(childDefinition),
-          currentIndices,
-        );
+        pathToCurrentDefinition.push(childDefinition);
+        processModelRecursively(processingContext, pass, pathToCurrentDefinition, currentIndices);
+        pathToCurrentDefinition.pop();
       } else if (pass === 'validations') {
+        pathToCurrentDefinition.push(childDefinition);
         const isPathActive = getIsPathActive(
           processingContext.validateDiffCache,
-          pathToCurrentDefinition.concat(childDefinition),
+          pathToCurrentDefinition,
           currentIndices,
         );
 
         if (isPathActive) {
-          processModelRecursively(
-            processingContext,
-            pass,
-            pathToCurrentDefinition.concat(childDefinition),
-            currentIndices,
-          );
+          processModelRecursively(processingContext, pass, pathToCurrentDefinition, currentIndices);
         }
+        pathToCurrentDefinition.pop();
       }
     }
 
@@ -80,13 +72,18 @@ export const processModelRecursively = <Data, ExternalData, ErrorType>(
         return;
       }
 
-      const pathToArrayDef = pathToCurrentDefinition.concat(childDefinition);
-
-      newParentArray.forEach((_, idx) => {
-        const nextIndices = { ...currentIndices, [pathToArrayStr]: idx };
-
-        processModelRecursively(processingContext, pass, pathToArrayDef, nextIndices);
-      });
+      // Mutate pathToCurrentDefinition and currentIndices in place to avoid per-iteration
+      // allocations. try/finally guarantees cleanup after the loop.
+      pathToCurrentDefinition.push(childDefinition);
+      try {
+        newParentArray.forEach((_, idx) => {
+          currentIndices[pathToArrayStr] = idx;
+          processModelRecursively(processingContext, pass, pathToCurrentDefinition, currentIndices);
+        });
+      } finally {
+        delete currentIndices[pathToArrayStr];
+        pathToCurrentDefinition.pop();
+      }
     }
   });
 };

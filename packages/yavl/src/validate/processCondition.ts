@@ -92,13 +92,11 @@ const processCondition = <Data, ExternalData, ErrorType>(
   // regardless of how we exit from this function, we don't want re-process this later
   cacheForField.processedConditionDefinitions.set(condition, true);
 
-  const isPathActive = checkParentConditions(processingContext, parentDefinitions.concat(condition), currentIndices);
+  const pathWithCondition = parentDefinitions.concat(condition);
 
-  const errorCacheEntry = findErrorCacheEntry(
-    processingContext.validateDiffCache,
-    parentDefinitions.concat(condition),
-    currentIndices,
-  );
+  const isPathActive = checkParentConditions(processingContext, pathWithCondition, currentIndices);
+
+  const errorCacheEntry = findErrorCacheEntry(processingContext.validateDiffCache, pathWithCondition, currentIndices);
 
   const wasConditionTruePreviously = errorCacheEntry.isPathActive;
   const conditionChangedToTrue = !wasConditionTruePreviously && isPathActive;
@@ -116,7 +114,7 @@ const processCondition = <Data, ExternalData, ErrorType>(
      * When path changes to active we need to first update any annotations
      * that were affected by the change.
      */
-    processModelRecursively(processingContext, 'annotations', parentDefinitions.concat(condition), currentIndices);
+    processModelRecursively(processingContext, 'annotations', pathWithCondition, currentIndices);
 
     /**
      * If the condition just turned to true, we want to re-validate everything under
@@ -124,7 +122,7 @@ const processCondition = <Data, ExternalData, ErrorType>(
      * update, meaning the data itself under the path might not have been updated, but
      * we still want to re-run the validations to gather the errors.
      */
-    processModelRecursively(processingContext, 'conditions', parentDefinitions.concat(condition), currentIndices);
+    processModelRecursively(processingContext, 'conditions', pathWithCondition, currentIndices);
 
     if (!processingContext.isInitialValidation) {
       /**
@@ -134,8 +132,8 @@ const processCondition = <Data, ExternalData, ErrorType>(
        * actived branch after the condition pass is done
        */
       processingContext.unprocessedValidationsForConditons.push({
-        pathToCondition: parentDefinitions.concat(condition),
-        indices: currentIndices,
+        pathToCondition: pathWithCondition,
+        indices: { ...currentIndices },
       });
     }
   } else if (conditionChangedToFalse) {

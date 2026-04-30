@@ -78,24 +78,36 @@ describe('resolveDependencies', () => {
 
   describe('with dependencies being previous context', () => {
     it('should resolve the dependencies with previous data', () => {
+      // capture data/externalData at call time since swap-and-restore mutates in place
+      let capturedData: unknown;
+      let capturedExternalData: unknown;
+      jest.mocked(resolveDependency).mockImplementation((ctx: ProcessingContext<unknown, unknown, unknown>) => {
+        capturedData = ctx.data;
+        capturedExternalData = ctx.externalData;
+        return 'resolved';
+      });
+
       const previousContext: PreviousContext<any> = {
         type: 'previous',
         dependencies: testContext,
       };
       const result = testResolveDependencies(previousContext);
+
       expect(resolveDependency).toHaveBeenCalledTimes(1);
-      expect(resolveDependency).toHaveBeenCalledWith(
-        {
-          ...mockProcessingContext,
-          data: previousDataAtStartOfUpdate,
-          externalData: previousExternalDataAtStartOfUpdate,
-        },
-        testContext.type,
-        testContext.pathToField,
-        currentIndices,
-        undefined,
-      );
+      expect(capturedData).toBe(previousDataAtStartOfUpdate);
+      expect(capturedExternalData).toBe(previousExternalDataAtStartOfUpdate);
       expect(result).toEqual('resolved');
+    });
+
+    it('should restore processingContext fields after resolving', () => {
+      const previousContext: PreviousContext<any> = {
+        type: 'previous',
+        dependencies: testContext,
+      };
+      testResolveDependencies(previousContext);
+
+      expect(mockProcessingContext.data).toEqual({ mock: 'data' });
+      expect(mockProcessingContext.externalData).toEqual({ mock: 'external data' });
     });
   });
 
