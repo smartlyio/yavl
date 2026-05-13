@@ -53,6 +53,7 @@ export type {
   NoValue,
 } from './types';
 export type { ModelValidationContext, ModelValidationErrors, CompareFn } from './validate/types';
+export type { UpdateModelOptions } from './validate/updateModel';
 export type { FieldFn } from './builder/field';
 export type { ArrayFn } from './builder/array';
 export type { RequiredFn } from './builder/required';
