@@ -4,30 +4,25 @@ import notifySubscribers from './notifySubscribers';
 import { processModelChanges } from './processModelChanges';
 import { processInitialModel } from './processInitialModel';
 
-type PathToField = ReadonlyArray<string | number>;
-
-export interface UpdateModelOptions {
-  isEqualFn?: CompareFn;
-  changedPaths?: ReadonlyArray<PathToField>;
-}
+export type ChangedPaths = ReadonlyArray<ReadonlyArray<string | number>>;
 
 interface UpdateModelFn {
   <FormData, ExternalData = undefined, ErrorType = string>(
     context: ModelValidationContext<FormData, ExternalData, ErrorType>,
     data: NoInfer<FormData>,
     externalData?: NoInfer<ExternalData>,
-    isEqualFnOrOptions?: CompareFn | UpdateModelOptions,
+    isEqualFn?: CompareFn,
+    changedPaths?: ChangedPaths,
   ): void;
 }
+
 const updateModel: UpdateModelFn = <Data, ExternalData = undefined, ErrorType = string>(
   context: ModelValidationContext<Data, ExternalData, ErrorType>,
   data: Data,
   externalData?: ExternalData,
-  isEqualFnOrOptions?: CompareFn | UpdateModelOptions,
+  isEqualFn: CompareFn = Object.is,
+  changedPaths?: ChangedPaths,
 ): void => {
-  const isOptions = isEqualFnOrOptions !== undefined && typeof isEqualFnOrOptions !== 'function';
-  const isEqualFn = isOptions ? isEqualFnOrOptions.isEqualFn ?? Object.is : isEqualFnOrOptions ?? Object.is;
-  const changedPaths = isOptions ? isEqualFnOrOptions.changedPaths : undefined;
   const isInitialValidation = context.previousData === undefined;
 
   if (isInitialValidation) {
