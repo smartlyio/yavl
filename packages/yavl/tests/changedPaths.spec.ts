@@ -1,29 +1,29 @@
 import { createValidationContext, getModelData, model, updateModel } from '../src';
 import getValidationErrors from '../src/validate/getValidationErrors';
 
-type TestModel = {
-  campaignName: string;
-  budget: number;
-  computed?: string;
-  items: { name: string; value: number }[];
+type UserProfile = {
+  username: string;
+  age: number;
+  displayName?: string;
+  tags: { label: string; value: number }[];
 };
 
 describe('updateModel with changedPaths', () => {
-  const initialData: TestModel = {
-    campaignName: 'test',
-    budget: 100,
-    items: [
-      { name: 'item1', value: 1 },
-      { name: 'item2', value: 2 },
+  const initialData: UserProfile = {
+    username: 'alice',
+    age: 30,
+    tags: [
+      { label: 'admin', value: 1 },
+      { label: 'editor', value: 2 },
     ],
   };
 
   describe('with computed values', () => {
-    const testModel = model<TestModel>((root, builder) => [
-      builder.withFields(root, ['campaignName', 'budget', 'computed', 'items'], ({ campaignName, computed }) => [
+    const testModel = model<UserProfile>((root, builder) => [
+      builder.withFields(root, ['username', 'age', 'displayName', 'tags'], ({ username, displayName }) => [
         builder.value(
-          computed,
-          builder.compute(campaignName, (name: string) => `computed:${name}`),
+          displayName,
+          builder.compute(username, (name: string) => `@${name}`),
         ),
       ]),
     ]);
@@ -35,14 +35,12 @@ describe('updateModel with changedPaths', () => {
       updateModel(contextWithHint, initialData);
       updateModel(contextWithoutHint, initialData);
 
-      const updatedData: TestModel = {
+      const updatedData: UserProfile = {
         ...initialData,
-        campaignName: 'updated',
+        username: 'bob',
       };
 
-      updateModel(contextWithHint, updatedData, undefined, {
-        changedPaths: [['campaignName']],
-      });
+      updateModel(contextWithHint, updatedData, undefined, undefined, [['username']]);
 
       updateModel(contextWithoutHint, updatedData);
 
@@ -53,26 +51,24 @@ describe('updateModel with changedPaths', () => {
       const context = createValidationContext(testModel);
       updateModel(context, initialData);
 
-      const updatedData: TestModel = {
+      const updatedData: UserProfile = {
         ...initialData,
-        campaignName: 'new-name',
+        username: 'charlie',
       };
 
-      updateModel(context, updatedData, undefined, {
-        changedPaths: [['campaignName']],
-      });
+      updateModel(context, updatedData, undefined, undefined, [['username']]);
 
       const data = getModelData(context);
-      expect(data.computed).toBe('computed:new-name');
+      expect(data.displayName).toBe('@charlie');
     });
   });
 
   describe('with validations', () => {
     const validateFn = jest.fn();
 
-    const testModel = model<TestModel>((root, builder) => [
-      builder.withFields(root, ['campaignName', 'budget', 'items'], ({ campaignName, budget }) => [
-        builder.validate(campaignName, { budget }, validateFn),
+    const testModel = model<UserProfile>((root, builder) => [
+      builder.withFields(root, ['username', 'age', 'tags'], ({ username, age }) => [
+        builder.validate(username, { age }, validateFn),
       ]),
     ]);
 
@@ -86,20 +82,18 @@ describe('updateModel with changedPaths', () => {
 
       validateFn.mockClear();
 
-      const updatedData: TestModel = {
+      const updatedData: UserProfile = {
         ...initialData,
-        campaignName: 'updated',
+        username: 'bob',
       };
 
-      updateModel(context, updatedData, undefined, {
-        changedPaths: [['campaignName']],
-      });
+      updateModel(context, updatedData, undefined, undefined, [['username']]);
 
       expect(validateFn).toHaveBeenCalled();
     });
 
     it('should produce the same validation errors with and without hint', () => {
-      const validationError = 'name too short';
+      const validationError = 'username too short';
       validateFn.mockReturnValue(validationError);
 
       const contextWithHint = createValidationContext(testModel);
@@ -108,14 +102,12 @@ describe('updateModel with changedPaths', () => {
       updateModel(contextWithHint, initialData);
       updateModel(contextWithoutHint, initialData);
 
-      const updatedData: TestModel = {
+      const updatedData: UserProfile = {
         ...initialData,
-        campaignName: 'x',
+        username: 'x',
       };
 
-      updateModel(contextWithHint, updatedData, undefined, {
-        changedPaths: [['campaignName']],
-      });
+      updateModel(contextWithHint, updatedData, undefined, undefined, [['username']]);
 
       updateModel(contextWithoutHint, updatedData);
 
@@ -124,40 +116,34 @@ describe('updateModel with changedPaths', () => {
   });
 
   describe('with conditions', () => {
-    const testModel = model<TestModel>((root, builder) => [
-      builder.withFields(
-        root,
-        ['campaignName', 'budget', 'computed', 'items'],
-        ({ campaignName, budget, computed }) => [
-          builder.when(
-            campaignName,
-            (name: string) => name === 'active',
-            () => [
-              builder.value(
-                computed,
-                builder.compute(budget, (b: number) => `budget:${b}`),
-              ),
-            ],
-          ),
-        ],
-      ),
+    const testModel = model<UserProfile>((root, builder) => [
+      builder.withFields(root, ['username', 'age', 'displayName', 'tags'], ({ username, age, displayName }) => [
+        builder.when(
+          username,
+          (name: string) => name === 'admin',
+          () => [
+            builder.value(
+              displayName,
+              builder.compute(age, (a: number) => `admin:${a}`),
+            ),
+          ],
+        ),
+      ]),
     ]);
 
     it('should produce the same model data with and without hint when condition triggers', () => {
       const contextWithHint = createValidationContext(testModel);
       const contextWithoutHint = createValidationContext(testModel);
 
-      updateModel(contextWithHint, { ...initialData, campaignName: 'inactive' });
-      updateModel(contextWithoutHint, { ...initialData, campaignName: 'inactive' });
+      updateModel(contextWithHint, { ...initialData, username: 'guest' });
+      updateModel(contextWithoutHint, { ...initialData, username: 'guest' });
 
-      const updatedData: TestModel = {
+      const updatedData: UserProfile = {
         ...initialData,
-        campaignName: 'active',
+        username: 'admin',
       };
 
-      updateModel(contextWithHint, updatedData, undefined, {
-        changedPaths: [['campaignName']],
-      });
+      updateModel(contextWithHint, updatedData, undefined, undefined, [['username']]);
 
       updateModel(contextWithoutHint, updatedData);
 
@@ -166,54 +152,56 @@ describe('updateModel with changedPaths', () => {
   });
 
   describe('with array item changes', () => {
-    type ArrayModel = {
-      list: { name: string; computed?: string }[];
+    type ContactList = {
+      contacts: { email: string; normalized?: string }[];
     };
 
-    const testModel = model<ArrayModel>((root, builder) => [
-      builder.field(root, 'list', list => [
-        builder.array(list, item => [
-          builder.withFields(item, ['name', 'computed'], ({ name, computed }) => [
+    const testModel = model<ContactList>((root, builder) => [
+      builder.field(root, 'contacts', contacts => [
+        builder.array(contacts, item => [
+          builder.withFields(item, ['email', 'normalized'], ({ email, normalized }) => [
             builder.value(
-              computed,
-              builder.compute(name, (n: string) => `upper:${n.toUpperCase()}`),
+              normalized,
+              builder.compute(email, (e: string) => e.toLowerCase().trim()),
             ),
           ]),
         ]),
       ]),
     ]);
 
-    const arrayInitialData: ArrayModel = {
-      list: [{ name: 'alice' }, { name: 'bob' }, { name: 'charlie' }],
+    const contactsInitialData: ContactList = {
+      contacts: [{ email: 'Alice@test.com' }, { email: 'Bob@test.com' }, { email: 'Charlie@test.com' }],
     };
 
     it('should produce the same model data when changing an array item field', () => {
       const contextWithHint = createValidationContext(testModel);
       const contextWithoutHint = createValidationContext(testModel);
 
-      updateModel(contextWithHint, arrayInitialData);
-      updateModel(contextWithoutHint, arrayInitialData);
+      updateModel(contextWithHint, contactsInitialData);
+      updateModel(contextWithoutHint, contactsInitialData);
 
       // use model data (which includes computed values) as the base for the next update,
-      // matching how campaign-manager feeds Yavl: always passing the latest model data back
+      // matching how form libraries feed Yavl: always passing the latest model data back
       const modelDataWithHint = getModelData(contextWithHint);
       const modelDataWithoutHint = getModelData(contextWithoutHint);
 
-      const updatedForHint: ArrayModel = {
-        list: [{ ...modelDataWithHint.list[0], name: 'ALICE' }, modelDataWithHint.list[1], modelDataWithHint.list[2]],
-      };
-
-      const updatedForNoHint: ArrayModel = {
-        list: [
-          { ...modelDataWithoutHint.list[0], name: 'ALICE' },
-          modelDataWithoutHint.list[1],
-          modelDataWithoutHint.list[2],
+      const updatedForHint: ContactList = {
+        contacts: [
+          { ...modelDataWithHint.contacts[0], email: 'New@test.com' },
+          modelDataWithHint.contacts[1],
+          modelDataWithHint.contacts[2],
         ],
       };
 
-      updateModel(contextWithHint, updatedForHint, undefined, {
-        changedPaths: [['list', 0, 'name']],
-      });
+      const updatedForNoHint: ContactList = {
+        contacts: [
+          { ...modelDataWithoutHint.contacts[0], email: 'New@test.com' },
+          modelDataWithoutHint.contacts[1],
+          modelDataWithoutHint.contacts[2],
+        ],
+      };
+
+      updateModel(contextWithHint, updatedForHint, undefined, undefined, [['contacts', 0, 'email']]);
 
       updateModel(contextWithoutHint, updatedForNoHint);
 
@@ -222,37 +210,35 @@ describe('updateModel with changedPaths', () => {
 
     it('should update the computed value for the changed array item', () => {
       const context = createValidationContext(testModel);
-      updateModel(context, arrayInitialData);
+      updateModel(context, contactsInitialData);
 
       const modelData = getModelData(context);
 
-      const updatedData: ArrayModel = {
-        list: [{ ...modelData.list[0], name: 'updated' }, modelData.list[1], modelData.list[2]],
+      const updatedData: ContactList = {
+        contacts: [
+          { ...modelData.contacts[0], email: '  Updated@TEST.com  ' },
+          modelData.contacts[1],
+          modelData.contacts[2],
+        ],
       };
 
-      updateModel(context, updatedData, undefined, {
-        changedPaths: [['list', 0, 'name']],
-      });
+      updateModel(context, updatedData, undefined, undefined, [['contacts', 0, 'email']]);
 
       const data = getModelData(context);
-      expect(data.list[0].computed).toBe('upper:UPDATED');
-      expect(data.list[1].computed).toBe('upper:BOB');
-      expect(data.list[2].computed).toBe('upper:CHARLIE');
+      expect(data.contacts[0].normalized).toBe('updated@test.com');
+      expect(data.contacts[1].normalized).toBe('bob@test.com');
+      expect(data.contacts[2].normalized).toBe('charlie@test.com');
     });
   });
 
   describe('with multiple changedPaths', () => {
-    const testModel = model<TestModel>((root, builder) => [
-      builder.withFields(
-        root,
-        ['campaignName', 'budget', 'computed', 'items'],
-        ({ campaignName, budget, computed }) => [
-          builder.value(
-            computed,
-            builder.compute({ campaignName, budget }, ({ campaignName: n, budget: b }) => `${n}:${b}`),
-          ),
-        ],
-      ),
+    const testModel = model<UserProfile>((root, builder) => [
+      builder.withFields(root, ['username', 'age', 'displayName', 'tags'], ({ username, age, displayName }) => [
+        builder.value(
+          displayName,
+          builder.compute({ username, age }, ({ username: n, age: a }) => `${n}:${a}`),
+        ),
+      ]),
     ]);
 
     it('should handle multiple fields changing at once', () => {
@@ -262,20 +248,18 @@ describe('updateModel with changedPaths', () => {
       updateModel(contextWithHint, initialData);
       updateModel(contextWithoutHint, initialData);
 
-      const updatedData: TestModel = {
+      const updatedData: UserProfile = {
         ...initialData,
-        campaignName: 'new-name',
-        budget: 999,
+        username: 'bob',
+        age: 25,
       };
 
-      updateModel(contextWithHint, updatedData, undefined, {
-        changedPaths: [['campaignName'], ['budget']],
-      });
+      updateModel(contextWithHint, updatedData, undefined, undefined, [['username'], ['age']]);
 
       updateModel(contextWithoutHint, updatedData);
 
       expect(getModelData(contextWithHint)).toEqual(getModelData(contextWithoutHint));
-      expect(getModelData(contextWithHint).computed).toBe('new-name:999');
+      expect(getModelData(contextWithHint).displayName).toBe('bob:25');
     });
   });
 
@@ -301,9 +285,7 @@ describe('updateModel with changedPaths', () => {
 
       const cascadeUpdated: CascadeModel = { a: 'changed' };
 
-      updateModel(contextWithHint, cascadeUpdated, undefined, {
-        changedPaths: [['a']],
-      });
+      updateModel(contextWithHint, cascadeUpdated, undefined, undefined, [['a']]);
 
       updateModel(contextWithoutHint, cascadeUpdated);
 
@@ -317,37 +299,40 @@ describe('updateModel with changedPaths', () => {
   });
 
   describe('backward compatibility', () => {
-    const testModel = model<TestModel>((root, builder) => [
-      builder.withFields(root, ['campaignName', 'budget', 'computed', 'items'], ({ campaignName, computed }) => [
+    const testModel = model<UserProfile>((root, builder) => [
+      builder.withFields(root, ['username', 'age', 'displayName', 'tags'], ({ username, displayName }) => [
         builder.value(
-          computed,
-          builder.compute(campaignName, (name: string) => `computed:${name}`),
+          displayName,
+          builder.compute(username, (name: string) => `@${name}`),
         ),
       ]),
     ]);
 
-    it('should work when called with isEqualFn as a function (legacy signature)', () => {
+    it('should work when called with isEqualFn as a function', () => {
       const context = createValidationContext(testModel);
       updateModel(context, initialData, undefined, Object.is);
 
       const data = getModelData(context);
-      expect(data.computed).toBe('computed:test');
+      expect(data.displayName).toBe('@alice');
     });
 
-    it('should work when called without 4th argument', () => {
+    it('should work when called without optional arguments', () => {
       const context = createValidationContext(testModel);
       updateModel(context, initialData);
 
       const data = getModelData(context);
-      expect(data.computed).toBe('computed:test');
+      expect(data.displayName).toBe('@alice');
     });
 
-    it('should work when called with options object', () => {
+    it('should work when called with both isEqualFn and changedPaths', () => {
       const context = createValidationContext(testModel);
-      updateModel(context, initialData, undefined, { isEqualFn: Object.is });
+      updateModel(context, initialData);
+
+      const updatedData: UserProfile = { ...initialData, username: 'bob' };
+      updateModel(context, updatedData, undefined, Object.is, [['username']]);
 
       const data = getModelData(context);
-      expect(data.computed).toBe('computed:test');
+      expect(data.displayName).toBe('@bob');
     });
   });
 });
