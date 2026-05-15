@@ -1,4 +1,4 @@
-import getChangedData from './getChangedData';
+import getChangedData, { shouldIncludeField } from './getChangedData';
 import { createProcessingContext, updateContextDataAndChangedAnnotations } from './processModelHelpers';
 import processChangedFields from './processChangedFields';
 import { processModelRecursively } from './processModelRecursively';
@@ -11,17 +11,61 @@ import {
   UnprocessedValidationsForCondition,
 } from './types';
 import { updateModelCaches } from './updateModelCaches';
-import { Annotation, FieldDependencyEntry } from '../types';
+import { Annotation, FieldDependencyEntry, FieldsWithDependencies } from '../types';
 import getDependencyPathPermutations from '../utils/getDependencyPathPermutations';
 import { strPathToArray } from '../utils/strPathToArray';
 import rejectUndefinedValues from '../utils/rejectUndefinedValues';
 import { processChangedAnnotations } from './processChangedAnnotations';
 import { processArraysWithChangedLength } from './processArraysWithChangedLength';
 import dataPathToStr from '../utils/dataPathToStr';
+import { getPathWithoutIndices } from '../utils/getPathWithoutIndices';
+import { GetChangedDataResult } from './getChangedData';
+
+type PathToField = ReadonlyArray<string | number>;
 
 type Definitions = 'annotations' | 'conditions' | 'validations';
 
 type ChangedPath = ReadonlyArray<string | number>;
+
+/**
+ * Given a set of leaf paths known to have changed, expand each to all ancestor
+ * prefixes and filter by fieldsWithDependencies. This replaces the full-tree
+ * diff of getChangedData when the caller already knows which paths changed.
+ */
+export const expandChangedPaths = (
+  leafPaths: ReadonlyArray<PathToField>,
+  fieldsWithDependencies: FieldsWithDependencies,
+  includeFieldsWithoutDependencies: boolean,
+  changesFor: 'annotations' | 'conditions' | 'validations',
+): GetChangedDataResult => {
+  const changedFields: Array<PathToField> = [];
+  const seen = new Set<string>();
+
+  for (const leafPath of leafPaths) {
+    for (let i = 0; i <= leafPath.length; i++) {
+      const prefix = leafPath.slice(0, i);
+      const pathStr = dataPathToStr(prefix);
+
+      if (seen.has(pathStr)) {
+        continue;
+      }
+      seen.add(pathStr);
+
+      const strippedPath = getPathWithoutIndices(pathStr);
+      const depInfo = fieldsWithDependencies[`internal:${strippedPath}`];
+
+      if (!depInfo) {
+        continue;
+      }
+
+      if (includeFieldsWithoutDependencies || shouldIncludeField(changesFor, depInfo.hasDependencies)) {
+        changedFields.push(prefix);
+      }
+    }
+  }
+
+  return { changedFields, arraysWithChangedLength: [] };
+};
 type ChangedData = Set<ChangedPath>;
 type ChangedDataByPathLength = Map<number, Set<string>>;
 
@@ -280,6 +324,7 @@ export const processModelChanges = <Data, ExternalData, ErrorType>(
   data: Data,
   externalData: ExternalData,
   isEqualFn: CompareFn,
+  changedPaths?: ReadonlyArray<PathToField>,
 ): ProcessingContext<Data, ExternalData, ErrorType> => {
   const previousDataAtStartOfUpdate = isInitialValidation ? undefined : context.previousData;
   const previousExternalDataAtStartOfUpdate = isInitialValidation ? undefined : context.previousExternalData;
@@ -392,15 +437,24 @@ export const processModelChanges = <Data, ExternalData, ErrorType>(
       );
     }
 
-    const { changedFields: changedData, arraysWithChangedLength } = getChangedData({
-      newData: data,
-      oldData: context.previousData,
-      type: 'internal',
-      fieldsWithDependencies: context.model.fieldsWithDependencies,
-      includeFieldsWithoutDependencies,
-      changesFor: stopAfter,
-      isEqualFn,
-    });
+    const useHint = isFirstPass && changedPaths !== undefined && changedPaths.length > 0;
+
+    const { changedFields: changedData, arraysWithChangedLength } = useHint
+      ? expandChangedPaths(
+          changedPaths,
+          context.model.fieldsWithDependencies,
+          includeFieldsWithoutDependencies,
+          stopAfter,
+        )
+      : getChangedData({
+          newData: data,
+          oldData: context.previousData,
+          type: 'internal',
+          fieldsWithDependencies: context.model.fieldsWithDependencies,
+          includeFieldsWithoutDependencies,
+          changesFor: stopAfter,
+          isEqualFn,
+        });
 
     changedData.forEach(changedField => {
       const fieldStr = dataPathToStr(changedField);

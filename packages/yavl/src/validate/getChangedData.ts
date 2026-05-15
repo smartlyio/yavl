@@ -13,7 +13,7 @@ export type GetChangedDataResult = {
   arraysWithChangedLength: ListOfFields;
 };
 
-const shouldIncludeField = (
+export const shouldIncludeField = (
   changesFor: 'annotations' | 'conditions' | 'validations',
   hasDependencies: HasDependenciesInfo,
 ) => {

@@ -4,19 +4,24 @@ import notifySubscribers from './notifySubscribers';
 import { processModelChanges } from './processModelChanges';
 import { processInitialModel } from './processInitialModel';
 
+export type ChangedPaths = ReadonlyArray<ReadonlyArray<string | number>>;
+
 interface UpdateModelFn {
   <FormData, ExternalData = undefined, ErrorType = string>(
     context: ModelValidationContext<FormData, ExternalData, ErrorType>,
     data: NoInfer<FormData>,
     externalData?: NoInfer<ExternalData>,
     isEqualFn?: CompareFn,
+    changedPaths?: ChangedPaths,
   ): void;
 }
+
 const updateModel: UpdateModelFn = <Data, ExternalData = undefined, ErrorType = string>(
   context: ModelValidationContext<Data, ExternalData, ErrorType>,
   data: Data,
   externalData?: ExternalData,
   isEqualFn: CompareFn = Object.is,
+  changedPaths?: ChangedPaths,
 ): void => {
   const isInitialValidation = context.previousData === undefined;
 
@@ -25,12 +30,13 @@ const updateModel: UpdateModelFn = <Data, ExternalData = undefined, ErrorType = 
   } else {
     processModelChanges(
       context,
-      undefined, // no processing context from initial update
+      undefined,
       'validations',
       isInitialValidation,
       data,
       externalData,
       isEqualFn,
+      changedPaths,
     );
   }
 
