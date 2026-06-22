@@ -34,8 +34,8 @@ for dir in packages/*; do
   NAME=$(node -p "require('./$dir/package.json').name")
   VERSION=$(node -p "require('./$dir/package.json').version")
 
-  echo "Dry-run publish ${NAME}@${VERSION}..."
-  if npm publish "./$dir" --access public --dry-run --userconfig "$GITHUB_WORKSPACE/.npmrc"; then
+  echo "Dry-run publish ${NAME}@${VERSION} (tag: oidc-dry-run)..."
+  if npm publish "./$dir" --access public --tag oidc-dry-run --dry-run --userconfig "$GITHUB_WORKSPACE/.npmrc"; then
     echo "Dry-run passed: ${NAME}@${VERSION}"
   else
     echo "::error::Dry-run failed for ${NAME}@${VERSION}"
