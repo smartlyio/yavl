@@ -178,4 +178,5 @@ jobs:
       - name: OIDC dry-run publish
         env:
           GITHUB_WORKSPACE: ${{ github.workspace }}
+          GITHUB_RUN_NUMBER: ${{ github.run_number }}
         run: ./.github/scripts/dry-run-oidc-publish.sh
