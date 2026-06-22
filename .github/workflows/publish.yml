@@ -27,6 +27,12 @@ name: Publish
 on:
   push:
     branches: [master]
+  workflow_dispatch:
+    inputs:
+      oidc_dry_run:
+        description: OIDC dry-run only (no npm upload, throwaway branch testing)
+        type: boolean
+        default: true
 
 # Prevent concurrent runs. If multiple PRs are merged in quick succession,
 # each triggered run will queue and execute in order, ensuring version bumps
@@ -35,6 +41,7 @@ concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
   publish:
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
 
     # contents:write is needed for the default GITHUB_TOKEN (used by gh CLI).
@@ -141,3 +148,34 @@ jobs:
         env:
           GITHUB_WORKSPACE: ${{ github.workspace }}
         run: ./.github/scripts/publish-packages.sh
+
+  # Throwaway branch only — do not merge to master.
+  # Reuses publish.yml so existing npm trusted publisher config applies.
+  oidc-dry-run:
+    if: github.event_name == 'workflow_dispatch' && inputs.oidc_dry_run
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24.x
+          registry-url: https://registry.npmjs.org
+
+      - name: Install yarn
+        run: npm install -g yarn
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Build
+        run: yarn build
+
+      - name: OIDC dry-run publish
+        env:
+          GITHUB_WORKSPACE: ${{ github.workspace }}
+        run: ./.github/scripts/dry-run-oidc-publish.sh
