@@ -4,10 +4,8 @@
 # Idempotent — versions already on the registry are skipped,
 # so re-running after a partial failure only publishes what's missing.
 #
-# Expects ~/.npmrc to be configured with registry auth before this
-# script runs (handled by the "Log in to NPM registry" workflow step).
-# Requires NODE_AUTH_TOKEN to be set in the environment (referenced
-# by the ${NODE_AUTH_TOKEN} variable in ~/.npmrc).
+# Expects actions/setup-node to have configured the npm registry (.npmrc).
+# Authentication uses OIDC trusted publishing — do not set NODE_AUTH_TOKEN.
 
 set -euo pipefail
 
@@ -20,7 +18,7 @@ for dir in packages/*; do
     echo "Already published: ${NAME}@${VERSION}"
   else
     echo "Publishing ${NAME}@${VERSION}..."
-    if npm publish "./$dir" --access public --userconfig "$GITHUB_WORKSPACE/.npmrc"; then
+    if npm publish "./$dir" --access public --provenance --userconfig "$GITHUB_WORKSPACE/.npmrc"; then
       echo "Published ${NAME}@${VERSION}"
     else
       echo "::error::Failed to publish ${NAME}@${VERSION}"
