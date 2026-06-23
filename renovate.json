@@ -1,0 +1,3 @@
+{
+  "extends": ["github>smartlyio/renovate-config:shared/team-base"],
+}
