@@ -15,13 +15,13 @@
   "scripts": {
     "build": "lerna run --stream build",
     "clean": "lerna run clean",
-    "reinstall": "rm -rf node_modules && yarn install",
+    "reinstall": "rm -rf node_modules && pnpm install",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint . --ext .ts && yarn typecheck",
-    "lint:fix": "eslint . --ext .ts --fix && yarn typecheck",
-    "test": "yarn jest",
-    "test:watch": "yarn jest --watch",
-    "test:all": "yarn lint && yarn test"
+    "lint": "eslint . --ext .ts && pnpm run typecheck",
+    "lint:fix": "eslint . --ext .ts --fix && pnpm run typecheck",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:all": "pnpm run lint && pnpm run test"
   },
   "keywords": [
     "typescript",
@@ -81,5 +81,9 @@
     "clearMocks": true,
     "testTimeout": 1000
   },
-  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
+  "packageManager": "pnpm@11.26.0",
+  "engines": {
+    "node": ">=22.13",
+    "pnpm": "^11.26.0"
+  }
 }
