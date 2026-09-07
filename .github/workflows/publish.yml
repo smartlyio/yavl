@@ -9,8 +9,7 @@
 #   5. Creates and pushes a git tag
 #
 # Publishing uses `npm publish` directly (via a separate script) rather
-# than `lerna publish`, which has known issues with Yarn's registry proxy
-# that cause E404 errors during publish.
+# than `lerna publish`.
 #
 # The default GITHUB_TOKEN cannot push to protected branches. This workflow
 # uses the "smartlyio" GitHub App to generate a short-lived token that has
@@ -65,20 +64,21 @@ jobs:
           # merged PRs still need to be included in a release.
           fetch-depth: 0
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
           node-version: 24.x
           registry-url: https://registry.npmjs.org
-
-      - name: Install yarn
-        run: npm install -g yarn
+          cache: pnpm
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
 
       - name: Build
-        run: yarn build
+        run: pnpm run build
 
       # Determine bump type from merged PR labels. Finds the last release
       # commit, queries for PRs merged after it, and picks the highest bump
@@ -98,7 +98,7 @@ jobs:
       - name: Version packages
         if: steps.bump.outputs.bump != ''
         run: |
-          yarn lerna version ${{ steps.bump.outputs.bump }} \
+          pnpm exec lerna version ${{ steps.bump.outputs.bump }} \
             --yes \
             --force-publish \
             --no-git-tag-version \

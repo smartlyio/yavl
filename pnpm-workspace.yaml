@@ -1,0 +1,32 @@
+packages:
+  - "packages/*"
+
+# Yarn workspaces already linked local packages that match the
+# declared version range. pnpm only does that with this setting
+# or a workspace: specifier; we keep the existing ranges.
+linkWorkspacePackages: true
+
+engineStrict: true
+
+minimumReleaseAge: 4320 # 3 days
+minimumReleaseAgeExclude:
+  - "@smartly/*"
+
+strictDepBuilds: true
+
+allowBuilds:
+  # nx is a Lerna transitive. Its postinstall only builds a project graph
+  # when nx.json exists; this repo does not use Nx, so the script is unused.
+  nx: false
+
+blockExoticSubdeps: true
+
+# Yarn hoisted @types/* (and eslint/prettier) to the root. Package-local
+# tsc walks up to root node_modules/@types; without this, dist builds fail
+# looking up `console` from @types/node.
+publicHoistPattern:
+  - "*eslint*"
+  - "*prettier*"
+  - "*types*"
+
+verifyDepsBeforeRun: false
